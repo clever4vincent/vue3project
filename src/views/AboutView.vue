@@ -1,15 +1,35 @@
 <template>
-  <div class="about">
-    <h1>This is an about page</h1>
+  <div>
+    <van-nav-bar title="关于" fixed/>
+    <div>
+      <!-- <img v-for="(img, index) in imageList" v-lazy="img" :key="index" /> -->
+      <van-image
+        width="100%"
+        height="auto"
+        v-for="(img, index) in imageList" :src="img" :key="index" lazy-load
+      />
+    </div>
   </div>
 </template>
-
+<script setup>
+import { showToast } from 'vant';
+import { onMounted } from 'vue';
+const imageList = [
+  'https://fastly.jsdelivr.net/npm/@vant/assets/apple-1.jpeg',
+  'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
+  'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
+  'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
+  'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg'
+]
+onMounted(() => {
+  // console.log('mounted!');
+  showToast({
+    message: '请求网络数据!'
+  })
+});
+</script>
 <style>
-@media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+img {
+  max-width: 100%;
 }
 </style>

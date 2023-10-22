@@ -7,6 +7,6 @@ export const useCounterStore = defineStore('counter', () => {
   function increment() {
     count.value++
   }
-
+  // 新增一个方法有乘法的功能
   return { count, doubleCount, increment }
 })

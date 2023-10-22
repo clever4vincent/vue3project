@@ -1,85 +1,38 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
+import { ref } from 'vue'
+import { RouterView } from 'vue-router'
+import { store } from './stores/store'
+const active = ref(0)
+// const themeVars = ref(document.body.classList.contains('theme-dark')? 'dark' : 'light')
+
+const theme = ref(store.theme)
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
-    </div>
-  </header>
-
-  <RouterView />
+  <van-config-provider :theme="theme">
+    <RouterView />
+    <van-tabbar v-model="active" route>
+      <van-tabbar-item replace icon="home-o" to="/">首页</van-tabbar-item>
+      <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item>
+      <van-tabbar-item replace icon="friends-o" to="/my">好友</van-tabbar-item>
+      <van-tabbar-item replace icon="setting-o" to="/setting">设置</van-tabbar-item>
+    </van-tabbar>
+  </van-config-provider>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style>
+/* 夜间模式 */
+
+ .theme-dark .van-tabbar-item {
+  background-color: var(--vt-c-black);
+  color: var(--vt-c-text-dark-2);
+  transition:
+    color 0.5s,
+    background-color 0.5s;
 }
-
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+.theme-dark .van-tabbar-item--active {
+  color: var(--van-tabbar-item-active-color) ;
 }
+ 
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
-}
-
-nav a.router-link-exact-active {
-  color: var(--color-text);
-}
-
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
-}
-
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
-}
 </style>
