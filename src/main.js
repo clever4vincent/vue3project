@@ -1,5 +1,5 @@
 import './assets/main.css'
-import 'amfe-flexible/index.js'
+import './utils/rem.js'
 import 'vant/es/toast/style'
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -17,4 +17,5 @@ app.use(Lazyload)
 app.use(createPinia())
 app.use(router)
 app.use(Toast)
+
 app.mount('#app')

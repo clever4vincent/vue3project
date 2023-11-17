@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
   <head>
-   <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light" />
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
@@ -16,13 +16,13 @@
     <van-number-keyboard safe-area-inset-bottom />
     <title></title>
     <script>
-      if (localStorage.getItem("theme") === undefined || localStorage.getItem("theme") === null) {
-        localStorage.setItem("theme", "auto");
+      if (localStorage.getItem('theme') === undefined || localStorage.getItem('theme') === null) {
+        localStorage.setItem('theme', 'auto')
       }
-      let theme = localStorage.getItem("theme");
-      let colorScheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark": "light";
-      let isDark = theme === "dark" || (theme === "auto" && colorScheme === "dark");
-      isDark === true && document.body.classList.add("theme-dark");
+      let theme = localStorage.getItem('theme')
+      let colorScheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+      let isDark = theme === 'dark' || (theme === 'auto' && colorScheme === 'dark')
+      isDark === true && document.documentElement.classList.add('van-theme-dark')
     </script>
   </head>
   <body>

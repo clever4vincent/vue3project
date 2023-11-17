@@ -10,7 +10,7 @@
   --vt-c-black-mute: #282828;
 
   --vt-c-indigo: #2c3e50;
-
+  --vt-transition-time: 0.5s;
   --vt-c-divider-light-1: rgba(60, 60, 60, 0.29);
   --vt-c-divider-light-2: rgba(60, 60, 60, 0.12);
   --vt-c-divider-dark-1: rgba(84, 84, 84, 0.65);
@@ -75,12 +75,10 @@
 
 body {
   min-height: 100vh;
-  color: var(--vt-c-text-light-1); 
-  background: var(--vt-c-white); 
+  color: var(--vt-c-text-light-1);
+  background: var(--vt-c-white);
   border: var(--vt-c-divider-white-2);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
+  transition: color background-color var(--vt-transition-time);
   line-height: 1.6;
   font-family:
     Inter,
@@ -100,8 +98,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-.theme-dark{
-  background-color:var(--vt-c-black-hard);;
-  color:var(--vt-c-text-dark-2);
+.van-theme-dark body {
+  background-color: var(--vt-c-black-hard);
+  background: var(--vt-c-black-hard);
+  color: var(--vt-c-text-dark-2);
   border: var(--vt-c-divider-dark-2);
 }
