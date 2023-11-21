@@ -1,0 +1,42 @@
+//@import "../$/prefixes";
+
+// keyframes
+@mixin keyframes($ident: animation-name, $prefixes: $prefixes) {
+  @include save-prefix-for($prefixes);
+  @each $prefix in $prefixes {
+    @if $prefix == webkit {
+      @include disable-prefix-for($prefixes);
+      $prefix-for-webkit: true !global;
+      @-webkit-keyframes #{$ident} {
+        @content;
+      }
+    } @else if $prefix == moz {
+      @include disable-prefix-for($prefixes);
+      $prefix-for-mozilla: true !global;
+      @-moz-keyframes #{$ident} {
+        @content;
+      }
+    } @else if $prefix == ms {
+      @include disable-prefix-for($prefixes);
+      $prefix-for-microsoft: true !global;
+      @-ms-keyframes #{$ident} {
+        @content;
+      }
+    } @else if $prefix == o {
+      @include disable-prefix-for($prefixes);
+      $prefix-for-opera: true !global;
+      @-o-keyframes #{$ident} {
+        @content;
+      }
+    } @else if $prefix == spec {
+      @include disable-prefix-for($prefixes);
+      $prefix-for-spec: true !global;
+      @keyframes #{$ident} {
+        @content;
+      }
+    } @else {
+      @warn "Unrecognized prefix: #{$prefix}";
+    }
+  }
+  @include reset-prefix-for($prefixes);
+}

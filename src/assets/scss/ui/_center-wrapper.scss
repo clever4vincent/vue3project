@@ -1,0 +1,28 @@
+@import "position";
+
+// Image limit size auto center
+//
+//<div class="center-wrapper"><img alt="" src=""></div>
+//
+%center-wrapper{
+  position: relative;
+  overflow: hidden;
+	img{ @extend %abso-tl-full; width:100%; left:100%; }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

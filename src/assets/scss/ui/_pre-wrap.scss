@@ -1,0 +1,6 @@
+@import "../mixin/pre-wrap";
+
+// pre-wrap
+%pre-wrap{
+	@include pre-wrap;
+}

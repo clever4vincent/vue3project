@@ -1,0 +1,17 @@
+// 根元素字体最小限制
+@mixin min-rem($min-font-size: 20px, $max-device-width: 320px) {
+  @media screen and (max-device-width: $max-device-width) {
+    html {
+      font-size: $min-font-size;
+    }
+  }
+}
+
+// 根元素字体最大限制
+@mixin max-rem($max-font-size: 30px, $min-device-width: 480px) {
+  @media screen and (min-device-width: $min-device-width) {
+    html {
+      font-size: $max-font-size;
+    }
+  }
+}

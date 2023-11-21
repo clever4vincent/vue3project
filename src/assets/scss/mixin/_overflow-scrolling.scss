@@ -1,0 +1,10 @@
+//@import "prefixer";
+
+// 解决滚动卡顿 touch | auto
+@mixin overflow-scrolling($value:auto, $prefixes:$prefix-webkit){
+	@include prefixer(overflow-scrolling, $value, $prefixes);
+}
+
+%overflow-scrolling-auto {
+	@include overflow-scrolling;
+}

@@ -1,0 +1,46 @@
+
+@import "flex";
+
+// 表格组件
+%table-wrapper{
+  @extend %flex-column;
+  table {
+    width: 100%;
+    table-layout: fixed;
+    text-align: left;
+  }
+  th, td {
+    vertical-align: middle;
+  }
+  .table-header {
+    position: relative;
+    z-index: 2;
+    table{}
+    thead{}
+  }
+  .table-body {
+    flex-grow: 1;
+    position: relative;
+    overflow: auto;
+    table{}
+    thead{
+    }
+    tbody{
+      tr{}
+      td{}
+    }
+  }
+  &.fixed-thead {
+    .table-body{
+      thead{
+        tr, th, td {
+          visibility: hidden;
+          overflow: hidden;
+          padding: 0;
+          height: 0;
+          font-size: 0;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": ".",
+        "types": ["unplugin-auto-import", "vite/client"],
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    },
+    "exclude": ["node_modules"]
+}

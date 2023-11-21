@@ -1,0 +1,9 @@
+//@import "prefixer";
+
+// http://www.w3cplus.com/css3/transform-basic-property.html
+// backface-visibility
+// 属性决定元素旋转背面是否可见。对于未旋转的元素，该元素的正面面向观看者。当其Y轴旋转约180度时会导致元素的背面面对观众。
+// backface-visibility: visible | hidden
+@mixin backface-visibility($visibility: visible) {
+  @include prefixer(backface-visibility, $visibility, $prefixes);
+}

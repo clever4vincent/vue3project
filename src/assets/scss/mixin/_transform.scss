@@ -1,0 +1,163 @@
+// @import "prefixer";
+
+// https://www.w3.org/TR/css-transforms-1/#transform-functions
+// http://www.w3cplus.com/content/css3-transform
+//   transform : none | <transform-function> [ <transform-function> ]*
+//   transform : rotate | scale | translate | skew | matrix;
+//   default value: rotate(0deg) scale(1,1) translate(0,0) skew(0deg,0deg) matrix(0,0,0,0,0,0)
+@mixin transform($value: rotate(0deg) scale(1, 1) translate(0, 0) skew(0deg, 0deg), $prefixes:$prefixes) {
+  @include prefixer(transform, $value, $prefixes);
+}
+
+// http://www.w3cplus.com/css3/transform-origin.html
+//   transform-origin: 50% 50%; // default value
+@mixin transform-origin($origin: 50% 50%, $prefixes:$prefixes) {
+  @include prefixer(transform-origin, $origin, $prefixes);
+}
+
+// 2D transform
+//----------------------------------------
+// 用来缩小或放大元素，可以使用元素尺寸发生变化。在此基础上有两个扩展函数：scaleX()和scaleY()。
+// scale( <number> [, <number> ]? )
+@mixin scale($ratio:1) {
+  @include prefixer(transform, scale($ratio), $prefixes);
+}
+
+// scale( <number> , <number> )
+@mixin scale($ratioX:1, $ratioY:1) {
+  @include prefixer(transform, scale($ratioX, $ratioY), $prefixes);
+}
+
+// scaleX( <number> )
+@mixin scaleX($ratio:1) {
+  @include prefixer(transform, scaleX($ratio), $prefixes);
+}
+
+// scaleY( <number> )
+@mixin scaleY($ratio:1) {
+  @include prefixer(transform, scaleY($ratio), $prefixes);
+}
+
+// 用来旋转元素
+// rotate( <angle> )
+@mixin rotate($degrees:0deg) {
+  @include prefixer(transform, rotate($degrees), $prefixes);
+}
+
+// 用来让元素倾斜。在此基础上有两个扩展函数：skewX()和skewY()
+// skew( <angle> [, <angle> ]? )
+@mixin skew($x, $y) {
+  @include prefixer(transform, skew($x, $y), $prefixes);
+}
+
+// skewX( <angle> )
+@mixin skewX($x) {
+  @include prefixer(transform, skewX($x), $prefixes);
+}
+
+// skewY( <angle> )
+@mixin skewY($y) {
+  @include prefixer(transform, skewY($y), $prefixes);
+}
+
+// 用来移动元素，可以根据X轴和Ｙ轴坐标重新定位元素位置。在此基础上有两个扩展函数：translateX()和translateY()。
+// translate( <translation-value> [, <translation-value> ]? )
+@mixin translate($x:0px, $y:0px) {
+  @include prefixer(transform, translate($x, $y), $prefixes);
+}
+
+// translateX( <translation-value> )
+@mixin translateX($x:0px) {
+  @include prefixer(transform, translateX($x), $prefixes);
+}
+
+// translateX( <translation-value> )
+@mixin translateY($y:0px) {
+  @include prefixer(transform, translateY($y), $prefixes);
+}
+
+// 定义矩阵变形，基于X轴和Y轴坐标重新定位元素位置
+// matrix( <number> [, <number> ]{5,5} )
+@mixin matrix($values...) {
+  @include prefixer(transform, matrix($values...), $prefixes);
+}
+
+// 3D transform
+// http://www.w3cplus.com/css3/css3-3d-transform.html
+//----------------------------------------
+// 用来3d缩放一个元素
+// scale3d( <number> , <number> , <number> )
+@mixin scale3d($ratioX:1, $ratioY:1, $ratioZ:1) {
+  @include prefixer(transform, scale($ratioX, $ratioY, $ratioZ), $prefixes);
+}
+
+// 指定Z轴的缩放向量
+// scaleZ( <number> )
+@mixin scaleZ($ratio:1) {
+  @include prefixer(transform, scaleZ($ratio), $prefixes);
+}
+
+// 指定一个3D变形移动位移量
+// translate3d( <translation-value> , <translation-value> , <length> )
+@mixin translate3d($x:0px, $y:0px, $z:0px) {
+  @include prefixer(transform, translate3d($x, $y, $z), $prefixes);
+}
+
+// translateZ( <length> )
+// 指定3Ｄ位移在Ｚ轴的位移量
+@mixin translateZ($z:0px) {
+  @include prefixer(transform, translateZ($z), $prefixes);
+}
+
+// 指定元素具有一个三维旋转的角度
+// rotate3d( <number> , <number> , <number> , <angle> )
+// $vectorX：是一个0到１之间的数值，主要用来描述元素围绕X轴旋转的矢量值；
+// $vectorY：是一个０到１之间的数值，主要用来描述元素围绕Y轴旋转的矢量值；
+// $vectorZ：是一个０到１之间的数值，主要用来描述元素围绕Z轴旋转的矢量值；
+// $degrees：是一个角度值，主要用来指定元素在3D空间旋转的角度，如果其值为正值，元素顺时针旋转，反之元素逆时针旋转。
+@mixin rotate3d($vectorX:1, $vectorY:1, $vectorZ:1, $degrees:0deg) {
+  @include prefixer(transform, rotate3d($vectorX, $vectorY, $vectorZ, $degrees), $prefixes);
+}
+
+// rotateX( <angle> )
+// same as rotate3d(1, 0, 0, <angle>).
+@mixin rotateX($degrees:0deg) {
+  @include prefixer(transform, rotateX($degrees), $prefixes);
+}
+
+// rotateY( <angle> )
+// same as rotate3d(0, 1, 0, <angle>).
+@mixin rotateY($degrees:0deg) {
+  @include prefixer(transform, rotateY($degrees), $prefixes);
+}
+
+// rotateZ( <angle> )
+// same as rotate3d(0, 0, 1, <angle>), which is also the same as rotate(<angle>).
+@mixin rotateZ($degrees:0deg) {
+  @include prefixer(transform, rotateZ($degrees), $prefixes);
+}
+
+// 定义矩阵变形
+// matrix3d( <number> [, <number> ]{15,15} )
+// matrix3d(sx, 0, 0, 0, 0, sy, 0, 0, 0, 0, sz, 0, 0, 0, 0, 1)
+@mixin matrix3d($values...) {
+  @include prefixer(transform, matrix3d($values...), $prefixes);
+}
+
+// http://www.w3cplus.com/css3/transform-basic-property.html
+// 指定嵌套元素如何在3D空间中呈现
+// transform-style: flat | preserve-3d
+// 其中flat值为默认值，表示所有子元素在2D平面呈现。preserve-3d表示所有子元素在3D空间中呈现
+// flat: 则该元素的所有子元素都将被平展到该元素的2D平面中进行呈现。沿着X轴或Y轴方向旋转该元素将导致位于正或负Z轴位置的子元素显示在该元素的平面上，而不是它的前面或者后面。
+// preserve-3d: 它表示不执行平展操作，他的所有子元素位于3D空间中
+// 如果值为preserve-3d，就不能为了防止子元素溢出容器而设置overflow值为hidden，否则会迫使子元素出现在同一平面（变成与值为flat时一样的效果）
+// 需要设置在父元素中，并且高于任何嵌套的变形元素
+@mixin transform-style($value) {
+  @include prefixer(transform-style, $value, $prefixes);
+}
+
+// 指定一个透视投影矩阵
+// perspective( none | <length> )
+@mixin transform-perspective($value) {
+  @include prefixer(transform, perspective($value), $prefixes);
+}

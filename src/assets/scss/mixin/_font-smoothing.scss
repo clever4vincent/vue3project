@@ -1,0 +1,11 @@
+//@import "prefixer";
+
+// 使页面上的字体抗锯齿 antialiased | auto | none
+@mixin font-smoothing($value:auto, $prefixes:$prefix-webkit){
+	-moz-osx-font-smoothing: if($value == 'antialiased', grayscale, $value); // grayscale
+	@include prefixer(font-smoothing, $value, $prefixes);
+}
+
+%font-smoothing-auto {
+	@include font-smoothing;
+}

@@ -1,0 +1,5 @@
+// inline-block
+@mixin inline-block{
+	display:-moz-inline-box;
+	display:inline-block;
+}

@@ -1,0 +1,124 @@
+// prefix
+//----------------------------------------
+$prefix-for-webkit: true !default;
+$prefix-for-mozilla: true !default;
+$prefix-for-microsoft: true !default;
+$prefix-for-opera: true !default;
+$prefix-for-spec: true !default;
+$_prefix-for-webkit: $prefix-for-webkit;
+$_prefix-for-mozilla: $prefix-for-mozilla;
+$_prefix-for-microsoft: $prefix-for-microsoft;
+$_prefix-for-opera: $prefix-for-opera;
+$_prefix-for-spec: $prefix-for-spec;
+$prefixes: webkit moz ms o spec;
+$_prefixes: $prefixes;
+$prefix-webkit: webkit spec;
+$prefix-mozilla: moz spec;
+$prefix-microsoft: ms spec;
+$prefix-opera: o spec;
+$prefix-spec: spec;
+
+// Disable browser's private prefix.
+@mixin disable-prefix-for($prefixes:$prefixes){
+  // Disable all
+  @if length($prefixes) == 0 {
+    $prefix-for-webkit: false !global;
+    $prefix-for-mozilla: false !global;
+    $prefix-for-microsoft: false !global;
+    $prefix-for-opera: false !global;
+    $prefix-for-spec: false !global;
+  }
+  // Disable some
+  @else{
+    @each $prefix in $prefixes {
+      @if $prefix == webkit {
+        $prefix-for-webkit: false !global;
+      }
+      @else if $prefix == moz {
+        $prefix-for-mozilla: false !global;
+      }
+      @else if $prefix == ms {
+        $prefix-for-microsoft: false !global;
+      }
+      @else if $prefix == o {
+        $prefix-for-opera: false !global;
+      }
+      @else if $prefix == spec {
+        $prefix-for-spec: false !global;
+      }
+      @else {
+        @warn "Unrecognized prefix: #{$prefix}";
+      }
+    }
+  }
+}
+
+// Save browser's private prefix.
+@mixin save-prefix-for($prefixes:$prefixes){
+  // Save all
+  @if length($prefixes) == 0 {
+    $_prefix-for-webkit: $prefix-for-webkit !global;
+    $_prefix-for-mozilla: $prefix-for-mozilla !global;
+    $_prefix-for-microsoft: $prefix-for-microsoft !global;
+    $_prefix-for-opera: $prefix-for-opera !global;
+    $_prefix-for-spec: $prefix-for-spec !global;
+  }
+  // Save some
+  @else{
+    @each $prefix in $prefixes {
+      @if $prefix == webkit {
+        $_prefix-for-webkit: $prefix-for-webkit !global;
+      }
+      @else if $prefix == moz {
+        $_prefix-for-mozilla: $prefix-for-mozilla !global;
+      }
+      @else if $prefix == ms {
+        $_prefix-for-microsoft: $prefix-for-microsoft !global;
+      }
+      @else if $prefix == o {
+        $_prefix-for-opera: $prefix-for-opera !global;
+      }
+      @else if $prefix == spec {
+        $_prefix-for-spec: $prefix-for-spec !global;
+      }
+      @else {
+        @warn "Unrecognized prefix: #{$prefix}";
+      }
+    }
+  }
+}
+
+// Reset browser's private prefix.
+@mixin reset-prefix-for($prefixes:$prefixes){
+  // Reset all
+  @if length($prefixes) == 0 {
+    $prefix-for-webkit: $_prefix-for-webkit !global;
+    $prefix-for-mozilla: $_prefix-for-mozilla !global;
+    $prefix-for-microsoft: $_prefix-for-microsoft !global;
+    $prefix-for-opera: $_prefix-for-opera !global;
+    $prefix-for-spec: $_prefix-for-spec !global;
+  }
+  // Reset some
+  @else{
+    @each $prefix in $prefixes {
+      @if $prefix == webkit {
+        $prefix-for-webkit: $_prefix-for-webkit !global;
+      }
+      @else if $prefix == moz {
+        $prefix-for-mozilla: $_prefix-for-mozilla !global;
+      }
+      @else if $prefix == ms {
+        $prefix-for-microsoft: $_prefix-for-microsoft !global;
+      }
+      @else if $prefix == o {
+        $prefix-for-opera: $_prefix-for-opera !global;
+      }
+      @else if $prefix == spec {
+        $prefix-for-spec: $_prefix-for-spec !global;
+      }
+      @else {
+        @warn "Unrecognized prefix: #{$prefix}";
+      }
+    }
+  }
+}

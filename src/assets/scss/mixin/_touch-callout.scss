@@ -1,0 +1,10 @@
+//@import "prefixer";
+
+// 解决滚动卡顿 default | none
+@mixin touch-callout($value:default, $prefixes:$prefix-webkit){
+	@include prefixer(touch-callout, $value, $prefixes);
+}
+
+%touch-callout-default {
+	@include touch-callout;
+}

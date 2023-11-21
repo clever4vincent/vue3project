@@ -1,0 +1,60 @@
+
+// 定位值
+@mixin position($values, $position:absolute){
+  position: $position;
+  $length: length($values);
+  @if($length > 0){
+    top: nth($values, 1);
+    @if($length > 1){
+      right: nth($values, 2);
+      @if($length > 2){
+        bottom: nth($values, 3);
+        @if($length >3){
+          left: nth($values, 4);
+        }
+      }
+    }
+  }
+}
+@mixin absolute($values){ @include position($values) }
+@mixin fixed($values){ @include position($values, fixed) }
+
+@mixin full{ width:100%; height:100%; };
+
+// position:absolute 定位
+%abso-trbl { @include absolute(0 0 0 0) }
+%abso-tr { @include absolute(0 0) }
+%abso-tr-full { @include absolute(0 0); @include full }
+%abso-trb { @include absolute(0 0 0) }
+%abso-trb-full { @include absolute(0 0 0); @include full }
+%abso-trl { @include absolute(0 0 auto 0) }
+%abso-trl-full { @include absolute(0 0 auto 0); @include full }
+%abso-tbl { @include absolute(0 auto 0 0) }
+%abso-tbl-full { @include absolute(0 auto 0 0); @include full }
+%abso-tl { @include absolute(0 auto auto 0) }
+%abso-tl-full { @include absolute(0 auto auto 0); @include full }
+%abso-rb { @include absolute(auto 0 0) }
+%abso-rb-full { @include absolute(auto 0 0); @include full }
+%abso-rbl { @include absolute(auto 0 0 0) }
+%abso-rbl-full { @include absolute(auto 0 0 0); @include full }
+%abso-bl { @include absolute(auto auto 0 0) }
+%abso-bl-full { @include absolute(auto auto 0 0); @include full }
+
+// position:fixed 定位
+%fixed-trbl { @include fixed(0 0 0 0) }
+%fixed-tr { @include fixed(0 0) }
+%fixed-tr-full { @include fixed(0 0); @include full }
+%fixed-trb { @include fixed(0 0 0) }
+%fixed-trb-full { @include fixed(0 0 0); @include full }
+%fixed-trl { @include fixed(0 0 auto 0) }
+%fixed-trl-full { @include fixed(0 0 auto 0); @include full }
+%fixed-tbl { @include fixed(0 auto 0 0) }
+%fixed-tbl-full { @include fixed(0 auto 0 0); @include full }
+%fixed-tl { @include fixed(0 auto auto 0) }
+%fixed-tl-full { @include fixed(0 auto auto 0); @include full }
+%fixed-rb { @include fixed(auto 0 0) }
+%fixed-rb-full { @include fixed(auto 0 0); @include full }
+%fixed-rbl { @include fixed(auto 0 0 0) }
+%fixed-rbl-full { @include fixed(auto 0 0 0); @include full }
+%fixed-bl { @include fixed(auto auto 0 0) }
+%fixed-bl-full { @include fixed(auto auto 0 0); @include full }

@@ -1,0 +1,41 @@
+// 定位居中
+
+// 兼容：gte IE6
+// 不能自适应，必须声明高度宽度，不支持百分比 % 属性值和 min-/max- 属性设置。
+// 内容可能溢出容器，设置 overflow: auto | hidden。
+// 边框 border 和边距 padding，与盒模型定义 box-sizing: border-box 有关，计算需要根据不同情况。
+@mixin position-center($width: 100px, $height: $width, $position: absolute) {
+  $width: $width;
+  $height: $height;
+  position: $position;
+  top: 0;
+  left: 50%;
+  width: $width;
+  height: $height;
+  margin-top: -#{$height / 2};
+  margin-left: -#{$width / 2};
+}
+
+// 兼容：gte IE8
+// 必须声明高度宽度，支持百分比 % 属性值和 min-/max- 属性。
+// 内容可能溢出容器，设置 overflow: auto | hidden。
+// 在Windows Phone设备上不起作用。
+@mixin position-center($width: 100%, $height: $width, $position: absolute) {
+  $width: $width;
+  $height: $height;
+  position: $position;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: $width;
+  height: $height;
+  margin: auto;
+}
+
+@mixin abso-center($width: 100%, $height: $width) {
+  @include position-center($width, $height);
+}
+@mixin fixed-middle($width: 100%, $height: $width) {
+  @include position-center($width, $height, fixed);
+}

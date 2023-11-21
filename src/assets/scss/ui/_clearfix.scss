@@ -1,0 +1,15 @@
+
+// icon
+@mixin clearfix {
+  &:after {
+    content: "";
+    overflow: hidden;
+    display: block;
+    height:0;
+    clear:both;
+  }
+}
+
+%clearfix{
+  @include clearfix;
+}

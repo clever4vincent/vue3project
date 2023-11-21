@@ -1,0 +1,67 @@
+// triangle
+//----------------------------------------
+@mixin triangle($direction:right, $borderColor:#fff, $size:10px) {
+  content: "";
+  height: 0;
+  width: 0;
+  pointer-events: none;
+
+  @if $direction == top {
+    border-top: none;
+    border-bottom: $size solid $borderColor;
+    border-left: $size dashed transparent;
+    border-right: $size dashed transparent;
+  } @else if $direction == right {
+    border-right: none;
+    border-left: $size solid $borderColor;
+    border-top: $size dashed transparent;
+    border-bottom: $size dashed transparent;
+  } @else if $direction == bottom {
+    border-bottom: none;
+    border-top: $size solid $borderColor;
+    border-left: $size dashed transparent;
+    border-right: $size dashed transparent;
+  } @else if $direction == left {
+    border-left: none;
+    border-right: $size solid $borderColor;
+    border-top: $size dashed transparent;
+    border-bottom: $size dashed transparent;
+  }
+}
+
+@mixin angle-position($direction, $size){
+  @if $direction == top {
+    top: -$size;
+    left: 50%;
+    margin-left: -$size;
+  } @else if $direction == right {
+    right: -$size;
+    top: 50%;
+    margin-top: -$size;
+  } @else if $direction == bottom {
+    bottom: -$size;
+    left: 50%;
+    margin-left: -$size;
+  } @else if $direction == left {
+    left: -$size;
+    top: 50%;
+    margin-top: -$size;
+  }
+}
+
+@mixin angle($direction:right, $borderColor:#000, $bgColor:#fff, $size:10px) {
+  position: relative;
+  border: 1px solid $borderColor;
+  &:before, &:after {
+    content: "";
+    position: absolute;
+  }
+  &:before {
+    @include triangle($direction, $borderColor, $size + 1);
+    @include angle-position($direction, $size + 1);
+  }
+  &:after {
+    @include triangle($direction, $bgColor, $size);
+    @include angle-position($direction, $size);
+  }
+}

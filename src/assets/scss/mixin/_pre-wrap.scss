@@ -1,0 +1,22 @@
+// pre-wrap
+//----------------------------------------
+@mixin pre-wrap{
+	overflow: hidden;
+  // css2
+	white-space: pre;
+  // Mozilla
+	white-space: -moz-pre-wrap;
+  // HP printers
+	white-space: -hp-pre-wrap;
+  // Opera 7
+	white-space: -o-pre-wrap;
+  // Opera 4-6
+	white-space: -pre-wrap;
+  // CSS 2.1
+	white-space: pre-wrap;
+  // CSS 3 (and 2.1 as well, actually)
+	white-space: pre-line;
+  // IE
+	word-wrap: break-word;
+	word-break:break-all;
+}

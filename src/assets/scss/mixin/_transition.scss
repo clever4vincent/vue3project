@@ -1,0 +1,29 @@
+// @import "prefixer";
+
+// http://www.w3cplus.com/content/css3-transition
+// http://cubic-bezier.com/
+
+// transition : [<'transition-property'> || <'transition-duration'> || <'transition-timing-function'> || <'transition-delay'> [, [<'transition-property'> || <'transition-duration'> || <'transition-timing-function'> || <'transition-delay'>]]*
+@mixin transition($value:all .38s ease-in 0s, $prefixes:$prefixes){
+	@include prefixer(transition, $value, $prefixes);
+}
+
+// transition-property : none | all | [ <IDENT> ] [ ',' <IDENT> ]*
+@mixin transition-property($value:all, $prefixes:$prefixes){
+	@include prefixer(transition-property, $value, $prefixes);
+}
+
+// transition-duration : <time> [, <time>]*
+@mixin transition-duration($value:.38s, $prefixes:$prefixes){
+	@include prefixer(transition-duration, $value, $prefixes);
+}
+
+// transition-timing-function : ease | linear | ease-in | ease-out | ease-in-out | cubic-bezier(<number>, <number>, <number>, <number>) [, ease | linear | ease-in | ease-out | ease-in-out | cubic-bezier(<number>, <number>, <number>, <number>)]*
+@mixin transition-timing-function($value:ease-in, $prefixes:$prefixes){
+	@include prefixer(transition-timing-function, $value, $prefixes);
+}
+
+// transition-duration : <time> [, <time>]*
+@mixin transition-delay($value:0s, $prefixes:$prefixes){
+	@include prefixer(transition-delay, $value, $prefixes);
+}

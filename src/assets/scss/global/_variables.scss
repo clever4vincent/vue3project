@@ -1,0 +1,136 @@
+@import "../$/variables";
+
+//-------------------- 全局变量 start --------------------//
+// 页面底色
+// $body-bgc: #f5f5f5;
+// $body-bgc: #fafafa;
+$body-bgc: #fff;
+// 内容背景色
+$content-bgc: #fff;
+// 全局次级内容字体灰
+$font-text-secondary-color: #90a4ae;
+// 全局主体内容字体黑
+$font-text-main-color: #263238;
+// 文字颜色
+// $font-base-color: #313131;
+$font-base-color: #262626;
+$font-gray-color: $gray;
+$font-gray-light: $gray-light;
+$font-gray-lighter: #c3c7cd;
+$font-green-color: #30c380;
+$font-remind-color: #f3a320;
+$font-profit-color: #ce393e;
+$font-gray-light: #aaa;
+// 文字大小
+// $font-size-base: .6rem;
+$font-size-base: 14px;
+// $font-size-min: .46rem
+$font-size-min: 12px;
+// 经过文字色
+$font-hover-color: #8c8c8c;
+// 激活文字色
+$font-active-color: #158efe;
+// 禁用文字色
+$font-disabled-color: #bbb;
+// 经过背景色
+$hover-bgc: #ef5c4c;
+// 提示背景色
+$remind-bgc: #f90;
+// 提醒背景色
+$notice-bgc: #ef5c4c;
+// 禁用背景色
+$disabled-bgc: #bbb;
+// 验证有效色
+$valid-color: #31c27c;
+$valid-border: 1px solid $valid-color;
+// 验证无效色
+$invalid-color: $font-hover-color;
+$invalid-border: 1px solid $invalid-color;
+// 输入框下边框色
+$input-border-bottom-color: #dcdcdc;
+// 浅灰色 1级
+$gray-light1: lighten($gray-base, 61.8%);
+// 浅灰色 2级
+$gray-light2: lighten($gray-base, 72%);
+// 浅灰色 3级
+$gray-light3: lighten($gray-base, 82%);
+// 极浅灰色
+$gray-lightest: lighten($gray-base, 96%); // #f5f5f5 whitesmoke
+// 图标字体大小
+// $fa-font-size-smallest: .5rem;
+$fa-font-size-smallest: 12px;
+// $fa-font-size-smaller: .6rem;
+$fa-font-size-smaller: 14px;
+// $fa-font-size-small: .7rem;
+$fa-font-size-small: 16px;
+// $fa-font-size: .8rem;
+$fa-font-size: 18px;
+// $fa-font-size-large: 1rem;
+$fa-font-size-large: 24px;
+// $fa-font-size-larger: 2rem;
+$fa-font-size-larger: 48px;
+// $fa-font-size-largest: 3rem;
+$fa-font-size-largest: 72px;
+// 边框
+$gray-darker-border: 1px solid $gray-darker; // #222
+$gray-dark-border: 1px solid $gray-dark; // #333
+$gray-border: 1px solid $gray; // #555
+$gray-light-border: 1px solid $gray-light; // #777
+$gray-light1-border: 1px solid $gray-light1;
+$gray-light2-border: 1px solid $gray-light2;
+$gray-light3-border: 1px solid $gray-light3;
+$gray-lighter-border: 1px solid $gray-lighter; // #eee
+$gray-lightest-border: 1px solid $gray-lightest;
+$split-line-border: 1px solid $gray-lightest;
+// 页眉高度 2.048rem
+$art-header-height: 44px;
+// 页眉背景
+// $art-header-bgc: #fafafa;
+$art-header-bgc: $body-bgc;
+// 状态栏高度
+$app-status-bar-height: 20px;
+// 状态栏高度和
+$app-status-bar-art-header-height: calc(#{$art-header-height} + #{$app-status-bar-height});
+$-app-status-bar-art-header-height: calc(-#{$art-header-height} - #{$app-status-bar-height});
+// iPhoneX 的状态栏高度
+$iphonex-status-bar-height: 40px;
+// iPhoneX 的状态栏高度和
+$iphonex-status-bar-art-header-height: calc(#{$art-header-height} + #{$iphonex-status-bar-height});
+$-iphonex-status-bar-art-header-height: calc(-#{$art-header-height} - #{$iphonex-status-bar-height});
+// 页脚高度
+// $art-footer-nav-height: 2.2rem;
+$art-footer-nav-height: 52px;
+// iPhoneX 的底部安全高度
+$iphonex-footer-safe-height: 34px;
+$iphonex-art-footer-nav-height: calc(#{$art-footer-nav-height} + #{$iphonex-footer-safe-height});
+// 页脚背景
+// $art-footer-nav-bgc: #fafafa;
+$art-footer-nav-bgc: $body-bgc;
+// 页体
+// 状态类名
+$hover-class: hover;
+$active-class: active;
+$disabled-class: disabled;
+$current-class: current;
+$checked-class: checked;
+// 按钮配色
+//$btn-submit-bgc: #1492CE; // 提交按钮背景色
+$btn-submit-bgc: #4a90e2; //
+$btn-submit-bgi: -webkit-linear-gradient(left, #00c2fc, #1492ce);
+$btn-submit-bgi-deepen: -webkit-linear-gradient(left, #3e578f, #1d2c56);
+$btn-submit-color: #ffffff;
+$btn-buy-bgc: #f7474e; // 买入按钮
+$btn-buy-color: #fff;
+$btn-sell-bgc: #51c060; // 卖出按钮
+$btn-sell-color: #fff;
+$btn-disabled-bgc: #d8d8d8; // 禁用按钮
+$btn-disabled-color: #fff;
+
+// 阴影色
+$box-shadow-lightest: rgba(0, 0, 0, 0.02);
+$box-shadow-lighter: rgba(0, 0, 0, 0.0382);
+$box-shadow-light: rgba(0, 0, 0, 0.0618);
+$box-shadow-shade: rgba(0, 0, 0, 0.1);
+$box-shadow-shade1: rgba(0, 0, 0, 0.1618);
+$box-shadow-shade2: rgba(0, 0, 0, 0.25);
+$box-shadow-shade3: rgba(0, 0, 0, 0.382);

@@ -1,0 +1,32 @@
+//@import "prefixer";
+
+//-------------------- text-overflow --------------------//
+// http://www.css88.com/book/css/properties/text/text-size-adjust.htm
+//------------------ 语法：------------------//
+// text-size-adjust：auto | none | <percentage>
+// 默认值：auto
+// 适用于：所有元素
+// 继承性：有
+// 动画性：当取值为<percentage>时
+// 计算值：指定值
+//------------------ 取值：------------------//
+// auto：
+//		 文本大小根据设备尺寸进行调整。
+//		 none：
+//		 文本大小不会根据设备尺寸进行调整。
+// <percentage>：
+// 用百分比来指定文本大小在设备尺寸不同的情况下如何调整。
+
+//------------------ 说明：------------------//
+// 检索或设置移动端页面中对象文本的大小调整。
+// 该属性只在移动设备上生效；
+// 如果你的页面没有定义meta viewport，此属性定义将无效；
+// 对应的脚本特性为textSizeAdjust。
+
+@mixin text-size-adjust($value:auto, $prefixes:$prefix-webkit) {
+	@include prefixer(text-size-adjust, $value, $prefixes);
+}
+
+%text-size-adjust-auto {
+	@include text-size-adjust;
+}

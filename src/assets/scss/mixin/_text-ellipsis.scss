@@ -1,0 +1,18 @@
+//@import "prefixer";
+
+//-------------------- text-overflow --------------------//
+@mixin text-ellipsis {
+	display: block;
+	overflow: hidden;
+  // 必须赋值
+	width: auto;
+	white-space: nowrap;
+  // IE
+	word-break: break-all;
+  // Safari|chrome
+	-webkit-text-overflow: ellipsis;
+  // Opera
+	-o-text-overflow: ellipsis;
+  // IE
+	text-overflow: ellipsis;
+}

@@ -1,0 +1,56 @@
+/**
+ * 适配 iPhone X 时，若当前页面包含页脚时的样式定义
+ * 注：必须放置于当前页面组件样式块的根定义下
+ * @param $page-class 当前页面的样式类
+ * @param $page-footer-height 当前页面的页脚高度
+ */
+@mixin iphonex-art-page-footer($page-class, $page-footer-height: 60px) {
+  html.iphonex {
+    .#{$page-class} {
+      .art-body {
+        bottom: calc(#{$page-footer-height} + #{$iphonex-footer-safe-height});
+      }
+    }
+  }
+}
+
+%font-format {
+  font-family: 'PingFangSC Regular', Helvetica, Arial, 'Microsoft YaHei', FreeSans, Arimo,
+    'Droid Sans', 'wenquanyi micro hei', 'Hiragino Sans GB', 'Hiragino Sans GB W3', sans-serif;
+}
+
+//%screen-window-height-diff-0 {
+//  >.art-header {
+//    background-origin: border-box;
+//    border-top: $app-status-bar-height solid transparent;
+//    height: $app-status-bar-art-header-height;
+//    > .nav-list-wrapper {
+//      top: $app-status-bar-art-header-height;
+//    }
+//  }
+//  >.art-body {
+//    top: $app-status-bar-art-header-height;
+//  }
+//}
+//-------------------- 全局渐变、动画类 start --------------------//
+// 线性渐变-快速
+%transition-linear-fast {
+  transition: all 0.2s linear 0s;
+}
+
+%transition-ease-out-fast {
+  transition: all 0.2s ease-out 0s;
+}
+
+%transition-ease-in-fast {
+  transition: all 0.2s ease-in 0s;
+}
+
+%transition-ease-in-out-fast {
+  transition: all 0.2s ease-in-out 0s;
+}
+
+// 取消渐变
+%transition-none {
+  transition: none;
+}

@@ -1,0 +1,24 @@
+// 生成一个
+
+@mixin animation-rotate($values:animation-1s-linear-0s-infinite-normal-running 1s linear 0s infinite normal running){
+
+  $animation-name: nth($values, 1);
+
+  %#{$animation-name}{
+    @include animation($values);
+  }
+
+  @include keyframes(#{$animation-name}){
+    0%{ @include transform(rotate(0deg)); }
+    100%{ @include transform(rotate(360deg)); }
+  }
+}
+
+@mixin animation-1s-linear-0s-infinite-normal-running(){
+  @include animation-rotate(animation-1s-linear-0s-infinite-normal-running 1s linear 0s infinite normal running);
+}
+
+
+
+
+

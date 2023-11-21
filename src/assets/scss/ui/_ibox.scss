@@ -1,0 +1,58 @@
+
+// ibox
+@mixin ibox($width:16px, $height:$width) {
+  width: u($width);
+  height: u($height);
+  line-height: u($height);
+}
+
+%ibox {
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  border-radius: u(4px);
+}
+
+// 常用类 icon 小容器的尺寸列表
+$ibox-size-list: (12, 16, 20, 24, 28, 32, 38, 64);
+
+@mixin symol-ibox-sizes($symbol: "%", $name: ibox, $size-list: $ibox-size-list) {
+  @each $size in $size-list {
+    #{$symbol}#{$name}-#{$size} {
+      @extend %ibox;
+      @if ($symbol == "%") {
+        @include ibox($size * 1px);
+      } @else {
+        @extend %#{$name}-#{$size};
+      }
+    }
+  }
+}
+
+@mixin ibox-sizes($name: ibox, $size-list: $ibox-size-list) {
+  @include symol-ibox-sizes(".", $name, $size-list)
+}
+
+@include symol-ibox-sizes;
+// 上一句的宏返回下面的结果集
+//%ibox-12 {
+//  @extend %ibox;
+//  //@include ibox(12 * 1px);
+//  // 上一句的宏已返回下面的结果
+//  width: 0.512rem;
+//  width: 0.512rem;
+//  line-height: 0.512rem;
+//}
+//%ibox-16 {...}
+//%ibox-20 {...}
+//...%ibox-64 {...}
+
+//@include ibox-sizes;
+//上一句的宏返回下面的结果集
+//.ibox-12 {
+//  @extend %ibox;
+//  @extend %ibox-12;
+//}
+//.ibox-16 {...}
+//.ibox-20 {...}
+//....ibox-64 {...}

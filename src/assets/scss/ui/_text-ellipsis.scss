@@ -1,0 +1,6 @@
+@import "../mixin/text-ellipsis";
+
+// text-ellipsis
+%text-ellipsis {
+	@include text-ellipsis;
+}

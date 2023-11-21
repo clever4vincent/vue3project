@@ -1,0 +1,10 @@
+// @import "prefixer";
+
+// http://www.w3cplus.com/css3/css-secrets/hyphenation.html
+//   hyphens：none | manual | auto
+//   manual：用软连字符手动断字
+//   auto：软连字符自动断字
+//   none: 将禁用此行为
+@mixin hyphens($perspective, $prefixes:$prefixes) {
+  @include prefixer(hyphens, $perspective, $prefixes);
+}

@@ -1,0 +1,58 @@
+@import "ibox";
+
+// icon
+@mixin icon($width:16px, $height:$width) {
+  width: u($width);
+  height: u($height);
+  background-size: u($width) auto;
+}
+
+%icon {
+  @extend %ibox;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  background-origin: content-box;
+}
+
+// 常用 icon 小容器的尺寸列表
+$icon-size-list: $ibox-size-list;
+
+@mixin symol-icon-sizes($symbol: "%", $name: icon, $size-list: $icon-size-list) {
+  @each $size in $size-list {
+    #{$symbol}#{$name}-#{$size} {
+      @extend %icon;
+      @if ($symbol == "%") {
+        @include icon($size * 1px);
+      }
+      @else {
+        @extend %#{$name}-#{$size};
+      }
+    }
+  }
+}
+@mixin icon-sizes($name: icon, $size-list: $icon-size-list) {
+  @include symol-icon-sizes(".", $name, $size-list)
+}
+@include symol-icon-sizes;
+// 上一句的宏返回下面的结果集
+//%icon-12 {
+//  @extend %icon;
+//  //@include icon(12 * 1px);
+//  // 上一句的宏已返回下面的结果
+//  width: 0.512rem;
+//  width: 0.512rem;
+//  line-height: 0.512rem;
+//}
+//%icon-16 {...}
+//%icon-20 {...}
+//...%icon-64 {...}
+
+// @include icon-sizes;
+// 上一句的宏返回下面的结果集
+//.icon-12 {
+//  @extend %icon;
+//  @extend %icon-12;
+//}
+//.icon-16 {...}
+//.icon-20 {...}
+//....icon-64 {...}

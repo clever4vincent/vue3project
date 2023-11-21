@@ -1,0 +1,137 @@
+//@import "../mixin/index";
+
+// reset 样式重置
+html,
+body,
+div,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+h1,
+h2,
+h3,
+h4,
+h5,
+p,
+form,
+fieldset {
+  margin: 0;
+  padding: 0;
+}
+
+// mobile 设备根元素字体大小
+html {
+  // font-size: 6.25vw;
+}
+@include min-rem(20px, 320px);
+@include max-rem(30px, 480px);
+
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+menu,
+nav,
+section,
+summary {
+  display: block;
+}
+
+audio,
+canvas,
+progress,
+video {
+  display: inline-block;
+  vertical-align: baseline;
+}
+
+body,
+input,
+textarea,
+select,
+option,
+button,
+table {
+  font: inherit;
+  font-family: $font-family;
+  font-size: 12px;
+}
+body {
+  @include text-size-adjust(none);
+  // 使页面上的字体抗锯齿
+  @include font-smoothing(antialiased);
+  // 系统默认长摁菜单被禁用
+  @include touch-callout(none);
+  // 长摁选择文本
+  user-select: none;
+  font-family: $font-family;
+}
+//*:not(input, textarea){
+//  // 长摁选择文本
+//  user-select: none;
+//}
+img {
+  border: none;
+  vertical-align: top;
+}
+fieldset {
+  border: none;
+}
+ul,
+ol {
+  list-style: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: none;
+}
+blockquote,
+q {
+  quotes: none;
+}
+strong,
+b {
+  font-weight: normal;
+}
+i,
+em,
+address {
+  font-style: normal;
+}
+table {
+  border-collapse: collapse;
+}
+a,
+button,
+input {
+  // http://www.css88.com/webkit/-webkit-tap-highlight-color/
+  -webkit-tap-highlight-color: rgba(255, 0, 0, 0);
+}
+a,
+input[type='text'] {
+  -webkit-appearance: none;
+}
+a {
+  color: #8c8c8c;
+  text-decoration: none;
+}
+* {
+  // 解决滚动卡顿
+  @include overflow-scrolling(touch);
+}
+*,
+*:before,
+*:after {
+  // 边框盒模型
+  box-sizing: border-box;
+}

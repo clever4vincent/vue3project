@@ -1,0 +1,22 @@
+// font
+//----------------------------------------
+
+// Mac OS
+// "STHeiti Light [STXihei]", "STHeiti Light", "STXihei", "STHeiti", "STKaiti", "STSong", "STFangsong"
+$mac-font-family: 'STXihei', 'STHeiti';
+
+// ios
+// "STHeitiSC-Light", "STHeitiSC-Medium", "STHeitiTC-Light", "STHeitiTC-Medium";
+$ios-font-family: 'PingFangSC-Regular', 'Helvetica', 'SourceHanSansCN-Regular',
+  'SourceHanSansCN-Bold', 'DroidSans', 'DroidSansFallback';
+
+// Windows
+// "Microsoft YaHei", "SimSun", "SimHei", "KaiTi", "FangSong", "KaiTi_GB2312", "FangSong_GB2312", "YouYuan", "LiSu", "Microsoft JhengHei"
+$windows-font-family: 'Microsoft YaHei', 'FangSong';
+
+// android
+// "SourceHanSansCN-Light", "SourceHanSansCN-Medium", "SourceHanSansCN-Regular", "SourceHanSansCN-Bold", "DroidSans", "DroidSansFallback";
+$android-font-family: 'SourceHanSansCN-Regular', 'SourceHanSansCN-Bold', 'DroidSans',
+  'DroidSansFallback';
+
+$font-family: $ios-font-family, $android-font-family, $windows-font-family, $mac-font-family;

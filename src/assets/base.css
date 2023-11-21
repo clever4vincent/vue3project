@@ -1,4 +1,5 @@
 /* color palette from <https://github.com/vuejs/theme> */
+@import 'scss/base.scss';
 :root {
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
@@ -74,29 +75,10 @@
 }
 
 body {
-  min-height: 100vh;
   color: var(--vt-c-text-light-1);
   background: var(--vt-c-white);
   border: var(--vt-c-divider-white-2);
   transition: color background-color var(--vt-transition-time);
-  line-height: 1.6;
-  font-family:
-    Inter,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    'Fira Sans',
-    'Droid Sans',
-    'Helvetica Neue',
-    sans-serif;
-  font-size: 16px;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 .van-theme-dark body {
   background-color: var(--vt-c-black-hard);

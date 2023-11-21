@@ -1,0 +1,12 @@
+//
+
+@mixin mask($bg-color:#000, $opacity:.62) {
+  overflow: hidden;
+  background-color: rgba($bg-color, $opacity); // 将一个Hex颜色转换成rgba颜色
+  z-index: 32767;
+  @include absolute(0 0 0 0);
+}
+
+
+
+

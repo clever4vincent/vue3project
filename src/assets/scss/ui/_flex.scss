@@ -1,0 +1,88 @@
+// 定位居中
+@mixin flex-center() {
+  //display: -webkit-flex;
+  display: flex; //-webkit-justify-content: center;
+  justify-content: center; // 子元素水平居中
+  //-webkit-align-items: center;
+  align-items: center; // 子元素垂直居中
+}
+
+@mixin flex($direction: row, $grow: 0, $margin: auto) {
+  %flex-#{$direction} {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: space-between;
+    @if ($grow != 0) {
+      >* {
+        flex-grow: $grow
+      }
+    }
+    @if ($margin != auto) {
+      >* {
+        margin: $margin;
+        &+* {
+          margin-left: auto;
+        }
+      }
+    }
+  }
+}
+
+%flex-center {
+  @include flex-center;
+}
+
+// 行排列
+@include flex();
+// %flex-row{
+//   display: flex;
+//   flex-direction: row;
+//   justify-content: space-between;
+// }
+
+// 行排列
+%flex-row-grow-1 {
+  @extend %flex-row;
+  &>* {
+    flex-grow: 1;
+  }
+}
+
+// 换行
+%flex-row-wrap {
+  @extend %flex-row;
+  flex-wrap: wrap;
+}
+
+// 换行倒排
+%flex-row-wrap-reverse {
+  @extend %flex-row;
+  flex-wrap: wrap-reverse;
+}
+
+// 列排列
+@include flex(column);
+// %flex-column{
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+// }
+// 列排列
+%flex-column-grow-1 {
+  @extend %flex-column;
+  &>* {
+    flex-grow: 1;
+  }
+}
+
+// 换行
+%flex-column-wrap {
+  @extend %flex-column;
+  flex-wrap: wrap;
+}
+
+// 换行倒排
+%flex-column-wrap-reverse {
+  @extend %flex-column;
+  flex-wrap: wrap-reverse;
+}

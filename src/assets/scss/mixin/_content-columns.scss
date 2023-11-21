@@ -1,0 +1,9 @@
+// @import "prefixer";
+
+// http://www.w3cplus.com/css3/introduction-into-css3-grid-layout.html
+//   content-columns：
+
+@mixin content-columns($column-count, $column-gap: $grid-gutter-width, $prefixes:$prefixes) {
+	@include prefixer(column-count, $column-count, $prefixes);
+	@include prefixer(column-gap, $column-gap, $prefixes);
+}

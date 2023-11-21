@@ -1,0 +1,55 @@
+//@import "prefixer";
+
+// http://www.w3cplus.com/content/css3-animation
+//   animation: [<animation-name> || <animation-duration> || <animation-timing-function> || <animation-delay> || <animation-iteration-count> || <animation-direction>] [, [<animation-name> || <animation-duration> || <animation-timing-function> || <animation-delay> || <animation-iteration-count> || <animation-direction>] ]*
+
+@mixin animation(
+  $value: animation-name 1s linear 0s infinite alternate running,
+  $prefixes: $prefixes
+) {
+  @include prefixer(animation, $value, $prefixes);
+}
+
+//   animation-name: none | IDENT[,none | IDENT]*
+@mixin animation-name($value: animation-name, $prefixes: $prefixes) {
+  @include prefixer(animation-name, $value, $prefixes);
+}
+
+//   animation-duration: <time>[,<time>]*
+@mixin animation-duration($value: 1s, $prefixes: $prefixes) {
+  @include prefixer(animation-duration, $value, $prefixes);
+}
+
+//   animation-timing-function:ease | linear | ease-in | ease-out | ease-in-out | cubic-bezier(<number>, <number>, <number>, <number>) [, ease | linear | ease-in | ease-out | ease-in-out | cubic-bezier(<number>, <number>, <number>, <number>)]*
+@mixin animation-timing-function($value: ease-in, $prefixes: $prefixes) {
+  @include prefixer(animation-timing-function, $value, $prefixes);
+}
+
+//   animation-delay: <time>[,<time>]*
+@mixin animation-delay($value: 0s, $prefixes: $prefixes) {
+  @include prefixer(animation-delay, $value, $prefixes);
+}
+
+//   animation-iteration-count: infinite | <number> [, infinite | <number>]*
+@mixin animation-iteration-count($value: infinite, $prefixes: $prefixes) {
+  @include prefixer(animation-iteration-count, $value, $prefixes);
+}
+
+//   animation-direction: normal | alternate [, normal | alternate]*
+@mixin animation-direction($value: alternate, $prefixes: $prefixes) {
+  @include prefixer(animation-direction, $value, $prefixes);
+}
+
+//   animation-play-state:running | paused [, running | paused]*
+@mixin animation-play-state($value: running, $prefixes: $prefixes) {
+  @include prefixer(animation-play-state, $value, $prefixes);
+}
+
+// animation-fill-mode: none | backwards | forwards | both
+// none: 动画结束的时候，回到它的初始样式
+// backwards: 动画结束之后，保持它最后一帧的样式
+// forwards: 若定义animation-delay时，在动画开始前，它会渐变到0%关键帧定义的样式，相当于将0%关键帧的样式扩展到初始的样式
+// both: 它是forwards和backwards的结合效果
+@mixin animation-fill-mode($value: none, $prefixes: $prefixes) {
+  @include prefixer(animation-fill-mode, $value, $prefixes);
+}

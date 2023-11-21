@@ -1,0 +1,14 @@
+//@import "prefixer";
+
+// http://www.w3cplus.com/css3/transform-basic-property.html
+//   perspective：none | <length>
+//   perspective：none; // default value, equal 0 or infinity
+@mixin perspective($perspective) {
+  @include prefixer(perspective, $perspective, $prefixes);
+}
+
+// perspective-origin：[<percentage> | <length> | left | center | right | top | bottom] | [[<percentage> | <length> | left | center | right] && [<percentage> | <length> | top | center | bottom]]
+// perspective-origin: 50% 50%; // default value, equal "center center" or "center"
+@mixin perspective-origin($origin) {
+  @include prefixer(perspective-origin, $origin, $prefixes);
+}
