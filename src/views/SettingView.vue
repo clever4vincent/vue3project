@@ -9,16 +9,14 @@
 </template>
 <script setup>
 import { useThemeStore } from "../stores";
-import { showToast } from "vant";
+
 const themeStore = useThemeStore();
 const checked = ref(themeStore.theme === "dark");
 
 function onUpdateValue(value) {
   let isDark = document.documentElement.classList.contains("van-theme-dark");
   checked.value = value;
-  showToast({
-    message: "切换成功",
-  });
+
   if (isDark) {
     themeStore.toLight();
   } else {

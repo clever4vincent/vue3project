@@ -30,7 +30,7 @@ import { useAccountStore, useTokenStore } from "@/stores";
 import { sell, buy, getMarket } from "@/api";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { showDialog, showToast } from "vant";
+import { showDialog, showSuccessToast } from "vant";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 const list = ref([]);
 const loading = ref(false);
@@ -88,7 +88,7 @@ const startEquipmentTransfer = (characterId, token) => {
         useTokenStore().setToken(accountStore.currentCharacter.token);
         // 从list中删除上架的物品
         list.value = list.value.filter((item) => item.id != equipment.id);
-        showToast("转移成功");
+        showSuccessToast("转移成功");
       });
     });
   });

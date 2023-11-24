@@ -36,11 +36,24 @@ export const useAccountStore = defineStore({
         };
       });
     },
-    deleteAllSubAccounts() {
+    deleteAllAccounts() {
       this.accountTokenInfo = [];
       this.currentCharacter = {};
       this.mainAccountTokenInfo = [];
       useTokenStore().setToken("");
+    },
+    deleteAllSubAccounts() {
+      // 判断当前角色是否在子账号中，如果在，删除当前角色且清空token，用some是为了提高效率
+      this.accountTokenInfo.some((account) => {
+        for (const character of account.tokenInfo.characters) {
+          if (this.currentCharacter.id === character.id) {
+            this.currentCharacter = {};
+            useTokenStore().setToken("");
+          }
+        }
+        return true;
+      });
+      this.accountTokenInfo = [];
     },
     getOtherAccountTokenInfo() {
       let allTokenInfo = [];

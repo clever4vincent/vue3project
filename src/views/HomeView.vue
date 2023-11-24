@@ -71,12 +71,14 @@
       <van-button style="margin: 10px" plain type="primary" @click="addSubAccount">添加小号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="addMultipleSubAccount">批量添加小号</van-button>
-      <!-- </div> -->
+      <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="deleteSubAccounts">删除所有小号</van-button>
+      <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
+      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferAllCurrencies">转移所有通货到当前角色</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferAllCurrencies">转移所有角色通货到当前角色</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
     </div>
     <van-popup v-model:show="show" round position="bottom">
       <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
@@ -87,8 +89,8 @@
 </template>
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
-import { getCharacterInfo, getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
-import { showConfirmDialog, showToast } from "vant";
+import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
+import { showConfirmDialog, showToast, showSuccessToast } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 
@@ -163,9 +165,8 @@ const beforeClose = (action) =>
           setMainAccountAndToken({ username, password })
             .then(() => {
               // dialogRef.value.clearFields();
-              showToast({
-                message: "更新成功!",
-              });
+
+              showSuccessToast("更新成功");
               tokenStore.setToken(currentCharacter.token);
               activeName.value = "1";
             })
@@ -314,56 +315,11 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
     message: `转移完成`,
   });
 };
-const transferAllCurrencies = async () => {
-  // 流程：先获取所有账号信息，然后遍历所有角色，获取角色的通货信息，然后将通货转移到当前角色上。
-  // 转移通货的过程是通过被转移的角色上架物品，然后转移目标角色购买物品来实现的。切换角色的过程是通过切换token来实现的。等所有通货都转移完毕后，再将token切换回来。
-  // 因为转移通货的过程是通过上架物品来实现的，所以需要先获取当前角色的物品信息，然后再上架物品。
-  let currentFirstBackpacks = [];
-  let currentSellItem = {};
-  let packetPriceObj = {};
-  await getBackpack().then((data) => {
-    currentFirstBackpacks = data.items;
-  });
-  let accounts = accountStore.getOtherAccountTokenInfo();
-  for (let account of accounts) {
-    for (let character of account.tokenInfo.characters) {
-      // 如果是当前角色，跳过
-      if (character.id === currentCharacter.value.id) {
-        continue;
-      }
-      showToast({
-        message: `正在转移${character.name}的通货`,
-      });
-      tokenStore.setToken(character.token);
-      await getCurrency().then((res) => {
-        let currentCurrency = res;
-        packetPriceObj = packetPrice(currentCurrency);
-      });
-      // 被转移的角色上架物品，价格为当前角色的通货数量
-      tokenStore.setToken(currentCharacter.value.token);
-      // 上架物品前先确定物品列表是否为空，如果为空，就请求一次物品列表
-      if (currentFirstBackpacks.length === 0) {
-        await getBackpack().then((data) => {
-          currentFirstBackpacks = data.items;
-        });
-      }
-      await sell(currentFirstBackpacks[0].id, packetPriceObj).then(async () => {
-        currentSellItem = currentFirstBackpacks.shift();
-        // 转移目标角色购买物品
-        tokenStore.setToken(character.token);
-        // 上架物品后会生成一个物品的市场ID，这个ID是唯一的，所以需要获取市场物品，通过物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
-        await getMarket().then(async (res) => {
-          let marketId = res.items.find((item) => item.equipmentId == currentSellItem.id).id;
-          await buy(marketId);
-        });
-      });
-    }
-  }
-  // 转移完成后，切换回当前角色
-  tokenStore.setToken(currentCharacter.value.token);
-  showToast({
-    message: `转移完成`,
-  });
+const deleteAllAccounts = () => {
+  accountStore.deleteAllAccounts();
+};
+const deleteSubAccounts = () => {
+  accountStore.deleteAllSubAccounts();
 };
 const deleteAccount = (account) => {
   accountStore.deleteSubAccount(account);
@@ -377,18 +333,19 @@ const addAccountAndToken = async (account) => {
 };
 const addAccounts = async (accounts) => {
   for (let account of accounts) {
-    showToast({
-      message: `正在添加${account.username}`,
-    });
+    // 创建账号的个数大于10个才提示
+    if (accounts.length > 8) {
+      showToast({
+        message: `正在添加${account.username}`,
+      });
+    }
     await addAccountAndToken(account);
   }
 };
 const setMainAccountAndToken = async (account) => {
   await accountStore.setMainAccount(account);
 };
-const deleteAllAccounts = () => {
-  accountStore.deleteAllSubAccounts();
-};
+
 const addSubAccount = () => {
   showDialog("添加小号", DialogModeEnum.SUB_SINGLE_ADD);
 };
