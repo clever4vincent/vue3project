@@ -2,9 +2,9 @@ import { createPinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 const store = createPinia().use(piniaPluginPersistedstate);
 export function setupStore(app) {
-    app.use(store);
+  app.use(store);
 }
 export { store };
-export { useStore, useLoadingStore } from "./app";
+export { useStore, useLoadingStore, useRouterStore, useRouterStoreWithOut, useThemeStore, useStoreWithOut } from "./app";
 export { useAccountStore } from "./account";
 export { useTokenStore } from "./token";

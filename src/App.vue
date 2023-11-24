@@ -1,25 +1,75 @@
 <template>
-    <van-config-provider :theme="themeStore.theme" theme-vars-scope="global">
-        <RouterView />
-        <van-tabbar v-model="active" route>
-            <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>
-            <!-- <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item>
+  <van-config-provider :theme="themeStore.theme" theme-vars-scope="global">
+    <RouterView v-slot="{ Component }">
+      <transition :name="transitionName">
+        <component :is="Component" />
+      </transition>
+    </RouterView>
+    <!-- <router-view v-slot="{ Component }">
+      
+      <transition :name="transitionName">
+        <component :is="Component" />
+      </transition>
+   
+    </router-view> -->
+
+    <van-tabbar v-model="active" v-show="isMainRouter" route>
+      <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>
+      <!-- <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item>
       <van-tabbar-item replace icon="friends-o" to="/my">好友</van-tabbar-item> -->
-            <van-tabbar-item replace icon="setting-o" to="/setting">设置</van-tabbar-item>
-        </van-tabbar>
-        <LoadingMask ref="PageLoadingMask" :show="canShowLoading" class="page-loading-mask"></LoadingMask>
-    </van-config-provider>
+      <van-tabbar-item replace icon="setting-o" to="/setting">设置</van-tabbar-item>
+    </van-tabbar>
+    <LoadingMask ref="PageLoadingMask" :show="canShowLoading" class="page-loading-mask"></LoadingMask>
+  </van-config-provider>
 </template>
 <script setup>
-import { RouterView } from "vue-router";
-import { useStore, useLoadingStore } from "./stores";
+import { RouterView, useRoute } from "vue-router";
+
+import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
+
 const active = ref(0);
-const themeStore = useStore();
+const route = useRoute();
+const themeStore = useThemeStore();
+const appStore = useStore();
 const loadingStore = useLoadingStore();
+
 const canShowLoading = computed(() => loadingStore.loading > 0);
+const isMainRouter = computed(() => useRouterStore().isMainRouter);
+const transitionName = computed(() => {
+  console.log(appStore.transitionName);
+  return appStore.transitionName;
+});
 </script>
 
 <style>
+.container {
+  /* min-height: calc(100vh - 96px); */
+  height: 100%;
+  padding-top: 46px;
+}
+.slide-left-enter-active,
+.slide-right-leave-active {
+  transition: all 0.5s ease;
+  position: absolute;
+  width: 100%;
+}
+.slide-left-enter,
+.slide-right-leave-to {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
+.slide-right-enter-active,
+.slide-left-leave-active {
+  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
+  position: absolute;
+  width: 100%;
+}
+.slide-right-enter,
+.slide-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
 /* @import '@/assets/scss/base.scss'; */
 /* 夜间模式 */
 /* .van-theme-dark .van-tabbar .van-tabbar--fixed {

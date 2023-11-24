@@ -1,4 +1,5 @@
 import "./assets/main.css";
+import "animate.css";
 import "./utils/rem.js";
 import "vant/es/toast/style";
 import "vant/es/dialog/style";

@@ -5,11 +5,14 @@ module.exports = {
     env: {
         browser: true,
         es2021: true,
-        node: true
+        node: true,
     },
     root: true,
     extends: ["plugin:vue/vue3-essential", "eslint:recommended", "@vue/eslint-config-prettier/skip-formatting", "./.eslintrc-auto-import.json"],
     parserOptions: {
-        ecmaVersion: "latest"
-    }
+        ecmaVersion: "latest",
+        ecmaFeatures: {
+            jsx: true,
+        },
+    },
 };

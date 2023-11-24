@@ -6,7 +6,7 @@ import { checkStatus } from "./checkStatus";
 import { getAppEnvConfig } from "@/utils/env";
 import { RequestEnum, ContentTypeEnum, ConfigEnum } from "@/enums/httpEnum";
 import { isString } from "@/utils/is";
-// import { getToken } from "@/utils/auth";
+import { showToast } from "vant";
 import { setObjToUrlParams, deepMerge } from "@/utils";
 import { useErrorLogStore } from "@/stores/errorLog";
 import { useLoadingStore, useTokenStore } from "@/stores";
@@ -42,7 +42,7 @@ const transform = {
             throw new Error("数据返回有问题");
         }
         //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
-        const { success } = data;
+        const { success, message } = data;
         const result = data.data || data.message || {};
         // 这里逻辑可以根据项目进行修改
 
@@ -65,6 +65,9 @@ const transform = {
         } else if (options.errorMessageMode === "message") {
             // 显示错误文本
             // createMessage.error(timeoutMsg);
+            showToast({
+                message,
+            });
         }
 
         throw new Error(result || "请求出错！");

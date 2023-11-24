@@ -1,6 +1,12 @@
 /* color palette from <https://github.com/vuejs/theme> */
-@import 'scss/base.scss';
+@import "scss/base.scss";
 :root {
+  --normal-color: #c8c8c8;
+  --magic-color: #88f;
+  --rare-color: #ff7;
+  --unique-color: #af6025;
+  --error-color: #e63946;
+
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;
   --vt-c-white-mute: #f2f2f2;

@@ -1,4 +1,6 @@
 import vue from "@vitejs/plugin-vue";
+import vueJsx from "@vitejs/plugin-vue-jsx";
+
 import AutoImport from "unplugin-auto-import/vite";
 import Components from "unplugin-vue-components/vite";
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons";
@@ -56,7 +58,7 @@ const configCompress = (compress, deleteOriginFile = false) => {
         plugins.push(
             compressPlugin({
                 ext: ".gz",
-                deleteOriginFile
+                deleteOriginFile,
             })
         );
     }
@@ -66,7 +68,7 @@ const configCompress = (compress, deleteOriginFile = false) => {
             compressPlugin({
                 ext: ".br",
                 algorithm: "brotliCompress",
-                deleteOriginFile
+                deleteOriginFile,
             })
         );
     }
@@ -80,7 +82,7 @@ export function createVitePlugins(env, isBuild) {
 
     const vitePluginList = [
         vue(),
-        // vueJsx(),
+        vueJsx(),
         AutoImport({
             // 设置为false，即为不自动导入，设置为路径即在当前路径生成自动导入文件  true即默认./auto-import.d.ts
             // dts: resolve("../src/components.d.ts"),
@@ -89,27 +91,27 @@ export function createVitePlugins(env, isBuild) {
                 "pinia",
                 "vue-router",
                 {
-                    "@vueuse/core": []
-                }
+                    "@vueuse/core": [],
+                },
             ],
             eslintrc: {
                 enabled: true, // Default `false`
                 filepath: resolve("../.eslintrc-auto-import.json"), // Default `./.eslintrc-auto-import.json`
-                globalsPropValue: true // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+                globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
             },
-            resolvers: [VantResolver()]
+            resolvers: [VantResolver()],
         }),
         Components({
             extensions: ["vue", "jsx"],
             dts: resolve("../src/auto-imports.d.ts"),
             include: [/\.vue$/, /\.vue\?vue/, /\.md$/],
             exclude: [/[\\/]node_modules[\\/]/, /[\\/]\.git[\\/]/, /[\\/]\.nuxt[\\/]/],
-            resolvers: [VantResolver()]
+            resolvers: [VantResolver()],
         }),
         createSvgIconsPlugin({
             iconDirs: [resolve("../src/icons")],
             // 指定symbolId格式
-            symbolId: "svg-[name]"
+            symbolId: "svg-[name]",
         }),
 
         // html title
@@ -120,14 +122,14 @@ export function createVitePlugins(env, isBuild) {
                     title: VITE_APP_NAME,
                     injectScript: `<script>
                           console.log("version:${pkg.version}")
-                    </script>`
-                }
-            }
+                    </script>`,
+                },
+            },
         }),
         // 打包提示信息
         viteBuildInfo(),
         // setupName添加
-        setupName()
+        setupName(),
     ];
 
     VITE_USE_MOCK &&
@@ -144,7 +146,7 @@ export function createVitePlugins(env, isBuild) {
               import { setupProdMockServer } from './mockProdServer';
 
               setupProdMockServer();
-            `
+            `,
             })
         );
 
@@ -155,7 +157,7 @@ export function createVitePlugins(env, isBuild) {
                 open: true,
                 gzipSize: true,
                 brotliSize: true,
-                filename: "report.html"
+                filename: "report.html",
             })
         );
 

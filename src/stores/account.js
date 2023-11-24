@@ -1,104 +1,149 @@
 import { defineStore } from "pinia";
 import { store, useTokenStore } from "@/stores";
 import { login, getCharacterList, switchCharacter } from "@/api";
+import { cloneDeep } from "lodash-es";
 
 export const useAccountStore = defineStore({
-    id: "app-account",
-    state: () => ({
-        mainAccounts: [
-            {
-                username: "a6669852",
-                password: "123456",
-            },
-        ],
-        subAccounts: [],
-        accountTokenInfo: [],
-    }),
-    getters: {
-        getMainAccount() {
-            return this.mainAccounts[0];
-        },
-        getSubAccounts() {
-            return this.subAccounts;
-        },
+  id: "app-account",
+  state: () => ({
+    mainAccountTokenInfo: [],
+    accountTokenInfo: [],
+    currentCharacter: {},
+  }),
+  getters: {
+    getMainAccount() {
+      return this.mainAccountTokenInfo[0];
     },
-    actions: {
-        addSubAccount(account) {
-            const index = this.subAccounts.findIndex((subAccount) => subAccount.username === account.username);
-            if (index !== -1 && account.password) {
-                // 如果找到了相同的账户，更新它
-                this.subAccounts[index] = account;
-            } else {
-                // 如果没有找到相同的账户，将 account 添加到 subAccounts 中
-                this.subAccounts.push(account);
-            }
-        },
-        setMainAccount(account) {
-            if (account.username && account.password) {
-                this.mainAccounts[0] = account;
-            }
-        },
-        async getAccountTokenInfo(account) {
-            const index = this.accountTokenInfo.findIndex((item) => item.username === account.username);
-            if (index !== -1) {
-                return this.accountTokenInfo[index];
-            } else {
-                // 获取 tokenInfo
-                const tokenInfo = await this.requestAccountTokenInfo(account);
-                tokenInfo &&
-                    this.accountTokenInfo.push({
-                        username: account.username,
-                        tokenInfo,
-                    });
-                return this.accountTokenInfo[this.accountTokenInfo.length - 1];
-            }
-        },
-        async requestAccountTokenInfo(account) {
-            let accountToken = null;
-            let characters = [];
-            await login(account).then((res) => {
-                if (res.token) {
-                    //    await
-                    accountToken = res.token;
-                    useTokenStore().setToken(res.token);
-                    // await useTokenStore()
-                } else {
-                    throw new Error("登录失败");
-                }
-            });
-            await getCharacterList().then(async (res) => {
-                if (res.length > 0) {
-                    for (const character of res) {
-                        let characterToken = null;
-
-                        await switchCharacter({ characterId: character.id }).then(async (result) => {
-                            if (result) {
-                                characterToken = result;
-                                // useTokenStore().setToken(result);
-                            } else {
-                                throw new Error("角色登录失败");
-                            }
-                        });
-                        characters.push({
-                            id: character.id,
-                            name: character.name,
-                            token: characterToken,
-                        });
-                    }
-                } else {
-                    throw new Error("获取角色列表失败");
-                }
-            });
-
-            return {
-                accountToken,
-                characters,
-            };
-        },
+    getSubAccounts() {
+      return this.accountTokenInfo.sort((a, b) => a.username.localeCompare(b.username));
     },
-    persist: true,
+    getCurrentCharacter() {
+      return this.currentCharacter;
+    },
+  },
+  actions: {
+    getOtherAccountTokenInfo() {
+      let allTokenInfo = [];
+      allTokenInfo = allTokenInfo.concat(this.mainAccountTokenInfo).concat(this.accountTokenInfo);
+
+      let temp = cloneDeep(allTokenInfo);
+      // 需要删除当前角色，所以复制数据，不要直接操作 allTokenInfo,删除当前角色所在的账号的数据
+      for (let i = 0; i < temp.length; i++) {
+        for (let j = 0; j < temp[i].tokenInfo.characters.length; j++) {
+          if (temp[i].tokenInfo.characters[j].id === this.currentCharacter.id) {
+            temp[i].tokenInfo.characters.splice(j, 1);
+          }
+        }
+      }
+
+      return temp;
+    },
+    async addSubAccount(account) {
+      await this.getAccountTokenInfo(account);
+    },
+    deleteSubAccount(account) {
+      const index = this.accountTokenInfo.findIndex((subAccount) => subAccount.username === account.username);
+      if (index !== -1) {
+        for (const character of this.accountTokenInfo[index].tokenInfo.characters) {
+          if (this.currentCharacter.id === character.id) {
+            this.currentCharacter = {};
+            useTokenStore().setToken("");
+          }
+        }
+
+        this.accountTokenInfo.splice(index, 1);
+      }
+    },
+    setCurrentCharacter(character) {
+      this.currentCharacter = character;
+      useTokenStore().setToken(character.token);
+    },
+    async setMainAccount(account) {
+      if (account.username && account.password) {
+        await this.getMainAccountTokenInfo(account);
+      }
+    },
+    async getAccountTokenInfo(account) {
+      const index = this.accountTokenInfo.findIndex((item) => item.username === account.username);
+
+      if (index !== -1) {
+        // return this.accountTokenInfo[index];
+      } else {
+        // 获取 tokenInfo
+        const tokenInfo = await this.requestAccountTokenInfo(account);
+        tokenInfo &&
+          this.accountTokenInfo.push({
+            username: account.username,
+            password: account.password,
+            tokenInfo,
+          });
+        this.accountTokenInfo.sort((a, b) => a.username.localeCompare(b.username));
+        // return this.accountTokenInfo[this.accountTokenInfo.length - 1];
+      }
+    },
+    async getMainAccountTokenInfo(account) {
+      const index = this.mainAccountTokenInfo.findIndex((item) => item.username === account.username);
+
+      if (index !== -1) {
+        return this.mainAccountTokenInfo[index];
+      } else {
+        // 获取 tokenInfo
+        const tokenInfo = await this.requestAccountTokenInfo(account);
+        tokenInfo &&
+          (this.mainAccountTokenInfo[0] = {
+            username: account.username,
+            password: account.password,
+            tokenInfo,
+          });
+        return this.mainAccountTokenInfo[0];
+      }
+    },
+    async requestAccountTokenInfo(account) {
+      let accountToken = null;
+      let characters = [];
+      await login(account).then((res) => {
+        if (res.token) {
+          //    await
+          accountToken = res.token;
+          useTokenStore().setToken(res.token);
+          // await useTokenStore()
+        } else {
+          throw new Error("登录失败");
+        }
+      });
+      await getCharacterList().then(async (res) => {
+        if (res.length > 0) {
+          for (const character of res) {
+            let characterToken = null;
+
+            await switchCharacter({ characterId: character.id }).then(async (result) => {
+              if (result) {
+                characterToken = result;
+                // useTokenStore().setToken(result);
+              } else {
+                throw new Error("角色登录失败");
+              }
+            });
+            characters.push({
+              id: character.id,
+              name: character.name,
+              token: characterToken,
+            });
+          }
+        } else {
+          throw new Error("获取角色列表失败");
+        }
+      });
+
+      return {
+        accountToken,
+        characters,
+      };
+    },
+  },
+  persist: true,
 });
 // Need to be used outside the setup
 export function useAccountStoreWithOut() {
-    return useAccountStore(store);
+  return useAccountStore(store);
 }
