@@ -1,10 +1,19 @@
 <template>
   <van-config-provider :theme="themeStore.theme" theme-vars-scope="global">
-    <RouterView v-slot="{ Component }">
+    <!-- <RouterView v-slot="{ Component }">
       <transition :name="transitionName">
         <component :is="Component" />
       </transition>
-    </RouterView>
+    </RouterView> -->
+    <router-view v-slot="{ Component }">
+      <transition :name="transitionName">
+        <keep-alive>
+          <div :key="route.name">
+            <component :is="Component"></component>
+          </div>
+        </keep-alive>
+      </transition>
+    </router-view>
     <!-- <router-view v-slot="{ Component }">
       
       <transition :name="transitionName">
@@ -42,33 +51,61 @@ const transitionName = computed(() => {
 
 <style>
 .container {
-  /* min-height: calc(100vh - 96px); */
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 100vh;
   padding-top: 46px;
 }
-.slide-left-enter-active,
-.slide-right-leave-active {
-  transition: all 0.5s ease;
-  position: absolute;
-  width: 100%;
-}
-.slide-left-enter,
-.slide-right-leave-to {
-  transform: translateX(100%);
-  opacity: 0;
+.router-view {
+  position: relative;
 }
 
-.slide-right-enter-active,
-.slide-left-leave-active {
-  transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
-  position: absolute;
-  width: 100%;
+.slide-right-enter {
+  /* transform: translateX(200%); */
 }
-.slide-right-enter,
-.slide-left-leave-to {
+.slide-right-enter-active {
+  transform: translateX(100%);
+  transition: all 0.5s ease;
+}
+.slide-right-enter-to {
+  transform: translateX(0%);
+}
+.slide-right-leave {
+  transform: translateX(0%);
+}
+.slide-right-leave-active {
+  transition: all 0.5s ease;
+  /* transform: translateX(100%); */
+}
+.slide-right-leave-to {
   transform: translateX(-100%);
-  opacity: 0;
 }
+
+.slide-left-enter {
+  /* transform: translateX(0%);
+  z-index: 2; */
+}
+.slide-left-enter-active {
+  transform: translateX(-100%);
+  transition: all 0.5s ease;
+}
+.slide-left-enter-to {
+  transform: translateX(0%);
+}
+.slide-left-leave {
+  /* transform: translateX(100%); */
+}
+.slide-left-leave-active {
+  transform: translateX(100%);
+  transition: all 0.5s ease;
+}
+.slide-left-leave-to {
+  transform: translateX(200%);
+}
+
 /* @import '@/assets/scss/base.scss'; */
 /* 夜间模式 */
 /* .van-theme-dark .van-tabbar .van-tabbar--fixed {

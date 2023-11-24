@@ -1,6 +1,7 @@
 <template>
   <div class="page">
     <van-nav-bar title="装备列表" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
+
     <div class="container">
       <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
         <van-cell
@@ -107,6 +108,10 @@ onMounted(() => {});
 </script>
 
 <style scoped lang="scss">
+.page {
+  min-height: 100%;
+  // overflow: hidden;
+}
 :deep(.van-cell__value) {
   flex: 0.5;
 }
