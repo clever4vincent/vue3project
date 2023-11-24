@@ -67,21 +67,27 @@
           </van-cell-group>
         </van-collapse-item>
       </van-collapse>
-      <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 10px">
-        <van-button style="margin: 10px" plain type="primary" @click="addSubAccount">添加小号</van-button>
-        <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
-        <van-button style="margin: 10px" plain type="primary" @click="addMultipleSubAccount">批量添加小号</van-button>
-      </div>
+      <!-- <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 10px"> -->
+      <van-button style="margin: 10px" plain type="primary" @click="addSubAccount">添加小号</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="addMultipleSubAccount">批量添加小号</van-button>
+      <!-- </div> -->
+      <van-button style="margin: 10px" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferAllCurrencies">转移所有角色通货到当前角色</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
     </div>
+    <van-popup v-model:show="show" round position="bottom">
+      <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
+    </van-popup>
   </div>
 
   <!-- </van-pull-refresh> -->
 </template>
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
-import { getCharacterInfo } from "@/api";
+import { getCharacterInfo, getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
 import { showConfirmDialog, showToast } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
@@ -89,24 +95,25 @@ import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { h } from "vue";
 import { watch } from "vue";
 import { ref } from "vue";
-const characterAncillaryAccounts = useAccountStore().getSubAccounts;
 
-const count = ref(0);
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
+const show = ref(false);
 const loadingStore = useLoadingStore();
 const accountStore = useAccountStore();
 const tokenStore = useTokenStore();
 const loading = ref(false);
-const containerRef = ref(null);
+
 const dialogRef = ref(null);
 const mode = ref("");
 const isChange = ref(false);
+const options = ref([]);
 const changeClass = computed(() => {
   return isChange.value ? "animate__animated animate__bounce" : "";
 });
 
 const mainAccount = computed(() => useAccountStore().getMainAccount);
+const characterAncillaryAccounts = computed(() => useAccountStore().getSubAccounts);
 const currentCharacter = computed(() => {
   return useAccountStore().getCurrentCharacter;
 });
@@ -120,12 +127,6 @@ watch(currentCharacter, (newVal, oldVal) => {
       isChange.value = false;
     }, 1000);
     // -----------给角色添加动画效果-----------
-    newVal &&
-      newVal.id &&
-      getCharacterInfo({ id: newVal.id }).then((res) => {
-        console.log(res);
-        // tokenStore.setCurrentToken(res.data);
-      });
   }
 });
 
@@ -202,7 +203,168 @@ const beforeClose = (action) =>
       resolve(true);
     }
   });
+const packetPrice = (currentCurrency) => {
+  return {
+    1: currentCurrency.jewellerOrb,
+    2: currentCurrency.chromaticOrb,
+    3: currentCurrency.orbOfFusing,
+    4: currentCurrency.orbOfTransmutation,
+    5: currentCurrency.orbOfChance,
+    6: currentCurrency.orbOfAlchemy,
+    7: currentCurrency.orbOfAugmentation,
+    8: currentCurrency.orbOfAlteration,
+    9: currentCurrency.exaltedOrb,
+    10: currentCurrency.chaosOrb,
+    11: currentCurrency.regalOrb,
+    12: currentCurrency.orbOfScouring,
+    13: currentCurrency.divineOrb,
+    14: currentCurrency.vaalOrb,
+    15: currentCurrency.mirrorOfKalandra,
+    16: currentCurrency.whetstone,
+    17: currentCurrency.armourersScrap,
+  };
+};
 
+const onCancel = () => (show.value = false);
+const onConfirm = async (value) => {
+  show.value = false;
+  let [id, token] = value.selectedValues[1].split("|");
+  // console.log(token);
+  await TransferCurrenciesOneToOne(currentCharacter.value.token, token, []);
+  // 切换回当前角色
+  tokenStore.setToken(currentCharacter.value.token);
+};
+
+const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
+  // 将源头角色的通货转移到目标角色上
+  // 将角色切换至源头角色
+  // 获取源头角色的通货信息
+  // 将角色切换至目标角色
+  // 上架物品
+  // 将角色切换至源头角色
+  // 先根据物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
+  let currentSellItem = {};
+  let packetPriceObj = {};
+
+  tokenStore.setToken(orgin);
+  await getCurrency().then((res) => {
+    packetPriceObj = packetPrice(res);
+  });
+  tokenStore.setToken(dist);
+
+  // 上架物品前先确定物品列表是否为空，如果为空，就请求一次物品列表
+  if (distBackpacks.length === 0) {
+    await getBackpack().then((data) => {
+      distBackpacks = data.items;
+    });
+  }
+  await sell(distBackpacks[0].id, packetPriceObj).then(async () => {
+    currentSellItem = distBackpacks.shift();
+    // 转移目标角色购买物品
+    tokenStore.setToken(orgin);
+    // 上架物品后会生成一个物品的市场ID，这个ID是唯一的，所以需要获取市场物品，通过物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
+    await getMarket().then(async (res) => {
+      let marketId = res.items.find((item) => item.equipmentId == currentSellItem.id).id;
+      await buy(marketId);
+    });
+  });
+};
+const ShowTransferCurrenciesTo = async () => {
+  options.value = accountStore.getOtherAccountTokenInfoOptions();
+
+  show.value = true;
+};
+const ShowTransferAllCurrencies = async () => {
+  // 加一个确认弹窗
+  showConfirmDialog({
+    title: "确认转移",
+    message: "确认转移所有角色的通货到当前角色吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        // resolve(true);
+        // transferAllCurrencies();
+        transferAllCurrenciesToCurrentCharacter();
+      }
+      return true;
+    },
+  });
+  // await transferAllCurrencies();
+};
+const transferAllCurrenciesToCurrentCharacter = async () => {
+  // 流程：先获取所有账号信息，然后遍历所有角色，获取角色的通货信息，然后将通货转移到当前角色上。
+  // 转移通货的过程是通过被转移的角色上架物品，然后转移目标角色购买物品来实现的。切换角色的过程是通过切换token来实现的。等所有通货都转移完毕后，再将token切换回来。
+  // 因为转移通货的过程是通过上架物品来实现的，所以需要先获取当前角色的物品信息，然后再上架物品。
+  let accounts = accountStore.getOtherAccountTokenInfo();
+  let currentFirstBackpacks = [];
+  for (let account of accounts) {
+    for (let character of account.tokenInfo.characters) {
+      // 如果是当前角色，跳过
+      if (character.id === currentCharacter.value.id) {
+        continue;
+      }
+      showToast({
+        message: `正在转移${character.name}的通货`,
+      });
+      await TransferCurrenciesOneToOne(character.token, currentCharacter.value.token, currentFirstBackpacks);
+    }
+  }
+  // 转移完成后，切换回当前角色
+  tokenStore.setToken(currentCharacter.value.token);
+  showToast({
+    message: `转移完成`,
+  });
+};
+const transferAllCurrencies = async () => {
+  // 流程：先获取所有账号信息，然后遍历所有角色，获取角色的通货信息，然后将通货转移到当前角色上。
+  // 转移通货的过程是通过被转移的角色上架物品，然后转移目标角色购买物品来实现的。切换角色的过程是通过切换token来实现的。等所有通货都转移完毕后，再将token切换回来。
+  // 因为转移通货的过程是通过上架物品来实现的，所以需要先获取当前角色的物品信息，然后再上架物品。
+  let currentFirstBackpacks = [];
+  let currentSellItem = {};
+  let packetPriceObj = {};
+  await getBackpack().then((data) => {
+    currentFirstBackpacks = data.items;
+  });
+  let accounts = accountStore.getOtherAccountTokenInfo();
+  for (let account of accounts) {
+    for (let character of account.tokenInfo.characters) {
+      // 如果是当前角色，跳过
+      if (character.id === currentCharacter.value.id) {
+        continue;
+      }
+      showToast({
+        message: `正在转移${character.name}的通货`,
+      });
+      tokenStore.setToken(character.token);
+      await getCurrency().then((res) => {
+        let currentCurrency = res;
+        packetPriceObj = packetPrice(currentCurrency);
+      });
+      // 被转移的角色上架物品，价格为当前角色的通货数量
+      tokenStore.setToken(currentCharacter.value.token);
+      // 上架物品前先确定物品列表是否为空，如果为空，就请求一次物品列表
+      if (currentFirstBackpacks.length === 0) {
+        await getBackpack().then((data) => {
+          currentFirstBackpacks = data.items;
+        });
+      }
+      await sell(currentFirstBackpacks[0].id, packetPriceObj).then(async () => {
+        currentSellItem = currentFirstBackpacks.shift();
+        // 转移目标角色购买物品
+        tokenStore.setToken(character.token);
+        // 上架物品后会生成一个物品的市场ID，这个ID是唯一的，所以需要获取市场物品，通过物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
+        await getMarket().then(async (res) => {
+          let marketId = res.items.find((item) => item.equipmentId == currentSellItem.id).id;
+          await buy(marketId);
+        });
+      });
+    }
+  }
+  // 转移完成后，切换回当前角色
+  tokenStore.setToken(currentCharacter.value.token);
+  showToast({
+    message: `转移完成`,
+  });
+};
 const deleteAccount = (account) => {
   accountStore.deleteSubAccount(account);
 };
@@ -215,11 +377,17 @@ const addAccountAndToken = async (account) => {
 };
 const addAccounts = async (accounts) => {
   for (let account of accounts) {
+    showToast({
+      message: `正在添加${account.username}`,
+    });
     await addAccountAndToken(account);
   }
 };
 const setMainAccountAndToken = async (account) => {
   await accountStore.setMainAccount(account);
+};
+const deleteAllAccounts = () => {
+  accountStore.deleteAllSubAccounts();
 };
 const addSubAccount = () => {
   showDialog("添加小号", DialogModeEnum.SUB_SINGLE_ADD);

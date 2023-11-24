@@ -38,25 +38,12 @@ const show = ref(false);
 const finished = ref(false);
 const currentEquipment = ref(null);
 const router = useRouter();
+const options = ref([]);
 let page = 1;
 import { getBackpack } from "@/api";
 
 const onClickLeft = () => router.go(-1);
 const accountStore = useAccountStore();
-const parseAccounts = (accounts) => {
-  return accounts.map((account) => {
-    return {
-      text: account.username,
-      value: account.username,
-      children: account.tokenInfo.characters.map((character) => {
-        return {
-          text: character.name,
-          value: character.id + "|" + character.token,
-        };
-      }),
-    };
-  });
-};
 
 const onCancel = () => (show.value = false);
 const onConfirm = (value) => {
@@ -64,11 +51,10 @@ const onConfirm = (value) => {
   let [characterId, token] = value.selectedValues[1].split("|");
   startEquipmentTransfer(characterId, token);
 };
-const options = ref([]);
+
 const onLoad = () => {
   // 异步更新数据
   getBackpack(page).then((res) => {
-    console.log(res);
     list.value = list.value.concat(res.items);
     loading.value = false;
     page++;
@@ -92,7 +78,6 @@ const startEquipmentTransfer = (characterId, token) => {
   // 上架物品后会生成一个物品的市场ID，这个ID是唯一的，所以需要获取市场物品，通过物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
 
   sell(equipment.id, { 4: 1 }).then((res) => {
-    console.log(res);
     // 上架成功后，切换角色
     useTokenStore().setToken(token);
     // 购买物品
@@ -112,15 +97,13 @@ const startEquipmentTransfer = (characterId, token) => {
 const moveEquipment = (item) => {
   //记录当前装备
   currentEquipment.value = item;
-  let result = parseAccounts(accountStore.getOtherAccountTokenInfo());
+  let result = accountStore.getOtherAccountTokenInfoOptions();
   options.value = result;
 
   show.value = true;
 };
 
-onMounted(() => {
-  console.log("mounted!");
-});
+onMounted(() => {});
 </script>
 
 <style scoped lang="scss">

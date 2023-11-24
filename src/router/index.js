@@ -62,8 +62,6 @@ router.beforeEach((to, from, next) => {
   next();
 });
 router.afterEach((to, from) => {
-  console.log("to", to.meta);
-  console.log("from", from.meta);
   if (to.meta.isMain && from.meta.isMain) {
     useStoreWithOut().transitionName = "no-transition";
   } else {

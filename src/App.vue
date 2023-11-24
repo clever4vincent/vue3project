@@ -36,7 +36,6 @@ const loadingStore = useLoadingStore();
 const canShowLoading = computed(() => loadingStore.loading > 0);
 const isMainRouter = computed(() => useRouterStore().isMainRouter);
 const transitionName = computed(() => {
-  console.log(appStore.transitionName);
   return appStore.transitionName;
 });
 </script>

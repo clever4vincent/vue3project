@@ -26,12 +26,12 @@ function onUpdateValue(value) {
   }
 }
 </script>
-<style>
+<style scoped>
 .van-switch {
   vertical-align: middle;
 }
 
-.van-theme-dark .van-nav-bar__content,
+/* .van-theme-dark .van-nav-bar__content,
 .van-theme-dark .van-cell-group {
   background-color: var(--vt-c-black);
   background: var(--vt-c-black);
@@ -41,5 +41,5 @@ function onUpdateValue(value) {
 }
 .van-theme-dark .van-nav-bar__title {
   color: var(--vt-c-text-dark-2);
-}
+} */
 </style>

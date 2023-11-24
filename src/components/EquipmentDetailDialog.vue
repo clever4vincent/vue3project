@@ -145,7 +145,6 @@ export default {
     },
   },
   setup(props) {
-    console.log(props.equipment);
     let lineCount = 0;
     // let magics = magics;
     return { lineCount, magics, rarityClass, types };

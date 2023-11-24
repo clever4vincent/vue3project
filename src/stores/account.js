@@ -22,6 +22,26 @@ export const useAccountStore = defineStore({
     },
   },
   actions: {
+    parseAccounts(accounts) {
+      return accounts.map((account) => {
+        return {
+          text: account.username,
+          value: account.username,
+          children: account.tokenInfo.characters.map((character) => {
+            return {
+              text: character.name,
+              value: character.id + "|" + character.token,
+            };
+          }),
+        };
+      });
+    },
+    deleteAllSubAccounts() {
+      this.accountTokenInfo = [];
+      this.currentCharacter = {};
+      this.mainAccountTokenInfo = [];
+      useTokenStore().setToken("");
+    },
     getOtherAccountTokenInfo() {
       let allTokenInfo = [];
       allTokenInfo = allTokenInfo.concat(this.mainAccountTokenInfo).concat(this.accountTokenInfo);
@@ -35,8 +55,10 @@ export const useAccountStore = defineStore({
           }
         }
       }
-
       return temp;
+    },
+    getOtherAccountTokenInfoOptions() {
+      return this.parseAccounts(this.getOtherAccountTokenInfo());
     },
     async addSubAccount(account) {
       await this.getAccountTokenInfo(account);
