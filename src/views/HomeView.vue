@@ -5,11 +5,11 @@
     <!-- <van-pull-refresh v-model="loading" @refresh="onRefresh" :disabled="pullRefreshDisabled"> -->
     <div class="container">
       <!-- <div style="height: 20px"></div> -->
-      <van-sticky :offset-top="'22px'">
-        <van-cell-group inset class="current-character">
-          <van-cell title="当前角色" :value="currentCharacter.name || '未选择'" :class="changeClass" />
-        </van-cell-group>
-      </van-sticky>
+      <!-- <van-sticky :offset-top="'22px'"> -->
+      <van-cell-group inset class="current-character">
+        <van-cell title="当前角色" :value="currentCharacter.name || '未选择'" :class="changeClass" />
+      </van-cell-group>
+      <!-- </van-sticky> -->
 
       <van-collapse v-model="activeName" accordion>
         <van-collapse-item title="主号" name="1">
@@ -31,8 +31,16 @@
                 @click="selectCharacter(character)"
                 >选择角色</van-button
               >
+              <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
+              <van-button
+                class="delete"
+                size="mini"
+                plain
+                :type="character.cantTransfer ? 'danger' : 'success'"
+                @click="switchCantTransfer(character)"
+                >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
+              >
               <!-- <van-button v-else class="delete" size="mini" plain type="primary">已选择</van-button> -->
-              <van-tag v-else color="#ffe1e1" text-color="#ad0000">已选择</van-tag>
             </template>
           </van-cell>
         </van-collapse-item>
@@ -59,7 +67,24 @@
                   :border="false"
                 >
                   <template #right-icon>
-                    <van-button class="delete" size="mini" plain type="success" @click="selectCharacter(character)">选择角色</van-button>
+                    <van-button
+                      v-if="character.id !== currentCharacter.id"
+                      class="delete"
+                      size="mini"
+                      plain
+                      type="success"
+                      @click="selectCharacter(character)"
+                      >选择角色</van-button
+                    >
+                    <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
+                    <van-button
+                      class="delete"
+                      size="mini"
+                      plain
+                      :type="character.cantTransfer ? 'danger' : 'success'"
+                      @click="switchCantTransfer(character)"
+                      >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
+                    >
                   </template>
                 </van-cell>
               </van-cell-group>
@@ -229,8 +254,14 @@ const packetPrice = (currentCurrency) => {
 const onCancel = () => (show.value = false);
 const onConfirm = async (value) => {
   show.value = false;
-  let [id, token] = value.selectedValues[1].split("|");
+  let [id, token, cantTransfer] = value.selectedValues[1].split("|");
   // console.log(token);
+  if (cantTransfer) {
+    showToast({
+      message: "当前角色不可转移通货",
+    });
+    return;
+  }
   await TransferCurrenciesOneToOne(currentCharacter.value.token, token, []);
   // 切换回当前角色
   tokenStore.setToken(currentCharacter.value.token);
@@ -247,12 +278,29 @@ const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
   let currentSellItem = {};
   let packetPriceObj = {};
 
+  if (orgin === dist) {
+    console.log("源头角色和目标角色相同，不能转移");
+    return;
+  }
+
   tokenStore.setToken(orgin);
   await getCurrency().then((res) => {
     packetPriceObj = packetPrice(res);
   });
   tokenStore.setToken(dist);
-
+  // 判断packetPriceObj对象的属性是否全为0，如果全为0，就不上架物品了，直接跳过上架物品的步骤
+  let isAllZero = true;
+  for (let key in packetPriceObj) {
+    if (packetPriceObj[key] != 0) {
+      isAllZero = false;
+      break;
+    }
+  }
+  if (isAllZero) {
+    // 给出提示哪个角色为空
+    console.log("当前角色通货为空");
+    return;
+  }
   // 上架物品前先确定物品列表是否为空，如果为空，就请求一次物品列表
   if (distBackpacks.length === 0) {
     await getBackpack().then((data) => {
@@ -303,9 +351,14 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
       if (character.id === currentCharacter.value.id) {
         continue;
       }
+      // 如果是不可转移通货的角色，跳过
+      if (character.cantTransfer) {
+        continue;
+      }
       showToast({
         message: `正在转移${character.name}的通货`,
       });
+      console.log(`正在转移${character.name}的通货`);
       await TransferCurrenciesOneToOne(character.token, currentCharacter.value.token, currentFirstBackpacks);
     }
   }
@@ -316,10 +369,28 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
   });
 };
 const deleteAllAccounts = () => {
-  accountStore.deleteAllAccounts();
+  showConfirmDialog({
+    title: "确认删除",
+    message: "确认删除所有账号吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        accountStore.deleteAllAccounts();
+      }
+      return true;
+    },
+  });
 };
 const deleteSubAccounts = () => {
-  accountStore.deleteAllSubAccounts();
+  showConfirmDialog({
+    title: "确认删除",
+    message: "确认删除所有小号吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        accountStore.deleteAllSubAccounts();
+      }
+      return true;
+    },
+  });
 };
 const deleteAccount = (account) => {
   accountStore.deleteSubAccount(account);
@@ -327,6 +398,9 @@ const deleteAccount = (account) => {
 const selectCharacter = (character) => {
   accountStore.setCurrentCharacter(character);
   activeName.value = "0";
+};
+const switchCantTransfer = (character) => {
+  character.cantTransfer = !character.cantTransfer;
 };
 const addAccountAndToken = async (account) => {
   await accountStore.addSubAccount(account);
@@ -386,7 +460,7 @@ watch(loading, (newValue) => {
 }
 :deep(.van-cell) {
   // padding: 0px 10px;
-  background: var(--van-background);
+  // background: var(--van-background);
   // background: red;
 }
 :deep(.van-collapse-item__content) {

@@ -33,6 +33,12 @@ const router = createRouter({
       component: () => import("../views/Equipment.vue"),
     },
     {
+      path: "/test",
+      name: "test",
+      meta: { index: 2 },
+      component: () => import("../views/Test.vue"),
+    },
+    {
       path: "/about",
       meta: { isMain: true, index: 1 },
       name: "about",
@@ -50,22 +56,20 @@ const router = createRouter({
     }
   },
 });
-// let isBack = false; // 用于判断页面是前进还是后退
+let history = [];
 
-// router.beforeEach((to, from, next) => {
-//   if (to.path < from.path) {
-//     isBack = true;
-//   } else {
-//     isBack = false;
-//   }
-//   if (to.meta.isMain) {
-//     useRouterStoreWithOut().setIsMainRouter(true);
-//   } else {
-//     useRouterStoreWithOut().setIsMainRouter(false);
-//   }
-//   next();
-// });
-router.beforeEach((to, from) => {
+router.beforeEach((to, from, next) => {
+  // 如果是直接访问 URL 或刷新页面，且不是已经在 'home' 路由，才重定向到 'home' 路由
+  if (from.name === undefined && to.name !== "home") {
+    next({ name: "home" });
+    return;
+  }
+  const index = history.findIndex((h) => h.path === to.path);
+  if (index !== -1) {
+    history = history.slice(0, index + 1);
+  } else {
+    history.push(to);
+  }
   if (to.meta.index > from.meta.index) {
     // 说明是由主级路由跳转到次级路由 页面从右边滑入
     useStoreWithOut().transitionName = "slide-right";
@@ -73,17 +77,30 @@ router.beforeEach((to, from) => {
     // 由次级到主级路由 页面从左边滑出
     useStoreWithOut().transitionName = "slide-left";
   } else {
-    useStoreWithOut().transitionName = ""; // 同级无过渡效果
     // 同级如果都是主级路由，那么就没有过渡效果
     // 如果都是次级路由，那么就有过渡效果
     // 但是次级路由之间的左右滑入，要根据路由的先后顺序来判断，这个需要知道路由在历史记录中的位置
-    // 由于路由是动态的，所以不能写死，需要根据路由的meta属性来判断
+    // 根据to和from的index来判断，如果to的index大于from的index，那么就是从右边滑入，否则就是从左边滑入
+    if (to.meta.isMain && from.meta.isMain) {
+      useStoreWithOut().transitionName = "";
+    } else {
+      if (to.meta.index > from.meta.index || index > -1) {
+        useStoreWithOut().transitionName = "slide-left";
+      } else {
+        useStoreWithOut().transitionName = "slide-right";
+      }
+    }
+  }
+  if (from.name === undefined) {
+    useStoreWithOut().transitionName = "";
   }
   if (to.meta.isMain) {
     useRouterStoreWithOut().setIsMainRouter(true);
   } else {
     useRouterStoreWithOut().setIsMainRouter(false);
   }
+
+  next();
 });
 // router.afterEach((to, from) => {
 //   if (to.meta.isMain && from.meta.isMain) {

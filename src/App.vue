@@ -1,10 +1,5 @@
 <template>
   <van-config-provider :theme="themeStore.theme" theme-vars-scope="global">
-    <!-- <RouterView v-slot="{ Component }">
-      <transition :name="transitionName">
-        <component :is="Component" />
-      </transition>
-    </RouterView> -->
     <router-view v-slot="{ Component }">
       <transition :name="transitionName">
         <keep-alive>
@@ -14,13 +9,6 @@
         </keep-alive>
       </transition>
     </router-view>
-    <!-- <router-view v-slot="{ Component }">
-      
-      <transition :name="transitionName">
-        <component :is="Component" />
-      </transition>
-   
-    </router-view> -->
 
     <van-tabbar v-model="active" v-show="isMainRouter" route>
       <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>

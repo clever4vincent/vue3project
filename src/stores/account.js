@@ -22,20 +22,6 @@ export const useAccountStore = defineStore({
     },
   },
   actions: {
-    parseAccounts(accounts) {
-      return accounts.map((account) => {
-        return {
-          text: account.username,
-          value: account.username,
-          children: account.tokenInfo.characters.map((character) => {
-            return {
-              text: character.name,
-              value: character.id + "|" + character.token,
-            };
-          }),
-        };
-      });
-    },
     deleteAllAccounts() {
       this.accountTokenInfo = [];
       this.currentCharacter = {};
@@ -92,6 +78,20 @@ export const useAccountStore = defineStore({
     setCurrentCharacter(character) {
       this.currentCharacter = character;
       useTokenStore().setToken(character.token);
+    },
+    parseAccounts(accounts) {
+      return accounts.map((account) => {
+        return {
+          text: account.username,
+          value: account.username,
+          children: account.tokenInfo.characters.map((character) => {
+            return {
+              text: character.name,
+              value: character.id + "|" + character.token + "|" + character.cantTransfer,
+            };
+          }),
+        };
+      });
     },
     async setMainAccount(account) {
       if (account.username && account.password) {

@@ -3,25 +3,29 @@
     <van-nav-bar title="装备列表" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
 
     <div class="container">
-      <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad">
-        <van-cell
-          v-for="item in list"
-          :key="item.id"
-          :title="item.name"
-          is-link
-          @click="showDetail(item)"
-          class="equipment-item"
-          :class="rarityClass[item.rarity]"
-        >
-          <template #right-icon>
-            <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
-          </template>
-        </van-cell>
-      </van-list>
+      <div style="height: 100vh; overflow-y: auto">
+        <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" ref="listRef">
+          <van-cell
+            v-for="item in list"
+            :key="item.id"
+            immediate-check="false"
+            :title="item.name"
+            offset="100"
+            is-link
+            @click="showDetail(item)"
+            class="equipment-item"
+            :class="rarityClass[item.rarity]"
+          >
+            <template #right-icon>
+              <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
+            </template>
+          </van-cell>
+        </van-list>
 
-      <van-popup v-model:show="show" round position="bottom">
-        <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
-      </van-popup>
+        <van-popup v-model:show="show" round position="bottom">
+          <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
+        </van-popup>
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +39,7 @@ import { showDialog, showSuccessToast } from "vant";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 const list = ref([]);
 const loading = ref(false);
+const listRef = ref();
 const show = ref(false);
 const finished = ref(false);
 const currentEquipment = ref(null);
@@ -104,14 +109,28 @@ const moveEquipment = (item) => {
   show.value = true;
 };
 
-onMounted(() => {});
+onMounted(() => {
+  // listRef.value?.check();
+  console.log("🚀 ~ onMounted ~ :", listRef.value);
+});
 </script>
 
 <style scoped lang="scss">
 .page {
   min-height: 100%;
-  // overflow: hidden;
+
+  // height: 100%;
+  // overflow: auto;
 }
+// .container {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   right: 0;
+//   bottom: 0;
+//   height: 100vh;
+//   padding-top: 46px;
+// }
 :deep(.van-cell__value) {
   flex: 0.5;
 }
