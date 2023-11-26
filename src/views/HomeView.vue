@@ -167,6 +167,12 @@ onDeactivated(async () => {
   console.log("onDeactivated");
 });
 const toEquipment = () => {
+  if (!useTokenStore.getToken) {
+    showToast({
+      message: "请先选择角色",
+    });
+    return;
+  }
   router.push({
     name: "equipment",
   });

@@ -66,7 +66,7 @@ const transitionName = computed(() => {
   right: 0;
   bottom: 0;
   height: 100vh;
-  background: #000;
+  background: var(--van-background);
   padding-top: 46px;
 }
 .router-view {
