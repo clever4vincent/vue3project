@@ -43,7 +43,6 @@
 import { RouterView, useRoute } from "vue-router";
 
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
-import { equip } from "./api";
 
 const active = ref(0);
 const route = useRoute();

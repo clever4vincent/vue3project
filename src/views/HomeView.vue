@@ -167,7 +167,7 @@ onDeactivated(async () => {
   console.log("onDeactivated");
 });
 const toEquipment = () => {
-  if (!useTokenStore.getToken) {
+  if (!tokenStore.getToken) {
     showToast({
       message: "请先选择角色",
     });

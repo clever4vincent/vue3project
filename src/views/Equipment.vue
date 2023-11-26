@@ -103,9 +103,9 @@ const startEquipmentTransfer = (characterId, token) => {
 };
 
 const moveEquipment = (item) => {
-  router.push({
-    name: "test",
-  });
+  // router.push({
+  //   name: "test",
+  // });
   //记录当前装备
   currentEquipment.value = item;
   let result = accountStore.getOtherAccountTokenInfoOptions();
