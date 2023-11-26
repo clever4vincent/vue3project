@@ -11,6 +11,7 @@ const router = createRouter({
       meta: {
         isMain: true,
         index: 1,
+        keepAlive: true,
       },
       component: HomeView,
     },
@@ -22,14 +23,14 @@ const router = createRouter({
     },
     {
       path: "/setting",
-      meta: { isMain: true, index: 1 },
+      meta: { isMain: true, index: 1, keepAlive: true },
       name: "setting",
       component: () => import("../views/SettingView.vue"),
     },
     {
       path: "/equipment",
       name: "equipment",
-      meta: { index: 2 },
+      meta: { index: 2, keepAlive: true },
       component: () => import("../views/Equipment.vue"),
     },
     {
@@ -73,9 +74,12 @@ router.beforeEach((to, from, next) => {
   if (to.meta.index > from.meta.index) {
     // 说明是由主级路由跳转到次级路由 页面从右边滑入
     useStoreWithOut().transitionName = "slide-right";
+    console.log("slide-right");
   } else if (to.meta.index < from.meta.index) {
+    console.log("slide-left");
     // 由次级到主级路由 页面从左边滑出
     useStoreWithOut().transitionName = "slide-left";
+    // useStoreWithOut().transitionName = "slide-right";
   } else {
     // 同级如果都是主级路由，那么就没有过渡效果
     // 如果都是次级路由，那么就有过渡效果

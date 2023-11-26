@@ -21,7 +21,7 @@ export const useThemeStore = defineStore(
   }
 );
 export const useStore = defineStore("app", () => {
-  const transitionName = ref("slide-left");
+  const transitionName = ref("");
 
   function setTransitionName(value) {
     transitionName.value = value;

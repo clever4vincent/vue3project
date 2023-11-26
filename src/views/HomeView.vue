@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page">
     <van-nav-bar title="账号" fixed />
     <!-- <div style="height: 46px"></div> -->
     <!-- <van-pull-refresh v-model="loading" @refresh="onRefresh" :disabled="pullRefreshDisabled"> -->
@@ -103,7 +103,7 @@
       <van-button style="margin: 10px" plain type="primary" @click="ShowTransferAllCurrencies">转移所有通货到当前角色</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
-      <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
     </div>
     <van-popup v-model:show="show" round position="bottom">
       <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
@@ -118,10 +118,8 @@ import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
-
-import { h } from "vue";
-import { watch } from "vue";
-import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { onActivated, onDeactivated, ref, watch, h } from "vue";
 
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
@@ -130,7 +128,7 @@ const loadingStore = useLoadingStore();
 const accountStore = useAccountStore();
 const tokenStore = useTokenStore();
 const loading = ref(false);
-
+const router = useRouter();
 const dialogRef = ref(null);
 const mode = ref("");
 const isChange = ref(false);
@@ -156,13 +154,23 @@ watch(currentCharacter, (newVal, oldVal) => {
     // -----------给角色添加动画效果-----------
   }
 });
-
-onMounted(async () => {
-  // 页面挂载后执行初始化请求
-  // console
-  // 处理返回的数据...
+onBeforeRouteUpdate((from, to) => {
+  console.log("onBeforeRouteUpdate", from, to);
 });
-
+onMounted(async () => {
+  console.log("onMounted");
+});
+onActivated(async () => {
+  console.log("onActivated");
+});
+onDeactivated(async () => {
+  console.log("onDeactivated");
+});
+const toEquipment = () => {
+  router.push({
+    name: "equipment",
+  });
+};
 const beforeClose = (action) =>
   new Promise((resolve) => {
     if (action === "confirm") {
@@ -256,7 +264,7 @@ const onConfirm = async (value) => {
   show.value = false;
   let [id, token, cantTransfer] = value.selectedValues[1].split("|");
   // console.log(token);
-  if (cantTransfer) {
+  if (currentCharacter.value.cantTransfer) {
     showToast({
       message: "当前角色不可转移通货",
     });
@@ -458,20 +466,16 @@ watch(loading, (newValue) => {
   // background: var(--van-background);
   background: var(--van-background);
 }
-:deep(.van-cell) {
-  // padding: 0px 10px;
-  // background: var(--van-background);
-  // background: red;
-}
+
 :deep(.van-collapse-item__content) {
   padding: 0px 10px;
   background: transparent;
 }
 
 .container {
-  min-height: calc(100vh - 96px);
-  height: 100%;
-  padding-top: 46px;
+  // min-height: calc(100vh - 96px);
+  // height: 100%;
+  // padding-top: 46px;
 
   // overflow: auto;
   :deep(.current-character) {

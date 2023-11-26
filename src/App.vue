@@ -1,14 +1,34 @@
 <template>
   <van-config-provider :theme="themeStore.theme" theme-vars-scope="global">
-    <router-view v-slot="{ Component }">
-      <transition :name="transitionName">
-        <keep-alive>
+    <!-- <keep-alive :include="('home', 'setting')">
+      <router-view v-slot="{ Component }">
+        <transition :name="transitionName">
+  
           <div :key="route.name">
             <component :is="Component"></component>
           </div>
-        </keep-alive>
-      </transition>
-    </router-view>
+     
+        </transition>
+      </router-view>
+    </keep-alive> -->
+    <!-- <keep-alive>
+      <router-view />
+    </keep-alive> -->
+
+    <!-- <transition :name="transitionName"> -->
+
+    <div>
+      <router-view v-slot="{ Component }">
+        <transition :name="transitionName">
+          <KeepAlive include="home,equipment">
+            <component :is="Component" :key="route.name" :name="route.name" />
+          </KeepAlive>
+        </transition>
+
+        <!-- <component :is="Component" :key="route.name" v-if="!route.meta.keepAlive" /> -->
+      </router-view>
+    </div>
+    <!-- </transition> -->
 
     <van-tabbar v-model="active" v-show="isMainRouter" route>
       <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>
@@ -23,6 +43,7 @@
 import { RouterView, useRoute } from "vue-router";
 
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
+import { equip } from "./api";
 
 const active = ref(0);
 const route = useRoute();
@@ -38,13 +59,14 @@ const transitionName = computed(() => {
 </script>
 
 <style>
-.container {
+.page {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   height: 100vh;
+  background: #000;
   padding-top: 46px;
 }
 .router-view {
@@ -61,6 +83,15 @@ const transitionName = computed(() => {
 .slide-right-enter-to {
   transform: translateX(0%);
 }
+
+/* .slide-right-enter-active {
+  transform: translateX(0%);
+  transition: all 0.5s ease;
+}
+.slide-right-enter-to {
+  transform: translateX(100%);
+} */
+
 .slide-right-leave {
   transform: translateX(0%);
 }

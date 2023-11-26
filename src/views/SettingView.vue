@@ -1,9 +1,10 @@
 <template>
-  <div>
-    <van-nav-bar title="设置" safe-area-inset-top />
+  <div class="page">
+    <van-nav-bar title="设置" safe-area-inset-top fixed />
 
     <van-cell-group>
       <van-cell title="夜间模式" center value="内容"> <van-switch center :model-value="checked" @update:model-value="onUpdateValue" /></van-cell>
+      <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button>
     </van-cell-group>
   </div>
 </template>
@@ -25,6 +26,10 @@ function onUpdateValue(value) {
 }
 </script>
 <style scoped>
+.page {
+  min-height: 100vh;
+  height: 100%;
+}
 .van-switch {
   vertical-align: middle;
 }

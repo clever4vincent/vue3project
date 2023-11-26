@@ -10,7 +10,6 @@
             :key="item.id"
             immediate-check="false"
             :title="item.name"
-            offset="100"
             is-link
             @click="showDetail(item)"
             class="equipment-item"
@@ -60,6 +59,9 @@ const onConfirm = (value) => {
 
 const onLoad = () => {
   // 异步更新数据
+
+  console.log("🚀 ~ onLoad ~ value:", toRaw(list.value));
+
   getBackpack(page).then((res) => {
     list.value = list.value.concat(res.items);
     loading.value = false;
@@ -101,6 +103,9 @@ const startEquipmentTransfer = (characterId, token) => {
 };
 
 const moveEquipment = (item) => {
+  router.push({
+    name: "test",
+  });
   //记录当前装备
   currentEquipment.value = item;
   let result = accountStore.getOtherAccountTokenInfoOptions();
@@ -109,9 +114,15 @@ const moveEquipment = (item) => {
   show.value = true;
 };
 
-onMounted(() => {
-  // listRef.value?.check();
-  console.log("🚀 ~ onMounted ~ :", listRef.value);
+onMounted(async () => {
+  console.log(toRaw(list.value));
+  console.log("onMounted");
+});
+onActivated(async () => {
+  console.log("onActivated");
+});
+onDeactivated(async () => {
+  console.log("onDeactivated");
 });
 </script>
 
@@ -119,7 +130,7 @@ onMounted(() => {
 .page {
   min-height: 100%;
 
-  // height: 100%;
+  height: 100%;
   // overflow: auto;
 }
 // .container {
