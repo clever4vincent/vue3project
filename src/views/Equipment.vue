@@ -3,7 +3,7 @@
     <van-nav-bar title="装备列表" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
 
     <div class="container">
-      <div style="height: 100vh; overflow-y: auto">
+      <div>
         <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" ref="listRef">
           <van-cell
             v-for="item in list"

@@ -79,8 +79,16 @@
   margin: 0;
   font-weight: normal;
 }
-
+html {
+  position: static;
+}
 body {
+  box-shadow: 1px 1px 20px var(--van-border-color);
+  /* prettier-ignore */
+  max-width: 768PX;
+  overflow: hidden;
+  height: 100%;
+  margin: auto;
   color: var(--vt-c-text-light-1);
   background: var(--vt-c-white);
   border: var(--vt-c-divider-white-2);

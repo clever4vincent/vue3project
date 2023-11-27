@@ -1,12 +1,24 @@
-@import './base.css';
+@import "./base.css";
 
 #app {
-  width: 100%;
-  display: flex;
+  /* display: flex;
   height: 100%;
   flex-direction: column;
   overflow: auto;
+  max-width: 768px;
   min-height: 100vh;
   padding: 0 0 50px 0;
   font-weight: normal;
+  position: relative; */
+  background: var(--van-background);
+  background-color: var(--van-background);
+  /* position: relative; */
+  margin: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  left: auto;
+  right: auto;
+  width: 100%;
+  min-height: 100%;
 }
