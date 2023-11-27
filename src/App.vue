@@ -153,7 +153,7 @@ html.ios.wechat {
   }
   .tab-bottom {
     /* prettier-ignore */
-
+    max-width: 768PX;
     @extend %iphonex-border-bottom;
   }
   // 给容器附加一个后置伪元素，增加底部安全高度
@@ -170,10 +170,11 @@ html.ios.wechat {
   // @include fix-ios-status-bar-page;
   position: absolute;
   top: 0;
-  left: 0;
+  bottom: 0;
   left: auto;
   right: auto;
-  margin: auto;
+
+  margin: 0 auto;
   width: 100%;
   height: 100%;
   overflow: hidden;
@@ -199,22 +200,23 @@ html.ios.wechat {
   // justify-content: space-between;
   width: 100%;
   height: 100%;
-  // min-height: 100vh;
+
+  // padding-top: var(--van-nav-bar-height);var(--van-nav-bar-height)
   padding-top: 46px;
   .van-popup {
     /* prettier-ignore */
     max-width: 768PX;
     background: transparent;
-    margin: auto;
-    left: auto;
-    right: auto;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
   }
   .van-nav-bar {
     /* prettier-ignore */
     max-width: 768PX;
-    margin: auto;
-    left: auto;
-    right: auto;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
   }
 
   &.is-main-page {

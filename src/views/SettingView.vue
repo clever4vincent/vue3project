@@ -26,10 +26,6 @@ function onUpdateValue(value) {
 }
 </script>
 <style scoped>
-.page {
-  min-height: 100vh;
-  height: 100%;
-}
 .van-switch {
   vertical-align: middle;
 }

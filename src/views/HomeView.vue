@@ -467,6 +467,7 @@ watch(loading, (newValue) => {
   }
 });
 </script>
+
 <style scoped lang="scss">
 :deep(.van-cell-group) {
   // background: var(--van-background);
