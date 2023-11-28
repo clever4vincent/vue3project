@@ -21,8 +21,18 @@
           </van-cell>
         </van-list>
 
-        <van-popup v-model:show="show" round position="bottom">
+        <!-- <van-popup v-model:show="show" round position="bottom">
           <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
+        </van-popup> -->
+        <van-popup v-model:show="show" round position="bottom">
+          <van-cascader
+            v-model="cascaderValue"
+            active-color="#ee0a24"
+            title="请选择目标角色"
+            :options="options"
+            @close="onCancel"
+            @finish="onConfirm"
+          />
         </van-popup>
       </div>
     </div>
@@ -39,6 +49,7 @@ import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 const list = ref([]);
 const loading = ref(false);
 const listRef = ref();
+const cascaderValue = ref("");
 const show = ref(false);
 const finished = ref(false);
 const currentEquipment = ref(null);
@@ -50,10 +61,15 @@ import { getBackpack } from "@/api";
 const onClickLeft = () => router.go(-1);
 const accountStore = useAccountStore();
 
-const onCancel = () => (show.value = false);
+const onCancel = () => {
+  show.value = false;
+  cascaderValue.value = "";
+};
 const onConfirm = (value) => {
   show.value = false;
-  let [characterId, token] = value.selectedValues[1].split("|");
+  cascaderValue.value = "";
+  let [characterId, token] = value.value.split("|");
+  // let [characterId, token] = value.selectedValues[1].split("|");
   startEquipmentTransfer(characterId, token);
 };
 

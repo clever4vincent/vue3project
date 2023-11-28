@@ -105,8 +105,11 @@
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
     </div>
-    <van-popup v-model:show="show" round position="bottom">
+    <!-- <van-popup v-model:show="show" round position="bottom">
       <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
+    </van-popup> -->
+    <van-popup v-model:show="show" round position="bottom">
+      <van-cascader v-model="cascaderValue" active-color="#ee0a24" title="请选择目标角色" :options="options" @close="onCancel" @finish="onConfirm" />
     </van-popup>
   </div>
 
@@ -115,7 +118,7 @@
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
 import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
-import { showConfirmDialog, showToast, showSuccessToast } from "vant";
+import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
@@ -132,6 +135,7 @@ const router = useRouter();
 const dialogRef = ref(null);
 const mode = ref("");
 const isChange = ref(false);
+const cascaderValue = ref("");
 const options = ref([]);
 const changeClass = computed(() => {
   return isChange.value ? "animate__animated animate__bounce" : "";
@@ -168,9 +172,8 @@ onDeactivated(async () => {
 });
 const toEquipment = () => {
   if (!tokenStore.getToken) {
-    showToast({
-      message: "请先选择角色",
-    });
+    showDialog({ message: "请先选择角色" });
+
     return;
   }
   router.push({
@@ -265,18 +268,23 @@ const packetPrice = (currentCurrency) => {
   };
 };
 
-const onCancel = () => (show.value = false);
+const onCancel = () => {
+  show.value = false;
+  cascaderValue.value = "";
+};
 const onConfirm = async (value) => {
   show.value = false;
-  let [id, token, cantTransfer] = value.selectedValues[1].split("|");
+  cascaderValue.value = "";
+  let [id, token, cantTransfer] = value.value.split("|");
+  // let [id, token, cantTransfer] = value.selectedValues[1].split("|");
   // console.log(token);
   if (currentCharacter.value.cantTransfer) {
-    showToast({
-      message: "当前角色不可转移通货",
-    });
+    showFailToast("当前角色不可转移通货");
     return;
   }
   await TransferCurrenciesOneToOne(currentCharacter.value.token, token, []);
+
+  showSuccessToast("转移完成");
   // 切换回当前角色
   tokenStore.setToken(currentCharacter.value.token);
 };
@@ -435,15 +443,15 @@ const setMainAccountAndToken = async (account) => {
 };
 
 const addSubAccount = () => {
-  showDialog("添加小号", DialogModeEnum.SUB_SINGLE_ADD);
+  showAccountDialog("添加小号", DialogModeEnum.SUB_SINGLE_ADD);
 };
 const updateMainAccount = () => {
-  showDialog("更新主号", DialogModeEnum.MAIN_UPDATE);
+  showAccountDialog("更新主号", DialogModeEnum.MAIN_UPDATE);
 };
 const addMultipleSubAccount = () => {
-  showDialog("批量添加小号", DialogModeEnum.SUB_MULTIPLE_ADD);
+  showAccountDialog("批量添加小号", DialogModeEnum.SUB_MULTIPLE_ADD);
 };
-const showDialog = (title, Mode) => {
+const showAccountDialog = (title, Mode) => {
   mode.value = Mode;
 
   showConfirmDialog({

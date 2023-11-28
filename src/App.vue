@@ -29,7 +29,7 @@
 
     <!-- </transition> -->
 
-    <van-tabbar v-model="active" v-show="isMainRouter" route class="tab-bottom" safe-area-inset-bottom>
+    <van-tabbar v-model="active" v-show="isMainRouter" class="tab-bottom van-safe-area-bottom" route>
       <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>
       <!-- <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item>
       <van-tabbar-item replace icon="friends-o" to="/my">好友</van-tabbar-item> -->
@@ -206,7 +206,7 @@ html.ios.wechat {
   .van-popup {
     /* prettier-ignore */
     max-width: 768PX;
-    background: transparent;
+    // background: transparent;
     margin: 0 auto;
     left: 0;
     right: 0;

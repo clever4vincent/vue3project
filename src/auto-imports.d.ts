@@ -8,11 +8,13 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AccountAddDialog: typeof import('./components/AccountAddDialog.vue')['default']
+    BaseVirtualList: typeof import('./components/base-virtual-list.vue')['default']
     EquipmentDetailDialog: typeof import('./components/EquipmentDetailDialog.vue')['default']
     LoadingMask: typeof import('./components/LoadingMask.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VanButton: typeof import('vant/es')['Button']
+    VanCascader: typeof import('vant/es')['Cascader']
     VanCell: typeof import('vant/es')['Cell']
     VanCellGroup: typeof import('vant/es')['CellGroup']
     VanCollapse: typeof import('vant/es')['Collapse']
@@ -29,5 +31,6 @@ declare module 'vue' {
     VanTabbar: typeof import('vant/es')['Tabbar']
     VanTabbarItem: typeof import('vant/es')['TabbarItem']
     VanTag: typeof import('vant/es')['Tag']
+    VirtualList: typeof import('./components/VirtualList.vue')['default']
   }
 }
