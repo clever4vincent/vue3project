@@ -98,6 +98,32 @@ export const useAccountStore = defineStore({
         await this.getMainAccountTokenInfo(account);
       }
     },
+    async refrshCurrentAccountTokenInfo() {
+      // 将当前角色所在的账号的角色token进行更新
+      // 1.获取当前角色所在的账号
+      let username = this.currentCharacter.username;
+      let password = this.currentCharacter.password;
+      const tokenInfo = await this.requestAccountTokenInfo({ username, password });
+      // 2.更新账号的角色token
+      // 2.1 先判断该账号是主账号还是子账号
+      if (this.mainAccountTokenInfo[0].username === username) {
+        this.mainAccountTokenInfo[0].tokenInfo = tokenInfo;
+      } else {
+        let index = this.accountTokenInfo.findIndex((item) => item.username === username);
+        if (index !== -1) {
+          this.accountTokenInfo[index].tokenInfo = tokenInfo;
+        } else {
+          this.accountTokenInfo.push({
+            username: username,
+            password: password,
+            tokenInfo,
+          });
+        }
+      }
+      // 3.更新当前角色的token
+      this.currentCharacter.token = tokenInfo.characters.find((item) => item.id === this.currentCharacter.id).token;
+      useTokenStore().setToken(this.currentCharacter.token);
+    },
     async getAccountTokenInfo(account) {
       const index = this.accountTokenInfo.findIndex((item) => item.username === account.username);
 

@@ -1,5 +1,8 @@
 import { defHttp } from "@/utils/http/axios";
 // "/character/list"
+const originApi = {
+  getHttpProxy: "http://192.168.0.103:3000/getIp",
+};
 const Api = {
   login: "/user/login",
   characterList: "/character/list",
@@ -88,4 +91,7 @@ export const addGoodsRule = (params) => {
 };
 export const destroyAll = () => {
   return defHttp.post({ url: Api.destroyAll, params: { keyword: "", type: null, rarity: null, storage: false } });
+};
+export const getHttpProxy = (proxy = null) => {
+  return defHttp.get({ url: originApi.getHttpProxy, params: {} }, { apiUrl: null, isTransformResponse: false, proxy });
 };

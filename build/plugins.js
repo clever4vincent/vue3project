@@ -95,9 +95,9 @@ export function createVitePlugins(env, isBuild) {
         },
       ],
       eslintrc: {
-        enabled: true, // Default `false`
-        filepath: resolve("../.eslintrc-auto-import.json"), // Default `./.eslintrc-auto-import.json`
-        globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
+        enabled: false, // Default `false`
+        // filepath: resolve("../.eslintrc-auto-import.json"), // Default `./.eslintrc-auto-import.json`
+        // globalsPropValue: true, // Default `true`, (true | false | 'readonly' | 'readable' | 'writable' | 'writeable')
       },
       resolvers: [VantResolver()],
     }),
@@ -109,9 +109,10 @@ export function createVitePlugins(env, isBuild) {
       resolvers: [VantResolver()],
     }),
     createSvgIconsPlugin({
-      iconDirs: [resolve("../src/icons")],
+      iconDirs: [resolve("../src/assets/icons")],
       // 指定symbolId格式
-      symbolId: "svg-[name]",
+      // symbolId: "svg-[name]",
+      symbolId: "icon-[dir]-[name]",
     }),
 
     // html title

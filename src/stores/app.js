@@ -5,7 +5,7 @@ import { defineStore } from "pinia";
 export const useThemeStore = defineStore(
   "theme",
   () => {
-    const theme = ref("light");
+    const theme = ref("dark");
 
     function toDark() {
       theme.value = "dark";

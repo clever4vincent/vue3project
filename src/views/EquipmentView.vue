@@ -78,12 +78,15 @@ const onLoad = () => {
 
   console.log("🚀 ~ onLoad ~ value:", toRaw(list.value));
 
-  getBackpack(page).then((res) => {
-    list.value = list.value.concat(res.items);
-    loading.value = false;
-    page++;
-    finished.value = list.value.length >= res.total;
-  });
+  getBackpack(page)
+    .then((res) => {
+      list.value = list.value.concat(res.items);
+      page++;
+      finished.value = list.value.length >= res.total;
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const showDetail = (item) => {

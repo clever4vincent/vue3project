@@ -28,7 +28,7 @@
                 size="mini"
                 plain
                 type="success"
-                @click="selectCharacter(character)"
+                @click="selectCharacter(character, mainAccount)"
                 >选择角色</van-button
               >
               <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
@@ -73,7 +73,7 @@
                       size="mini"
                       plain
                       type="success"
-                      @click="selectCharacter(character)"
+                      @click="selectCharacter(character, item)"
                       >选择角色</van-button
                     >
                     <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
@@ -417,8 +417,8 @@ const deleteSubAccounts = () => {
 const deleteAccount = (account) => {
   accountStore.deleteSubAccount(account);
 };
-const selectCharacter = (character) => {
-  accountStore.setCurrentCharacter(character);
+const selectCharacter = (character, { username, password }) => {
+  accountStore.setCurrentCharacter({ username, password, ...character });
   activeName.value = "0";
 };
 const switchCantTransfer = (character) => {

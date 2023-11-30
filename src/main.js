@@ -17,6 +17,7 @@ import { RecycleScroller } from "vue-virtual-scroller";
 // import FastClick from "fastclick";
 import FastClick from "./utils/myfastclick.js";
 FastClick.attach(document.body);
+import "virtual:svg-icons-register";
 import "./utils/resetFastClick.js";
 import "./assets/base.css";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
