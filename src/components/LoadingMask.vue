@@ -13,22 +13,21 @@
 
 export default {
   props: {
-    show: null
+    show: null,
   },
   data() {
     return {
-      tip: '载入中...',
-      isShow: false
-    }
-  }
-}
+      tip: "载入中...",
+      isShow: false,
+    };
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style rel="stylesheet/scss" lang="scss">
 .loading-mask {
-  @import '@/assets/scss/common';
-  @extend %abso-trbl;
+  @import "../assets/scss/_common";
   position: absolute;
   top: 0;
   left: 0;
@@ -41,7 +40,7 @@ export default {
     @include position-center(40px);
     overflow: hidden;
     border-radius: 0.5rem;
-    background: transparent url(../assets/images/Loading2.gif) no-repeat;
+    background: transparent url(@/assets/images/Loading2.gif) no-repeat;
     background-size: 28px 28px;
     background-position: center;
     /*opacity: .7;*/

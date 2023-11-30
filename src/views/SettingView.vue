@@ -3,27 +3,36 @@
     <van-nav-bar title="设置" safe-area-inset-top fixed />
 
     <van-cell-group>
-      <van-cell title="夜间模式" center value="内容"> <van-switch center :model-value="checked" @update:model-value="onUpdateValue" /></van-cell>
+      <van-cell title="夜间模式" center value="内容"> <van-switch center :model-value="isDark" @update:model-value="onUpdateValue" /></van-cell>
       <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell>
       <!-- <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button> -->
+      <button @click="toggleDark()">
+        <i inline-block align-middle i="dark:carbon-moon carbon-sun" />
+
+        <span class="ml-2">{{ isDark ? "Dark" : "Light" }}</span>
+      </button>
     </van-cell-group>
   </div>
 </template>
 <script setup>
 import { useThemeStore } from "../stores";
-
+import { useDark, useToggle } from "@vueuse/core";
 const themeStore = useThemeStore();
-const checked = ref(themeStore.theme === "dark");
+const isDark = useDark();
+
+const toggleDark = useToggle(isDark);
+// const checked = ref(themeStore.theme === "dark");
 
 function onUpdateValue(value) {
-  let isDark = document.documentElement.classList.contains("van-theme-dark");
-  checked.value = value;
+  toggleDark();
+  // let isDark = document.documentElement.classList.contains("van-theme-dark");
+  // checked.value = value;
 
-  if (isDark) {
-    themeStore.toLight();
-  } else {
-    themeStore.toDark();
-  }
+  // if (isDark) {
+  //   themeStore.toLight();
+  // } else {
+  //   themeStore.toDark();
+  // }
 }
 </script>
 <style scoped>

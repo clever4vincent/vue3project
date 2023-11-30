@@ -15,6 +15,8 @@ import { useAccountStoreWithOut } from "@/stores/account";
 import { ipPool } from "@/lib/ip-pool";
 const globSetting = getAppEnvConfig();
 const urlPrefix = globSetting.urlPrefix;
+let retryTokenCount = 0; // 重试次数
+const maxRetryCount = 1; // 最大重试
 // const { createMessage, createErrorModal } = useMessage();
 
 /**
@@ -36,7 +38,6 @@ const transform = {
       return res.data;
     }
     // 错误的时候返回
-
     const { data } = res;
     if (!data) {
       // return '[HTTP] Request has no return value';
@@ -145,6 +146,9 @@ const transform = {
    * @description: 响应拦截器处理
    */
   responseInterceptors: (res) => {
+    if (res.status !== 401) {
+      retryTokenCount = 0;
+    }
     return res;
   },
 
@@ -163,6 +167,23 @@ const transform = {
     let errMessage = "";
 
     try {
+      if (error?.response?.status == 401) {
+        // 如果是401则更新token
+        if (retryTokenCount >= maxRetryCount) {
+          // 如果达到最大重试次数，跳转到登录页面或者抛出错误
+          // router.push('/login');
+          retryTokenCount = 0;
+          throw new Error("Token刷新失败");
+        }
+        // 增加重试次数
+        retryTokenCount++;
+        await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
+        // 重新发起请求
+        let result = await defHttp.getAxios().request(error.config);
+        // const { loading } = error.config.requestOptions;
+        // loading && useLoadingStore().hideLoading();
+        return result;
+      }
       if (code === "ECONNABORTED" && message.indexOf("timeout") !== -1) {
         errMessage = "接口请求超时,请刷新页面重试!";
       }
@@ -181,15 +202,7 @@ const transform = {
     } catch (error) {
       throw new Error(error);
     }
-    if (error?.response?.status == 401) {
-      // 如果是401则更新token
 
-      await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
-      // 重新发起请求
-      return Promise.reject(() => {
-        defHttp.request(error.config, error.options);
-      });
-    }
     checkStatus(error?.response?.status, msg, errorMessageMode);
 
     return Promise.reject(error);

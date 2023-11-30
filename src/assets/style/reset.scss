@@ -1,0 +1,47 @@
+// reset.scss
+html,
+body,
+#app {
+  height: 100%;
+  overflow: hidden;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+body {
+  margin: 0;
+}
+
+#app {
+  overflow: hidden auto;
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  word-break: break-word;
+  white-space: pre-wrap;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// safari 默认样式重置
+button,
+input,
+textarea {
+  font-size: 14px;
+}
+
+// 滚动条样式
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+
+  &-track {
+    background-color: transparent;
+  }
+
+  &-thumb {
+    border-radius: 4px;
+    background-color: #b7b2b2;
+  }
+}

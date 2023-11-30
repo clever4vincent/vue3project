@@ -282,7 +282,7 @@ const onConfirm = async (value) => {
     showFailToast("当前角色不可转移通货");
     return;
   }
-  await TransferCurrenciesOneToOne(currentCharacter.value.token, token, []);
+  await TransferCurrenciesOneToOne(currentCharacter.value, { token }, []);
 
   showSuccessToast("转移完成");
   // 切换回当前角色
@@ -300,16 +300,16 @@ const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
   let currentSellItem = {};
   let packetPriceObj = {};
 
-  if (orgin === dist) {
+  if (orgin.token === dist.token) {
     console.log("源头角色和目标角色相同，不能转移");
     return;
   }
 
-  tokenStore.setToken(orgin);
+  tokenStore.setToken(orgin.token);
   await getCurrency().then((res) => {
     packetPriceObj = packetPrice(res);
   });
-  tokenStore.setToken(dist);
+  tokenStore.setToken(dist.token);
   // 判断packetPriceObj对象的属性是否全为0，如果全为0，就不上架物品了，直接跳过上架物品的步骤
   let isAllZero = true;
   for (let key in packetPriceObj) {
@@ -329,10 +329,12 @@ const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
       distBackpacks = data.items;
     });
   }
+
   await sell(distBackpacks[0].id, packetPriceObj).then(async () => {
     currentSellItem = distBackpacks.shift();
+
     // 转移目标角色购买物品
-    tokenStore.setToken(orgin);
+    tokenStore.setToken(orgin.token);
     // 上架物品后会生成一个物品的市场ID，这个ID是唯一的，所以需要获取市场物品，通过物品的ID来确定是哪个物品，然后根据物品的市场ID来购买物品
     await getMarket().then(async (res) => {
       let marketId = res.items.find((item) => item.equipmentId == currentSellItem.id).id;
@@ -365,10 +367,13 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
   // 流程：先获取所有账号信息，然后遍历所有角色，获取角色的通货信息，然后将通货转移到当前角色上。
   // 转移通货的过程是通过被转移的角色上架物品，然后转移目标角色购买物品来实现的。切换角色的过程是通过切换token来实现的。等所有通货都转移完毕后，再将token切换回来。
   // 因为转移通货的过程是通过上架物品来实现的，所以需要先获取当前角色的物品信息，然后再上架物品。
-  let accounts = accountStore.getOtherAccountTokenInfo();
+  let accounts = accountStore.getAllAccountTokenInfo();
   let currentFirstBackpacks = [];
-  for (let account of accounts) {
-    for (let character of account.tokenInfo.characters) {
+
+  for (let index = 0; index < accounts.length; index++) {
+    let account = accounts[index];
+    for (let accIndex = 0; accIndex < account.tokenInfo.characters.length; accIndex++) {
+      let character = account.tokenInfo.characters[accIndex];
       // 如果是当前角色，跳过
       if (character.id === currentCharacter.value.id) {
         continue;
@@ -381,9 +386,28 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
         message: `正在转移${character.name}的通货`,
       });
       console.log(`正在转移${character.name}的通货`);
-      await TransferCurrenciesOneToOne(character.token, currentCharacter.value.token, currentFirstBackpacks);
+
+      await TransferCurrenciesOneToOne(character, currentCharacter.value, currentFirstBackpacks);
     }
   }
+  // for (let account of accounts) {
+  //   for (let character of account.tokenInfo.characters) {
+  //     // 如果是当前角色，跳过
+  //     if (character.id === currentCharacter.value.id) {
+  //       continue;
+  //     }
+  //     // 如果是不可转移通货的角色，跳过
+  //     if (character.cantTransfer) {
+  //       continue;
+  //     }
+  //     showToast({
+  //       message: `正在转移${character.name}的通货`,
+  //     });
+  //     console.log(`正在转移${character.name}的通货`);
+
+  //     await TransferCurrenciesOneToOne(character.token, currentCharacter.value.token, currentFirstBackpacks);
+  //   }
+  // }
   // 转移完成后，切换回当前角色
   tokenStore.setToken(currentCharacter.value.token);
   showToast({
@@ -476,7 +500,8 @@ watch(loading, (newValue) => {
 });
 </script>
 
-<style scoped lang="scss">
+<style rel="stylesheet/scss" scoped lang="scss">
+// @import "@/assets/scss/_common.scss";
 :deep(.van-cell-group) {
   // background: var(--van-background);
   background: var(--van-background);

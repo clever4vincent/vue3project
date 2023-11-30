@@ -9,6 +9,7 @@ import pkg from "./package.json";
 import { createVitePlugins } from "./build/plugins";
 import path from "path";
 import postCssPxToRem from "postcss-pxtorem";
+import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 const { dependencies, devDependencies, name, version } = pkg;
 const __APP_INFO__ = {
@@ -47,15 +48,17 @@ export default defineConfig(({ command, mode }) => {
     css: {
       // preprocessorOptions: {
       //   scss: {
+      //     //
       //     additionalData: `
-      //     @import "@/assets/scss/global/_variables.scss";
       //     @import "@/assets/scss/_common.scss";
-      //     `
-      //   }
+      //     @import "@/assets/scss/global/_variables.scss";
+      //     `,
+      //   },
       // },
       postcss: {
         // ⚠️关键代码
         plugins: [
+          tailwindcss({}),
           postCssPxToRem({
             // 自适应，px>rem转换
             rootValue: 37.5, // 1rem的大小

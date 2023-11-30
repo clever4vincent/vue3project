@@ -1,5 +1,5 @@
 <template>
-  <van-config-provider :theme="themeStore.theme" theme-vars-scope="global" class="page-root">
+  <van-config-provider :theme="theme" theme-vars-scope="global" class="page-root">
     <!-- <keep-alive :include="('home', 'setting')">
       <router-view v-slot="{ Component }">
         <transition :name="transitionName">
@@ -40,13 +40,21 @@
 </template>
 <script setup>
 import { RouterView, useRoute } from "vue-router";
-
+import { useDark } from "@vueuse/core";
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
+import { ref } from "vue";
 
 const active = ref(0);
 const route = useRoute();
 const themeStore = useThemeStore();
 const appStore = useStore();
+const theme = ref("");
+
+useDark({
+  onChanged(dark) {
+    theme.value = dark ? "dark" : "light";
+  },
+});
 const loadingStore = useLoadingStore();
 
 const canShowLoading = computed(() => loadingStore.loading > 0);
@@ -100,10 +108,14 @@ html.immersive.non-local {
 html.ios.wechat {
   // 给容器设置一个底边距，增加底部安全高度
   %iphonex-padding-bottom {
-    padding-bottom: $iphonex-footer-safe-height;
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+    // padding-bottom: $iphonex-footer-safe-height;
   }
   %iphonex-border-bottom {
-    border-bottom: $iphonex-footer-safe-height solid transparent;
+    border-bottom: constant(safe-area-inset-bottom) solid transparent;
+    border-bottom: env(safe-area-inset-bottom) solid transparent;
+    // border-bottom: $iphonex-footer-safe-height solid transparent;
   }
   // 给容器附加一个后置伪元素，增加底部安全高度
   %iphonex-bottom-pad {
@@ -151,6 +163,7 @@ html.ios.wechat {
       }
     }
   }
+
   .tab-bottom {
     /* prettier-ignore */
     max-width: 768PX;

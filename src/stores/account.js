@@ -41,6 +41,11 @@ export const useAccountStore = defineStore({
       });
       this.accountTokenInfo = [];
     },
+    getAllAccountTokenInfo() {
+      let allTokenInfo = [];
+      allTokenInfo = allTokenInfo.concat(this.mainAccountTokenInfo).concat(this.accountTokenInfo);
+      return allTokenInfo;
+    },
     getOtherAccountTokenInfo() {
       let allTokenInfo = [];
       allTokenInfo = allTokenInfo.concat(this.mainAccountTokenInfo).concat(this.accountTokenInfo);
@@ -99,30 +104,49 @@ export const useAccountStore = defineStore({
       }
     },
     async refrshCurrentAccountTokenInfo() {
-      // 将当前角色所在的账号的角色token进行更新
-      // 1.获取当前角色所在的账号
-      let username = this.currentCharacter.username;
-      let password = this.currentCharacter.password;
-      const tokenInfo = await this.requestAccountTokenInfo({ username, password });
-      // 2.更新账号的角色token
-      // 2.1 先判断该账号是主账号还是子账号
-      if (this.mainAccountTokenInfo[0].username === username) {
-        this.mainAccountTokenInfo[0].tokenInfo = tokenInfo;
-      } else {
-        let index = this.accountTokenInfo.findIndex((item) => item.username === username);
-        if (index !== -1) {
-          this.accountTokenInfo[index].tokenInfo = tokenInfo;
-        } else {
-          this.accountTokenInfo.push({
-            username: username,
-            password: password,
-            tokenInfo,
-          });
+      // 根据当前角色token,获取当前角色所在的账号信息及角色信息
+      // 1.获取当前角色的token
+      let token = useTokenStore().getToken;
+      // 2.获取当前角色所在的账号信息，根据角色token来对比
+      //先将主账号的token信息放到数组的第一位
+      // let allTokenInfo = [];
+      let allTokenInfo = this.getAllAccountTokenInfo();
+      let currentAccount = {};
+      let currentCharacter = {};
+
+      for (let index = 0; index < allTokenInfo.length; index++) {
+        let account = allTokenInfo[index];
+        let characters = account.tokenInfo.characters;
+        for (let cIndex = 0; cIndex < characters.length; cIndex++) {
+          let character = characters[cIndex];
+          if (character.token === token) {
+            currentAccount = account;
+            currentCharacter = character;
+          }
         }
       }
-      // 3.更新当前角色的token
-      this.currentCharacter.token = tokenInfo.characters.find((item) => item.id === this.currentCharacter.id).token;
-      useTokenStore().setToken(this.currentCharacter.token);
+
+      // 将当前角色所在的账号的角色token进行更新
+      // 1.获取当前角色所在的账号
+      let username = currentAccount.username;
+      let password = currentAccount.password;
+
+      const tokenInfo = await this.requestAccountTokenInfo({ username, password });
+
+      // 将更新后的tokenInfo赋值给当前账号
+      for (let i = 0; i < currentAccount.tokenInfo.characters.length; i++) {
+        currentAccount.tokenInfo.characters[i].token = tokenInfo.characters[i].token;
+      }
+
+      useTokenStore().setToken(currentCharacter.token);
+    },
+    updateAccountOfToken(account, tokenInfo) {
+      for (let i = 0; i < tokenInfo.length; i++) {
+        let correspondingObject = account.find((obj) => obj.id === tokenInfo[i].id);
+        if (correspondingObject) {
+          correspondingObject.token = tokenInfo[i].token;
+        }
+      }
     },
     async getAccountTokenInfo(account) {
       const index = this.accountTokenInfo.findIndex((item) => item.username === account.username);

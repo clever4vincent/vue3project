@@ -1,0 +1,28 @@
+// vars-color.scss
+:root {
+  --color-primary: #69f;
+  --color-danger: #ee0a24;
+  --color-success: #07c160;
+  --color-warning: #ff976a;
+  --color-link: #1989fa;
+  --color-text: var(--color-text-85);
+  --color-text-85: rgb(0 0 0 / 85%);
+  --color-text-65: rgb(0 0 0 / 65%);
+  --color-text-45: rgb(0 0 0 / 45%);
+  --color-text-35: rgb(0 0 0 / 35%);
+  --color-text-15: rgb(0 0 0 / 15%);
+  --color-border: #eee;
+  --color-disabled: #999;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-85: rgb(255 255 255 / 85%);
+    --color-text-65: rgb(255 255 255 / 65%);
+    --color-text-45: rgb(255 255 255 / 45%);
+    --color-text-35: rgb(255 255 255 / 35%);
+    --color-text-15: rgb(255 255 255 / 15%);
+    --color-border: #333;
+    --color-disabled: #666;
+  }
+}
