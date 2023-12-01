@@ -175,6 +175,8 @@ const transform = {
           retryTokenCount = 0;
           throw new Error("Token刷新失败");
         }
+        const { loading } = error.config.requestOptions;
+        loading && useLoadingStore().hideLoading();
         // 增加重试次数
         retryTokenCount++;
         await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
