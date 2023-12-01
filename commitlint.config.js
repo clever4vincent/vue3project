@@ -1,6 +1,6 @@
 module.exports = {
   ignores: [(commit) => commit.includes("init")],
-  extends: ["@commitlint/config-conventional", "cz"],
+  extends: ["@commitlint/config-conventional"],
   rules: {
     "type-enum": [
       2,
