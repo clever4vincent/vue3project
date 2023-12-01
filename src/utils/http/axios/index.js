@@ -179,10 +179,9 @@ const transform = {
         retryTokenCount++;
         await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
         // 重新发起请求
-        let result = await defHttp.getAxios().request(error.config);
+        return Promise.resolve(defHttp.getAxios().request(error.config));
         // const { loading } = error.config.requestOptions;
         // loading && useLoadingStore().hideLoading();
-        return result;
       }
       if (code === "ECONNABORTED" && message.indexOf("timeout") !== -1) {
         errMessage = "接口请求超时,请刷新页面重试!";
