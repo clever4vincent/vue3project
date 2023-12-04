@@ -125,7 +125,7 @@ export const useAccountStore = defineStore({
           }
         }
       }
-
+      console.log(currentAccount);
       // 将当前角色所在的账号的角色token进行更新
       // 1.获取当前角色所在的账号
       let username = currentAccount.username;

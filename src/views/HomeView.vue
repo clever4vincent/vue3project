@@ -93,9 +93,9 @@
         </van-collapse-item>
       </van-collapse>
       <!-- <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 10px"> -->
-      <van-button style="margin: 10px" plain type="primary" @click="addSubAccount">添加小号</van-button>
+      <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addSubAccount">添加小号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="addMultipleSubAccount">批量添加小号</van-button>
+      <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addMultipleSubAccount">批量添加小号</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="deleteSubAccounts">删除所有小号</van-button>

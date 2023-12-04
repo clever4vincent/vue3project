@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@icon-park/vue-next':
+    specifier: ^1.4.2
+    version: 1.4.2(vue@3.3.9)
   '@vueuse/core':
     specifier: ^10.6.1
     version: 10.6.1(vue@3.3.9)
@@ -136,6 +139,9 @@ devDependencies:
   vite-plugin-html:
     specifier: ^3.2.0
     version: 3.2.0(vite@4.5.0)
+  vite-plugin-imp:
+    specifier: ^2.4.0
+    version: 2.4.0(vite@4.5.0)
   vite-plugin-mock:
     specifier: ^2.9.6
     version: 2.9.8(mockjs@1.1.0)(vite@4.5.0)
@@ -872,6 +878,15 @@ packages:
 
   /@humanwhocodes/object-schema@2.0.1:
     resolution: {integrity: sha512-dvuCeX5fC9dXgJn9t+X5atfmgQAzUOWqS1254Gh0m6i8wKd10ebXkfNKiRK+1GWi/yTvvLDHpoxLr0xxxeslWw==}
+
+  /@icon-park/vue-next@1.4.2(vue@3.3.9):
+    resolution: {integrity: sha512-+QklF255wkfBOabY+xw6FAI0Bwln/RhdwCunNy/9sKdKuChtaU67QZqU67KGAvZUTeeBgsL+yaHHxqfQeGZXEQ==}
+    engines: {node: '>= 8.0.0', npm: '>= 5.0.0'}
+    peerDependencies:
+      vue: 3.x
+    dependencies:
+      vue: 3.3.9(typescript@5.3.2)
+    dev: false
 
   /@isaacs/cliui@8.0.2:
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
@@ -5936,6 +5951,23 @@ packages:
       node-html-parser: 5.4.2
       pathe: 0.2.0
       vite: 4.5.0(@types/node@18.18.14)(sass@1.69.5)
+    dev: true
+
+  /vite-plugin-imp@2.4.0(vite@4.5.0):
+    resolution: {integrity: sha512-L/6/nvOw+MyNh4UxAlCZHsmKd5MitmHamqqAWB15sbUgVIEz/OQ8jpKr6kkQU0eA/AIe8fkCVbQBlP81ajrqWg==}
+    peerDependencies:
+      vite: '>= 2.0.0-beta.5'
+    dependencies:
+      '@babel/core': 7.23.5
+      '@babel/generator': 7.23.5
+      '@babel/parser': 7.23.5
+      '@babel/traverse': 7.23.5
+      chalk: 4.1.2
+      param-case: 3.0.4
+      pascal-case: 3.1.2
+      vite: 4.5.0(@types/node@18.18.14)(sass@1.69.5)
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /vite-plugin-mock@2.9.8(mockjs@1.1.0)(vite@4.5.0):

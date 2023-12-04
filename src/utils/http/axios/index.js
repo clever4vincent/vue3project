@@ -181,7 +181,7 @@ const transform = {
         retryTokenCount++;
         await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
         // 重新发起请求
-        return Promise.resolve(defHttp.getAxios().request(error.config));
+        return defHttp.getAxios().request(error.config);
         // const { loading } = error.config.requestOptions;
         // loading && useLoadingStore().hideLoading();
       }

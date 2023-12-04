@@ -4,6 +4,7 @@ import "./utils/rem.js";
 import "vant/es/toast/style";
 import "vant/es/dialog/style";
 import "vant/es/notify/style";
+import "@icon-park/vue-next/styles/index.css";
 import { setupStore } from "@/stores";
 import { createApp } from "vue";
 import { Toast } from "vant";

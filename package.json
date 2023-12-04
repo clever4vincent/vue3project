@@ -14,6 +14,7 @@
     "commit": "git-cz"
   },
   "dependencies": {
+    "@icon-park/vue-next": "^1.4.2",
     "@vueuse/core": "^10.6.1",
     "amfe-flexible": "^2.2.1",
     "animate.css": "^4.1.1",
@@ -59,6 +60,7 @@
     "vite": "^4.4.11",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-html": "^3.2.0",
+    "vite-plugin-imp": "^2.4.0",
     "vite-plugin-mock": "^2.9.6",
     "vite-plugin-svg-icons": "^2.0.1",
     "vitest": "^0.34.6"
