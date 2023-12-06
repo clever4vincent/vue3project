@@ -1,167 +1,167 @@
 export const characterClasses = {
-  1: '野蛮人',
-  2: '贵族',
-  3: '女巫',
-  4: '游侠',
-  5: '决斗者',
-  6: '圣堂武僧',
-  7: '暗影刺客'
-}
+  1: "野蛮人",
+  2: "贵族",
+  3: "女巫",
+  4: "游侠",
+  5: "决斗者",
+  6: "圣堂武僧",
+  7: "暗影刺客",
+};
 
 export const rangeTypes = {
-  1: '单体',
-  2: '田字',
-  3: '横排',
-  4: '竖排',
-  5: '十字',
-  6: '锥形',
-  7: '光环'
-}
+  1: "单体",
+  2: "田字",
+  3: "横排",
+  4: "竖排",
+  5: "十字",
+  6: "锥形",
+  7: "光环",
+};
 
 export const equipmentTypes = [
-  { value: null, label: '全部' },
-  { value: 32767, label: '所有武器' },
-  { value: 511, label: '所有单手武器' },
-  { value: 32256, label: '所有双手武器' },
-  { value: 211106232500224, label: '所有防具' },
-  { value: 844424930131968, label: '所有饰品' },
-  { value: 1, label: '单手剑' },
-  { value: 2, label: '单手斧' },
-  { value: 4, label: '法杖' },
-  { value: 8, label: '爪' },
-  { value: 16, label: '匕首' },
-  { value: 32, label: '细剑' },
-  { value: 64, label: '单手锤' },
-  { value: 128, label: '短杖' },
-  { value: 256, label: '符文匕首' },
-  { value: 512, label: '弓' },
-  { value: 1024, label: '长杖' },
-  { value: 2048, label: '双手剑' },
-  { value: 4096, label: '双手斧' },
-  { value: 8192, label: '双手锤' },
-  { value: 16384, label: '战杖' },
-  { value: 2064384, label: '手套' },
-  { value: 132120576, label: '鞋子' },
-  { value: 17045651456, label: '胸甲' },
-  { value: 1082331758592, label: '头部' },
-  { value: 69269232549888, label: '盾牌' },
-  { value: 70368744177664, label: '箭袋' },
-  { value: 140737488355328, label: '腰带' },
-  { value: 281474976710656, label: '项链' },
-  { value: 562949953421312, label: '戒指' }
-]
+  { value: null, label: "全部" },
+  { value: 32767, label: "所有武器" },
+  { value: 511, label: "所有单手武器" },
+  { value: 32256, label: "所有双手武器" },
+  { value: 211106232500224, label: "所有防具" },
+  { value: 844424930131968, label: "所有饰品" },
+  { value: 1, label: "单手剑" },
+  { value: 2, label: "单手斧" },
+  { value: 4, label: "法杖" },
+  { value: 8, label: "爪" },
+  { value: 16, label: "匕首" },
+  { value: 32, label: "细剑" },
+  { value: 64, label: "单手锤" },
+  { value: 128, label: "短杖" },
+  { value: 256, label: "符文匕首" },
+  { value: 512, label: "弓" },
+  { value: 1024, label: "长杖" },
+  { value: 2048, label: "双手剑" },
+  { value: 4096, label: "双手斧" },
+  { value: 8192, label: "双手锤" },
+  { value: 16384, label: "战杖" },
+  { value: 2064384, label: "手套" },
+  { value: 132120576, label: "鞋子" },
+  { value: 17045651456, label: "胸甲" },
+  { value: 1082331758592, label: "头部" },
+  { value: 69269232549888, label: "盾牌" },
+  { value: 70368744177664, label: "箭袋" },
+  { value: 140737488355328, label: "腰带" },
+  { value: 281474976710656, label: "项链" },
+  { value: 562949953421312, label: "戒指" },
+];
 
 export const rarityClass = {
-  0: 'player',
-  1: 'normal',
-  2: 'magic',
-  3: 'rare',
-  4: 'unique'
-}
+  0: "player",
+  1: "normal",
+  2: "magic",
+  3: "rare",
+  4: "unique",
+};
 
 export const rarities = [
-  { name: '普通', value: 1, class: 'r-normal' },
-  { name: '魔法', value: 2, class: 'r-magic' },
-  { name: '稀有', value: 3, class: 'r-rare' },
-  { name: '独特', value: 4, class: 'r-unique' }
-]
+  { name: "普通", value: 1, class: "r-normal" },
+  { name: "魔法", value: 2, class: "r-magic" },
+  { name: "稀有", value: 3, class: "r-rare" },
+  { name: "独特", value: 4, class: "r-unique" },
+];
 
 export const currencyTypes = [
-  { name: '磨刀石', value: 16 },
-  { name: '护甲片', value: 17 },
-  { name: '工匠石', value: 1 },
-  { name: '幻色石', value: 2 },
-  { name: '链接石', value: 3 },
-  { name: '蜕变石', value: 4 },
-  { name: '机会石', value: 5 },
-  { name: '点金石', value: 6 },
-  { name: '增幅石', value: 7 },
-  { name: '改造石', value: 8 },
-  { name: '崇高石', value: 9 },
-  { name: '混沌石', value: 10 },
-  { name: '富豪石', value: 11 },
-  { name: '重铸石', value: 12 },
-  { name: '神圣石', value: 13 },
-  { name: '瓦尔宝珠', value: 14 },
-  { name: '卡兰德的魔镜', value: 15 }
-]
+  { name: "磨刀石", value: 16 },
+  { name: "护甲片", value: 17 },
+  { name: "工匠石", value: 1 },
+  { name: "幻色石", value: 2 },
+  { name: "链接石", value: 3 },
+  { name: "蜕变石", value: 4 },
+  { name: "机会石", value: 5 },
+  { name: "点金石", value: 6 },
+  { name: "增幅石", value: 7 },
+  { name: "改造石", value: 8 },
+  { name: "崇高石", value: 9 },
+  { name: "混沌石", value: 10 },
+  { name: "富豪石", value: 11 },
+  { name: "重铸石", value: 12 },
+  { name: "神圣石", value: 13 },
+  { name: "瓦尔宝珠", value: 14 },
+  { name: "卡兰德的魔镜", value: 15 },
+];
 
 export const skills = {
-  Melee: { name: '普通攻击' },
-  MeleeAtAnimationSpeed: { name: '普通攻击' },
-  FemaleCannibalBossFlameDash: { name: '烈焰冲刺' },
-  FireFuryFlameWhip: { name: '怒焰奔腾' },
-  FireFurySummonExplodingSkeletons: { name: '召唤魔侍' },
-  FemaleCannibalBossFireStorm: { name: '烈炎风暴' },
-  MeleeAtAnimationSpeedFireUnique: { name: '普通攻击（火焰）' },
-  MeleeAtAnimationSpeedUnique: { name: '普通攻击' },
-  ScavengerThrow: { name: '投掷' },
-  MonsterFlameRedCannibal: { name: '圣焰图腾' },
-  HailrakeGlacialCascade: { name: '冰川之刺' },
-  HailrakeArcticArmour: { name: '极地装甲' },
-  HailrakeGlacialHammer: { name: '冰霜之锤' },
-  WaterElementalCleave: { name: '劈砍（冰霜）' },
+  Melee: { name: "普通攻击" },
+  MeleeAtAnimationSpeed: { name: "普通攻击" },
+  FemaleCannibalBossFlameDash: { name: "烈焰冲刺" },
+  FireFuryFlameWhip: { name: "怒焰奔腾" },
+  FireFurySummonExplodingSkeletons: { name: "召唤魔侍" },
+  FemaleCannibalBossFireStorm: { name: "烈炎风暴" },
+  MeleeAtAnimationSpeedFireUnique: { name: "普通攻击（火焰）" },
+  MeleeAtAnimationSpeedUnique: { name: "普通攻击" },
+  ScavengerThrow: { name: "投掷" },
+  MonsterFlameRedCannibal: { name: "圣焰图腾" },
+  HailrakeGlacialCascade: { name: "冰川之刺" },
+  HailrakeArcticArmour: { name: "极地装甲" },
+  HailrakeGlacialHammer: { name: "冰霜之锤" },
+  WaterElementalCleave: { name: "劈砍（冰霜）" },
   WaterElementalMortar: {
-    name: '炮击（冰霜）'
+    name: "炮击（冰霜）",
   },
-  DoubleStrike: { name: '双重打击' },
-  ZombieBossExtract: { name: '提取' },
-  ZombieBossLeapSlam: { name: '跃击' },
-  MMASandSplitterProjectile: { name: '沙子喷射' },
-  Ground_Slam: { name: '裂地之击', type: 1 },
-  Fireball: { name: '火球', type: 3 },
-  Heavy_Strike: { name: '重击', type: 1 },
-  Ice_Shot: { name: '冰霜射击', type: 2 },
-  Chance_to_Bleed_Support: { name: '流血几率(辅)', type: 1 },
-  Life_Gain_on_Hit_Support: { name: '击中回复生命(辅)', type: 1 },
-  Frostbolt: { name: '寒冰弹', type: 3 },
-  Burning_Arrow: { name: '燃烧箭矢', type: 2 },
-  Volley_Support: { name: '齐射(辅)', type: 2 },
-  Melee_Physical_Damage_Support: { name: '近战物理伤害(辅)', type: 1 },
-  Added_Lightning_Damage_Support: { name: '附加闪电伤害(辅)', type: 3 },
-  Added_Cold_Damage_Support: { name: '附加冰霜伤害(辅)', type: 2 },
-  Added_Fire_Damage_Support: { name: '附加火焰伤害(辅)', type: 1 },
-  Determination: { name: '坚定', type: 1 },
-  Grace: { name: '优雅', type: 2 },
-  Lightning_Arrow: { name: '闪电箭矢', type: 2 },
-  Sweep: { name: '横扫', type: 1 },
-  Precision: { name: '精准', type: 2 },
-  Multistrike_Support: { name: '多重打击(辅)', type: 1 },
-  Arc: { name: '电弧', type: 3 },
-  Increased_Critical_Strikes_Support: { name: '提高暴击(辅)', type: 3 },
-  Life_Leech_Support: { name: '生命偷取(辅)', type: 1 },
-  Increased_Critical_Damage_Support: { name: '提高暴击伤害(辅)', type: 3 },
-  Faster_Attacks_Support: { name: '快速攻击(辅)', type: 2 },
-  Lightning_Strike: { name: '闪电打击', type: 2 },
-  Spell_Echo_Support: { name: '法术回响(辅)', type: 3 },
-  Steelskin: { name: '钢铁之肤', type: 1 },
-  Chance_to_Poison_Support: { name: '低阶毒化(辅)', type: 2 },
-  Hatred: { name: '憎恨', type: 2 },
-  Double_Strike: { name: '双重打击', type: 2 },
-  Blazing_Salvo: { name: '怒炎穿心', type: 3 },
-  Empower_Support: { name: '赋予(辅)', type: 1 },
-  Culling_Strike_Support: { name: '终结(辅)', type: 2 },
-  Haste: { name: '迅捷', type: 2 },
-  Enlighten_Support: { name: '启蒙(辅)', type: 3 },
-  Wrath: { name: '雷霆', type: 3 },
-  Brutality_Support: { name: '残暴(辅)', type: 1 },
-  Split_Arrow: { name: '分裂箭矢', type: 2 },
-  Zealotry: { name: '奋锐光环', type: 3 },
-  Elemental_Damage_with_Attacks_Support: { name: '武器元素伤害(辅)', type: 1 },
-  Efficacy_Support: { name: '效能(辅)', type: 3 },
-  Elemental_Penetration_Support: { name: '元素穿透(辅)', type: 3 },
-  Fire_Penetration_Support: { name: '火焰穿透(辅)', type: 1 },
-  Cold_Penetration_Support: { name: '冰霜穿透(辅)', type: 2 },
-  Lightning_Penetration_Support: { name: '闪电穿透(辅)', type: 3 }
-}
+  DoubleStrike: { name: "双重打击" },
+  ZombieBossExtract: { name: "提取" },
+  ZombieBossLeapSlam: { name: "跃击" },
+  MMASandSplitterProjectile: { name: "沙子喷射" },
+  Ground_Slam: { name: "裂地之击", type: 1 },
+  Fireball: { name: "火球", type: 3 },
+  Heavy_Strike: { name: "重击", type: 1 },
+  Ice_Shot: { name: "冰霜射击", type: 2 },
+  Chance_to_Bleed_Support: { name: "流血几率(辅)", type: 1 },
+  Life_Gain_on_Hit_Support: { name: "击中回复生命(辅)", type: 1 },
+  Frostbolt: { name: "寒冰弹", type: 3 },
+  Burning_Arrow: { name: "燃烧箭矢", type: 2 },
+  Volley_Support: { name: "齐射(辅)", type: 2 },
+  Melee_Physical_Damage_Support: { name: "近战物理伤害(辅)", type: 1 },
+  Added_Lightning_Damage_Support: { name: "附加闪电伤害(辅)", type: 3 },
+  Added_Cold_Damage_Support: { name: "附加冰霜伤害(辅)", type: 2 },
+  Added_Fire_Damage_Support: { name: "附加火焰伤害(辅)", type: 1 },
+  Determination: { name: "坚定", type: 1 },
+  Grace: { name: "优雅", type: 2 },
+  Lightning_Arrow: { name: "闪电箭矢", type: 2 },
+  Sweep: { name: "横扫", type: 1 },
+  Precision: { name: "精准", type: 2 },
+  Multistrike_Support: { name: "多重打击(辅)", type: 1 },
+  Arc: { name: "电弧", type: 3 },
+  Increased_Critical_Strikes_Support: { name: "提高暴击(辅)", type: 3 },
+  Life_Leech_Support: { name: "生命偷取(辅)", type: 1 },
+  Increased_Critical_Damage_Support: { name: "提高暴击伤害(辅)", type: 3 },
+  Faster_Attacks_Support: { name: "快速攻击(辅)", type: 2 },
+  Lightning_Strike: { name: "闪电打击", type: 2 },
+  Spell_Echo_Support: { name: "法术回响(辅)", type: 3 },
+  Steelskin: { name: "钢铁之肤", type: 1 },
+  Chance_to_Poison_Support: { name: "低阶毒化(辅)", type: 2 },
+  Hatred: { name: "憎恨", type: 2 },
+  Double_Strike: { name: "双重打击", type: 2 },
+  Blazing_Salvo: { name: "怒炎穿心", type: 3 },
+  Empower_Support: { name: "赋予(辅)", type: 1 },
+  Culling_Strike_Support: { name: "终结(辅)", type: 2 },
+  Haste: { name: "迅捷", type: 2 },
+  Enlighten_Support: { name: "启蒙(辅)", type: 3 },
+  Wrath: { name: "雷霆", type: 3 },
+  Brutality_Support: { name: "残暴(辅)", type: 1 },
+  Split_Arrow: { name: "分裂箭矢", type: 2 },
+  Zealotry: { name: "奋锐光环", type: 3 },
+  Elemental_Damage_with_Attacks_Support: { name: "武器元素伤害(辅)", type: 1 },
+  Efficacy_Support: { name: "效能(辅)", type: 3 },
+  Elemental_Penetration_Support: { name: "元素穿透(辅)", type: 3 },
+  Fire_Penetration_Support: { name: "火焰穿透(辅)", type: 1 },
+  Cold_Penetration_Support: { name: "冰霜穿透(辅)", type: 2 },
+  Lightning_Penetration_Support: { name: "闪电穿透(辅)", type: 3 },
+};
 
 export const damageTypes = {
-  1: '物理',
-  2: '火焰',
-  3: '冰霜',
-  4: '闪电',
-  5: '混沌'
-}
+  1: "物理",
+  2: "火焰",
+  3: "冰霜",
+  4: "闪电",
+  5: "混沌",
+};
 
 export const magics = {
   1: (value) => `<div>物理伤害提高 ${value}%</div>`,
@@ -268,8 +268,7 @@ export const magics = {
   102: (value) => `<div>投射物攻击伤害提高 ${value}%</div>`,
   103: (value) => `<div>持续伤害提高 ${value}%</div>`,
   104: (value) => `<div>被格挡的攻击对你造成 ${value}% 伤害</div>`,
-  105: (value) =>
-    `<div>每 ${value[0]} 点命中值都附加 ${value[1]} 到 ${value[2]} 点攻击闪电伤害</div>`,
+  105: (value) => `<div>每 ${value[0]} 点命中值都附加 ${value[1]} 到 ${value[2]} 点攻击闪电伤害</div>`,
   106: (value) => `<div>总命中值提升 ${value}%</div>`,
   107: (value) => `<div>位移技能的的冷却恢复速度加快 ${value}%</div>`,
   108: (value) => `<div>冰霜与闪电抗性提高 ${value}%</div>`,
@@ -293,8 +292,8 @@ export const magics = {
   126: (value) => `<div>+${value} 力量与智慧</div>`,
   127: () => `<div>基底词缀不能改变</div>`,
   128: () => `<div>具有裂界者、塑界者和所有征服者影响效果</div>`,
-  129: (value) => `<div>允许的前缀 ${value >= 0 ? '+' : '-'}${abs(value)}</div>`,
-  130: (value) => `<div>允许的后缀 ${value >= 0 ? '+' : '-'}${abs(value)}</div>`,
+  129: (value) => `<div>允许的前缀 ${value >= 0 ? "+" : "-"}${abs(value)}</div>`,
+  130: (value) => `<div>允许的后缀 ${value >= 0 ? "+" : "-"}${abs(value)}</div>`,
   131: (value) => `<div>外延词缀幅度提高 ${value}%</div>`,
   132: (value) => `<div>能量护盾充能时间提前 ${value}%</div>`,
   133: (value) => `<div>火焰伤害提高 ${value}%</div>`,
@@ -325,14 +324,11 @@ export const magics = {
   158: (value) => `<div>召唤生物获得 ${value}% 元素抗性</div>`,
   159: (value) => `<div>左边的戒指栏位：技能效果的持续时间${upOrDown(value)} ${abs(value)}%</div>`,
   160: (value) => `<div>右边的戒指栏位：技能效果的持续时间${upOrDown(value)} ${abs(value)}%</div>`,
-  161: (value) =>
-    `<div>左边的戒指栏位：你受到的诅咒效果${enhanceOrReduce(value)} ${abs(value)}%</div>`,
-  162: (value) =>
-    `<div>右边的戒指栏位：你受到的诅咒效果${enhanceOrReduce(value)} ${abs(value)}%</div>`,
+  161: (value) => `<div>左边的戒指栏位：你受到的诅咒效果${enhanceOrReduce(value)} ${abs(value)}%</div>`,
+  162: (value) => `<div>右边的戒指栏位：你受到的诅咒效果${enhanceOrReduce(value)} ${abs(value)}%</div>`,
   163: (value) => `<div>左边的戒指栏位：召唤生物受到的伤害${upOrDown(value)} ${abs(value)}%</div>`,
   164: (value) => `<div>右边的戒指栏位：召唤生物受到的伤害${upOrDown(value)} ${abs(value)}%</div>`,
-  165: (value) =>
-    `<div>左边的戒指栏位：你处于异常状态的时间${upOrDown(value)} ${abs(value)}%</div>`,
+  165: (value) => `<div>左边的戒指栏位：你处于异常状态的时间${upOrDown(value)} ${abs(value)}%</div>`,
   166: (value) => `<div>左边的戒指栏位：受到的冰霜伤害的 ${value}% 转化为火焰伤害</div>`,
   167: (value) => `<div>右边的戒指栏位：受到的火焰伤害的 ${value}% 转化为冰霜伤害</div>`,
   168: (value) => `<div>左边的戒指栏位：受到的火焰伤害的 ${value}% 转化为闪电伤害</div>`,
@@ -445,8 +441,7 @@ export const magics = {
   272: (value) => `<div>伤害${totalUpOrDown(value)} ${abs(value)}%</div>`,
   273: (value) => `<div>法术可重复 ${abs(value)} 次</div>`,
   274: (value) => `<div>施法速度${totalUpOrDown(value[0])} ${abs(value[0])}%</div>`,
-  275: (value) =>
-    `<div>击中受到的伤害在生命和能量护盾承受之前，${value}% 优先由该增益效果承受</div>`,
+  275: (value) => `<div>击中受到的伤害在生命和能量护盾承受之前，${value}% 优先由该增益效果承受</div>`,
   276: (value) => `<div>该增益效果能承受 ${value} 点伤害</div>`,
   277: (value) => `<div>攻击造成的物理伤害提高 ${value}%</div>`,
   278: (value) => `<div>攻击技能的异常状态伤害提高 ${value}%</div>`,
@@ -477,8 +472,7 @@ export const magics = {
   303: (value) => `<div>+${value}% 近战攻击暴击伤害加成</div>`,
   304: (value) => `<div>额外获得 ${value} 个箭矢</div>`,
   305: (value) => `<div>法术伤害总增 ${value}%</div>`,
-  306: (value) =>
-    `<div>非召唤生物有 ${value[0]}% 几率在击中稀有或传奇敌人时，造成持续 ${value[1]} 秒奉献地面</div>`,
+  306: (value) => `<div>非召唤生物有 ${value[0]}% 几率在击中稀有或传奇敌人时，造成持续 ${value[1]} 秒奉献地面</div>`,
   307: (value) => `<div>持盾牌时施法速度加快 ${value}%</div>`,
   308: (value) => `<div>法术伤害在持盾牌时提高 ${value}%</div>`,
   309: (value) => `<div>你技能的非诅咒类光环效果提高 ${value}%</div>`,
@@ -611,59 +605,59 @@ export const magics = {
   423: (value) => `<div>攻击技能的闪电伤害提高 ${value}%</div>`,
   424: (value) => `<div>攻击技能的混沌伤害提高 ${value}%</div>`,
   425: (value) => `<div>攻击技能的火焰伤害提高 ${value}%</div>`,
-  426: (value) => `<div>压制 ${value}% 物理伤害减免</div>`
-}
+  426: (value) => `<div>压制 ${value}% 物理伤害减免</div>`,
+};
 
 const abs = (value) => {
-  if (value && typeof value == 'number') return Math.abs(value)
-  return value
-}
+  if (value && typeof value == "number") return Math.abs(value);
+  return value;
+};
 
 const upOrDown = (value) => {
-  if (!value || value >= 0 || typeof value != 'number') return '提高'
-  return '降低'
-}
+  if (!value || value >= 0 || typeof value != "number") return "提高";
+  return "降低";
+};
 
 const enhanceOrReduce = (value) => {
-  if (!value || value >= 0 || typeof value == 'object') return '增强'
-  return '减弱'
-}
+  if (!value || value >= 0 || typeof value == "object") return "增强";
+  return "减弱";
+};
 
 const totalUpOrDown = (value) => {
-  if (!value || value >= 0 || typeof value == 'object') return '总增'
-  return '总降'
-}
+  if (!value || value >= 0 || typeof value == "object") return "总增";
+  return "总降";
+};
 
 // 加快或减慢
 const speedUpOrDown = (value) => {
-  if (!value || value >= 0 || typeof value == 'object') return '加快'
-  return '减慢'
-}
+  if (!value || value >= 0 || typeof value == "object") return "加快";
+  return "减慢";
+};
 export const getDamageTypeClass = (damageType) => {
   switch (parseInt(damageType)) {
     case 1:
-      return 'physical'
+      return "physical";
     case 2:
-      return 'fire'
+      return "fire";
     case 3:
-      return 'cold'
+      return "cold";
     case 4:
-      return 'lightning'
+      return "lightning";
     case 5:
-      return 'chaos'
+      return "chaos";
   }
-}
+};
 
 export const getSkillCategoryClass = (skillType) => {
   switch (skillType) {
     case 1:
-      return 'text-red'
+      return "text-red";
     case 2:
-      return 'text-green'
+      return "text-green";
     case 3:
-      return 'text-blue'
+      return "text-blue";
   }
-}
+};
 export default {
   abs,
   upOrDown,
@@ -671,5 +665,5 @@ export default {
   totalUpOrDown,
   speedUpOrDown,
   getDamageTypeClass,
-  getSkillCategoryClass
-}
+  getSkillCategoryClass,
+};

@@ -51,43 +51,56 @@
               :duration="450"
               leave-active-class="animate__animated animate__slideOutLeft"
               enter-active-class="animate__animated animate__slideInRight"
+              tag="div"
             >
-              <van-cell-group :border="true" v-for="item in characterAncillaryAccounts" :key="item.username">
-                <van-cell class="account" :title="item.username" :value="item.password">
-                  <template #right-icon>
-                    <van-button class="delete" size="mini" plain type="danger" @click="deleteAccount(item)">删除</van-button>
-                  </template></van-cell
-                >
+              <RecycleScroller
+                ref="scroller"
+                :items="characterAncillaryAccounts"
+                :minItemSize="minItemSize"
+                :style="{ height: dynamicHeight + 'px' }"
+                key="name"
+                key-field="username"
+                v-slot="{ item }"
+              >
+                <!-- <van-cell-group :border="true" v-for="item in characterAncillaryAccounts" :key="item.username"> -->
 
-                <van-cell
-                  class="character"
-                  :key="character.id"
-                  :title="character.name"
-                  v-for="character in item.tokenInfo.characters"
-                  :border="false"
-                >
-                  <template #right-icon>
-                    <van-button
-                      v-if="character.id !== currentCharacter.id"
-                      class="delete"
-                      size="mini"
-                      plain
-                      type="success"
-                      @click="selectCharacter(character, item)"
-                      >选择角色</van-button
-                    >
-                    <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
-                    <van-button
-                      class="delete"
-                      size="mini"
-                      plain
-                      :type="character.cantTransfer ? 'danger' : 'success'"
-                      @click="switchCantTransfer(character)"
-                      >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
-                    >
-                  </template>
-                </van-cell>
-              </van-cell-group>
+                <van-cell-group ref="cellGroup" :border="true" :key="item.username">
+                  <van-cell class="account" :title="item.username" :value="item.password">
+                    <template #right-icon>
+                      <van-button class="delete" size="mini" plain type="danger" @click="deleteAccount(item)">删除</van-button>
+                    </template></van-cell
+                  >
+
+                  <van-cell
+                    class="character"
+                    :key="character.id"
+                    :title="character.name"
+                    v-for="character in item.tokenInfo.characters"
+                    :border="false"
+                  >
+                    <template #right-icon>
+                      <van-button
+                        v-if="character.id !== currentCharacter.id"
+                        class="delete"
+                        size="mini"
+                        plain
+                        type="success"
+                        @click="selectCharacter(character, item)"
+                        >选择角色</van-button
+                      >
+                      <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
+                      <van-button
+                        class="delete"
+                        size="mini"
+                        plain
+                        :type="character.cantTransfer ? 'danger' : 'success'"
+                        @click="switchCantTransfer(character)"
+                        >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
+                      >
+                    </template>
+                  </van-cell>
+                </van-cell-group>
+              </RecycleScroller>
             </transition-group>
           </van-cell-group>
         </van-collapse-item>
@@ -118,18 +131,23 @@
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
 import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
-import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
+import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog, Toast } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
+import { nextTick } from "vue";
 
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
+const minItemSize = ref(180);
+const dynamicHeight = ref(400);
 const show = ref(false);
 const loadingStore = useLoadingStore();
 const accountStore = useAccountStore();
 const tokenStore = useTokenStore();
+const scroller = ref();
+const cellGroup = ref();
 const loading = ref(false);
 const router = useRouter();
 const dialogRef = ref(null);
@@ -142,7 +160,15 @@ const changeClass = computed(() => {
 });
 
 const mainAccount = computed(() => useAccountStore().getMainAccount);
-const characterAncillaryAccounts = computed(() => useAccountStore().getSubAccounts);
+const characterAncillaryAccounts = computed(() => {
+  // itemsUpdateTime = new Date().getMilliseconds();
+  nextTick(() => {
+    scroller?.value?.updateVisibleItems();
+  });
+
+  console.log("🚀 ~ characterAncillaryAccounts ~ scroller?:", scroller?.value);
+  return useAccountStore().getSubAccounts;
+});
 const currentCharacter = computed(() => {
   return useAccountStore().getCurrentCharacter;
 });
@@ -156,6 +182,17 @@ watch(currentCharacter, (newVal, oldVal) => {
       isChange.value = false;
     }, 1000);
     // -----------给角色添加动画效果-----------
+  }
+});
+watch(activeName, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    if (newVal == 2) {
+      cellGroup.value &&
+        nextTick(() => {
+          minItemSize.value = cellGroup.value.$el.offsetHeight + 5;
+          dynamicHeight.value = minItemSize.value * 2.2;
+        });
+    }
   }
 });
 onBeforeRouteUpdate((from, to) => {
@@ -196,6 +233,7 @@ const beforeClose = (action) =>
 
               tokenStore.setToken(currentCharacter.value.token);
               activeName.value = "2";
+              showSuccessToast("添加成功");
             })
 
             .finally(() => {
@@ -440,6 +478,7 @@ const deleteSubAccounts = () => {
 };
 const deleteAccount = (account) => {
   accountStore.deleteSubAccount(account);
+  showSuccessToast("删除成功");
 };
 const selectCharacter = (character, { username, password }) => {
   accountStore.setCurrentCharacter({ username, password, ...character });

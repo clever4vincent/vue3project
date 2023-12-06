@@ -18,13 +18,13 @@
     <!-- <transition :name="transitionName"> -->
 
     <router-view v-slot="{ Component }">
-      <transition :name="transitionName">
-        <KeepAlive include="home,equipment">
+      <Transition :name="transitionName">
+        <KeepAlive :include="['home']">
           <component :is="Component" :key="route.name" :name="route.name" :class="isMainRouter ? 'is-main-page' : ''" />
         </KeepAlive>
-      </transition>
 
-      <!-- <component :is="Component" :key="route.name" v-if="!route.meta.keepAlive" /> -->
+        <!-- <component v-else :is="Component" :key="route.name" /> -->
+      </Transition>
     </router-view>
 
     <!-- </transition> -->
@@ -43,6 +43,7 @@ import { RouterView, useRoute } from "vue-router";
 import { useDark } from "@vueuse/core";
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
 import { ref } from "vue";
+import { nextTick } from "vue";
 
 const active = ref(0);
 const route = useRoute();
@@ -60,7 +61,10 @@ const loadingStore = useLoadingStore();
 const canShowLoading = computed(() => loadingStore.loading > 0);
 const isMainRouter = computed(() => useRouterStore().isMainRouter);
 const transitionName = computed(() => {
+  // nextTick(() => {
+  console.log("transitionName", appStore.transitionName);
   return appStore.transitionName;
+  // });
 });
 </script>
 
