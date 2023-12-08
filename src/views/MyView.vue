@@ -22,7 +22,7 @@
   </div>
 </template>
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted } from "vue";
 // const images = [
 //   'https://fastly.jsdelivr.net/npm/@vant/assets/apple-1.jpeg',
 //   'https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg',
@@ -36,8 +36,8 @@ import { onMounted } from 'vue'
 //   })
 // }
 onMounted(() => {
-  console.log('mounted!')
-})
+  console.log("mounted!");
+});
 </script>
 
 <style></style>

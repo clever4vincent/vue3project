@@ -25,6 +25,9 @@ const Api = {
   upgradeStone: "/skillstone/upgrade",
   addGoodsRule: "/user/equipment-filter",
   destroyAll: "/equipment/destroyAll",
+  getAllMap: "/map/all",
+  skilltree: "/skilltree",
+  changeClass: "/character/changeClass",
 };
 
 export const login = (params) => {
@@ -39,8 +42,8 @@ export const createAccount = (params) => {
 export const getCharacterList = (params) => {
   return defHttp.get({ url: Api.characterList, params });
 };
-export const getCharacterInfo = (params) => {
-  return defHttp.get({ url: Api.getCharacterInfo, params });
+export const getCharacterInfo = (opt) => {
+  return defHttp.get({ url: Api.getCharacterInfo }, { ...opt });
 };
 
 export const getCurrency = (params) => {
@@ -64,11 +67,11 @@ export const buy = (id) => {
 export const buyShop = (itemId) => {
   return defHttp.post({ url: Api.buyShop, params: { itemId: itemId, quantity: 1 } });
 };
-export const updateSkilltree = (skilltree) => {
-  return defHttp.post({ url: Api.updateSkilltree, params: { passives: skilltree } });
+export const updateSkilltree = (skilltree, opt) => {
+  return defHttp.post({ url: Api.updateSkilltree, params: { passives: skilltree } }, { ...opt });
 };
-export const chooseMap = (mapId) => {
-  return defHttp.post({ url: Api.chooseMap, params: { mapId: mapId } });
+export const chooseMap = (mapId, opt) => {
+  return defHttp.post({ url: Api.chooseMap, params: { mapId: mapId } }, { ...opt });
 };
 export const equip = (equipmentId, characterId) => {
   return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } });
@@ -82,16 +85,25 @@ export const insertStone = (equipmentId, socketId, stoneId) => {
 export const removeStone = (equipmentId, socketId) => {
   return defHttp.post({ url: Api.removeStone, params: { equipmentId, socketId } });
 };
-export const upgradeStone = (stoneId) => {
-  return defHttp.post({ url: Api.upgradeStone, params: { stoneId } });
+export const upgradeStone = (stoneId, opt) => {
+  return defHttp.post({ url: Api.upgradeStone, params: { stoneId } }, { errorMessageMode: "none", ...opt });
 };
 
-export const addGoodsRule = (params) => {
-  return defHttp.post({ url: Api.addGoodsRule, params });
+export const addGoodsRule = (params, opt) => {
+  return defHttp.post({ url: Api.addGoodsRule, params }, { ...opt });
 };
-export const destroyAll = () => {
-  return defHttp.post({ url: Api.destroyAll, params: { keyword: "", type: null, rarity: null, storage: false } });
+export const destroyAll = (opt) => {
+  return defHttp.post({ url: Api.destroyAll, params: { keyword: "", type: null, rarity: null, storage: false } }, { ...opt });
+};
+export const changeClass = (params, opt) => {
+  return defHttp.post({ url: Api.changeClass, params }, { ...opt });
 };
 export const getHttpProxy = (proxy = null) => {
   return defHttp.get({ url: originApi.getHttpProxy, params: {} }, { apiUrl: null, isTransformResponse: false, proxy });
+};
+export const getAllMap = (params) => {
+  return defHttp.get({ url: Api.getAllMap, params }, { loading: false });
+};
+export const getSkillTree = (params, opt) => {
+  return defHttp.get({ url: Api.skilltree, params }, { ...opt });
 };

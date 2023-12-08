@@ -16,7 +16,7 @@ import { ipPool } from "@/lib/ip-pool";
 const globSetting = getAppEnvConfig();
 const urlPrefix = globSetting.urlPrefix;
 let retryTokenCount = 0; // 重试次数
-const maxRetryCount = 1; // 最大重试
+const maxRetryCount = 10; // 最大重试
 // const { createMessage, createErrorModal } = useMessage();
 
 /**
@@ -128,7 +128,7 @@ const transform = {
     const { loading } = config.requestOptions;
     // 请求之前处理config
     // const token = getToken();
-    const token = useTokenStore().getToken;
+    const token = config?.requestOptions?.thirdToken || useTokenStore().getToken;
     if (config?.requestOptions?.proxy) {
       config.proxy = config.requestOptions.proxy;
     }
@@ -175,13 +175,20 @@ const transform = {
           retryTokenCount = 0;
           throw new Error("Token刷新失败");
         }
-        const { loading } = error.config.requestOptions;
+        const { loading } = config.requestOptions;
         loading && useLoadingStore().hideLoading();
         // 增加重试次数
         retryTokenCount++;
-        await useAccountStoreWithOut().refrshCurrentAccountTokenInfo();
+        // 将当前请求的token传入
+        const token = config?.requestOptions?.thirdToken || useTokenStore().getToken;
+        let refrshToken = await useAccountStoreWithOut().refrshCurrentAccountTokenInfo(token);
+        if (config?.requestOptions?.thirdToken) {
+          config.requestOptions.thirdToken = refrshToken;
+        } else {
+          useTokenStore().setToken(refrshToken);
+        }
         // 重新发起请求
-        return defHttp.getAxios().request(error.config);
+        return defHttp.getAxios().request(config);
         // const { loading } = error.config.requestOptions;
         // loading && useLoadingStore().hideLoading();
       }
@@ -201,6 +208,10 @@ const transform = {
         return Promise.reject(error);
       }
     } catch (error) {
+      showToast({
+        message: error.message,
+      });
+
       throw new Error(error);
     }
 
@@ -264,6 +275,8 @@ function createAxios(opt) {
           withToken: true,
           // 是否挂代理
           proxy: null,
+          // 第三方token
+          thirdToken: null,
         },
       },
       opt || {}

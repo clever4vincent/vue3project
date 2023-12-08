@@ -2,13 +2,17 @@ import { defineStore } from "pinia";
 import { store, useTokenStore } from "@/stores";
 import { login, getCharacterList, switchCharacter } from "@/api";
 import { cloneDeep } from "lodash-es";
-
+import { showToast } from "vant";
+import { nextTick } from "vue";
+import { sleep } from "@/utils";
 export const useAccountStore = defineStore({
   id: "app-account",
   state: () => ({
     mainAccountTokenInfo: [],
     accountTokenInfo: [],
     currentCharacter: {},
+    batchAccounts: [],
+    mapList: [],
   }),
   getters: {
     getMainAccount() {
@@ -19,6 +23,12 @@ export const useAccountStore = defineStore({
     },
     getCurrentCharacter() {
       return this.currentCharacter;
+    },
+    getBatchAccounts() {
+      return this.batchAccounts;
+    },
+    getMapList() {
+      return this.mapList;
     },
   },
   actions: {
@@ -84,6 +94,54 @@ export const useAccountStore = defineStore({
       this.currentCharacter = character;
       useTokenStore().setToken(character.token);
     },
+    setBatchAccounts(accounts) {
+      this.batchAccounts = accounts;
+    },
+    setMapList(list) {
+      this.mapList = list;
+    },
+    // 1.获取所有账号的tokenInfo,筛选出批量操作的账号
+    async batchAccountsOperation(operation) {
+      let allTokenInfo = this.getAllAccountTokenInfo();
+      let batchAccounts = this.getBatchAccounts;
+      let batchAccountsTokenInfo = [];
+      for (let i = 0; i < allTokenInfo.length; i++) {
+        for (let j = 0; j < batchAccounts.length; j++) {
+          if (allTokenInfo[i].username === batchAccounts[j]) {
+            batchAccountsTokenInfo.push(allTokenInfo[i]);
+          }
+        }
+      }
+      let operations = [];
+      // 2.对批量操作的账号进行操作
+      for (let i = 0; i < batchAccountsTokenInfo.length; i++) {
+        let account = batchAccountsTokenInfo[i];
+        let characters = account.tokenInfo.characters;
+        for (let j = 0; j < characters.length; j++) {
+          let character = characters[j];
+
+          // await operation();
+          // operations.push(
+          //   ((character) => () => {
+          //     operation({ thirdToken: character.token });
+          //   })(character)
+          // );
+          operations.push(operation({ thirdToken: character.token }));
+        }
+      }
+      // await Promise.all(operations.map((op) => op()));
+      await Promise.all(operations);
+      // 3.操作完成后
+      useTokenStore().setToken(this.currentCharacter.token);
+    },
+    getMapListOptions() {
+      return this.mapList.map((item) => {
+        return {
+          text: "Lv." + item.level + " - " + item.name,
+          value: item.id,
+        };
+      });
+    },
     parseAccounts(accounts) {
       return accounts.map((account) => {
         return {
@@ -103,10 +161,10 @@ export const useAccountStore = defineStore({
         await this.getMainAccountTokenInfo(account);
       }
     },
-    async refrshCurrentAccountTokenInfo() {
+    async refrshCurrentAccountTokenInfo(token) {
       // 根据当前角色token,获取当前角色所在的账号信息及角色信息
       // 1.获取当前角色的token
-      let token = useTokenStore().getToken;
+      // let token = useTokenStore().getToken;
       // 2.获取当前角色所在的账号信息，根据角色token来对比
       //先将主账号的token信息放到数组的第一位
       // let allTokenInfo = [];
@@ -126,6 +184,9 @@ export const useAccountStore = defineStore({
         }
       }
       console.log(currentAccount);
+      if (!currentAccount.username || !currentAccount.password) {
+        throw new Error("当前角色所在的账号不存在");
+      }
       // 将当前角色所在的账号的角色token进行更新
       // 1.获取当前角色所在的账号
       let username = currentAccount.username;
@@ -138,7 +199,8 @@ export const useAccountStore = defineStore({
         currentAccount.tokenInfo.characters[i].token = tokenInfo.characters[i].token;
       }
 
-      useTokenStore().setToken(currentCharacter.token);
+      // useTokenStore().setToken(currentCharacter.token);
+      return currentCharacter.token;
     },
     updateAccountOfToken(account, tokenInfo) {
       for (let i = 0; i < tokenInfo.length; i++) {

@@ -22,6 +22,12 @@ const router = createRouter({
       component: () => import("../views/MyView.vue"),
     },
     {
+      path: "/batch",
+      meta: { isMain: true, index: 1 },
+      name: "batch",
+      component: () => import("../views/BatchView.vue"),
+    },
+    {
       path: "/setting",
       meta: { isMain: true, index: 1, keepAlive: true },
       name: "setting",
@@ -74,9 +80,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.index > from.meta.index) {
     // 说明是由主级路由跳转到次级路由 页面从右边滑入
     useStoreWithOut().transitionName = "slide-right";
-    console.log("slide-right");
   } else if (to.meta.index < from.meta.index) {
-    console.log("slide-left");
     // 由次级到主级路由 页面从左边滑出
     useStoreWithOut().transitionName = "slide-left";
     // useStoreWithOut().transitionName = "slide-right";

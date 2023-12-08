@@ -22,12 +22,16 @@ export const useThemeStore = defineStore(
 );
 export const useStore = defineStore("app", () => {
   const transitionName = ref("");
+  const isFooterHideen = ref(false);
 
   function setTransitionName(value) {
     transitionName.value = value;
   }
+  function setIsFooterHideen(value) {
+    isFooterHideen.value = value;
+  }
 
-  return { transitionName, setTransitionName };
+  return { transitionName, setTransitionName, isFooterHideen, setIsFooterHideen };
 });
 export const useLoadingStore = defineStore("loading", () => {
   const loading = ref(0);

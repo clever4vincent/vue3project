@@ -131,7 +131,7 @@
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
 import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
-import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog, Toast } from "vant";
+import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
@@ -165,8 +165,6 @@ const characterAncillaryAccounts = computed(() => {
   nextTick(() => {
     scroller?.value?.updateVisibleItems();
   });
-
-  console.log("🚀 ~ characterAncillaryAccounts ~ scroller?:", scroller?.value);
   return useAccountStore().getSubAccounts;
 });
 const currentCharacter = computed(() => {
@@ -195,18 +193,11 @@ watch(activeName, (newVal, oldVal) => {
     }
   }
 });
-onBeforeRouteUpdate((from, to) => {
-  console.log("onBeforeRouteUpdate", from, to);
-});
-onMounted(async () => {
-  console.log("onMounted");
-});
+onMounted(async () => {});
 onActivated(async () => {
   console.log("onActivated");
 });
-onDeactivated(async () => {
-  console.log("onDeactivated");
-});
+onDeactivated(async () => {});
 const toEquipment = () => {
   if (!tokenStore.getToken) {
     showDialog({ message: "请先选择角色" });

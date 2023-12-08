@@ -55,6 +55,7 @@ const finished = ref(false);
 const currentEquipment = ref(null);
 const router = useRouter();
 const options = ref([]);
+let isFisrt = true;
 let page = 1;
 import { getBackpack } from "@/api";
 
@@ -75,9 +76,11 @@ const onConfirm = (value) => {
 
 const onLoad = () => {
   // 异步更新数据
-
-  console.log("🚀 ~ onLoad ~ value:", toRaw(list.value));
-
+  if (page == 1 && !isFisrt) {
+    loading.value = false;
+    return;
+  }
+  isFisrt = false;
   getBackpack(page)
     .then((res) => {
       list.value = list.value.concat(res.items);
@@ -133,16 +136,11 @@ const moveEquipment = (item) => {
   show.value = true;
 };
 
-onMounted(async () => {
-  console.log(toRaw(list.value));
-  console.log("onMounted");
-});
+onMounted(async () => {});
 onActivated(async () => {
   console.log("onActivated");
 });
-onDeactivated(async () => {
-  console.log("onDeactivated");
-});
+onDeactivated(async () => {});
 </script>
 
 <style scoped lang="scss">

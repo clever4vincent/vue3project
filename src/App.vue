@@ -29,10 +29,10 @@
 
     <!-- </transition> -->
 
-    <van-tabbar v-model="active" v-show="isMainRouter" class="tab-bottom van-safe-area-bottom" route>
+    <van-tabbar v-model="active" v-show="isMainRouter && !isFooterHideen" class="tab-bottom van-safe-area-bottom" route>
       <van-tabbar-item replace icon="home-o" to="/">账号</van-tabbar-item>
-      <!-- <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item>
-      <van-tabbar-item replace icon="friends-o" to="/my">好友</van-tabbar-item> -->
+      <!-- <van-tabbar-item replace icon="search" to="/about">关于</van-tabbar-item> -->
+      <van-tabbar-item replace icon="contact-o" to="/batch">批量操作</van-tabbar-item>
       <van-tabbar-item replace icon="setting-o" to="/setting">设置</van-tabbar-item>
     </van-tabbar>
     <LoadingMask ref="PageLoadingMask" :show="canShowLoading" class="page-loading-mask"></LoadingMask>
@@ -60,11 +60,9 @@ const loadingStore = useLoadingStore();
 
 const canShowLoading = computed(() => loadingStore.loading > 0);
 const isMainRouter = computed(() => useRouterStore().isMainRouter);
+const isFooterHideen = computed(() => appStore.isFooterHideen);
 const transitionName = computed(() => {
-  // nextTick(() => {
-  console.log("transitionName", appStore.transitionName);
   return appStore.transitionName;
-  // });
 });
 </script>
 

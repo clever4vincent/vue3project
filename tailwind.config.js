@@ -4,7 +4,11 @@ module.exports = {
   // 定位index.html文件
   content: ["./index.html", "./src/**/*.{vue,js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      fontSize: {
+        xxs: ["12px"],
+      },
+    },
   },
   plugins: [],
 };
