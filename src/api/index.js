@@ -27,25 +27,37 @@ const Api = {
   destroyAll: "/equipment/destroyAll",
   getAllMap: "/map/all",
   skilltree: "/skilltree",
+  remove: "/market/remove",
   changeClass: "/character/changeClass",
 };
 
-export const login = (params) => {
-  return defHttp.post({ url: Api.login, params });
+export const login = (params, opt) => {
+  return defHttp.post({ url: Api.login, params }, { ...opt });
+};
+export const loginThrid = (params, opt) => {
+  return defHttp.post({ url: `http://192.168.0.103:3001/api${Api.login}`, params }, { apiUrl: null, ...opt });
 };
 export const switchCharacter = (params) => {
   return defHttp.post({ url: Api.switchCharacter, params });
 };
-export const createAccount = (params) => {
-  return defHttp.post({ url: Api.createAccount, params });
+export const createAccount = (params, opt) => {
+  // return defHttp.post({ url: Api.createAccount, params }, { ...opt });
+  return defHttp.post({ url: `http://192.168.0.103:3001/api${Api.createAccount}`, params }, { apiUrl: null, ...opt });
 };
-export const getCharacterList = (params) => {
-  return defHttp.get({ url: Api.characterList, params });
+export const getCharacterList = (opt) => {
+  return defHttp.get({ url: Api.characterList }, { ...opt });
+};
+export const getCharacterListThird = (opt) => {
+  return defHttp.get({ url: `http://192.168.0.103:3001/api${Api.characterList}` }, { apiUrl: null, ...opt });
 };
 export const getCharacterInfo = (opt) => {
   return defHttp.get({ url: Api.getCharacterInfo }, { ...opt });
+  // return defHttp.get({ url: `http://192.168.0.103:3001/api${Api.getCharacterInfo}` }, { apiUrl: null, ...opt });
 };
-
+export const getCharacterInfoThird = (opt) => {
+  // return defHttp.get({ url: Api.getCharacterInfo }, { ...opt });
+  return defHttp.get({ url: `http://192.168.0.103:3001/api${Api.getCharacterInfo}` }, { apiUrl: null, ...opt });
+};
 export const getCurrency = (params) => {
   return defHttp.get({ url: Api.getCurrency, params });
 };
@@ -60,6 +72,9 @@ export const getMarket = (params = { page: 1 }) => {
 };
 export const sell = (id, price) => {
   return defHttp.post({ url: Api.sell, params: { itemId: id, price, type: 2 } });
+};
+export const remove = (id) => {
+  return defHttp.post({ url: Api.remove, params: { id: id } });
 };
 export const buy = (id) => {
   return defHttp.post({ url: Api.buy, params: { id: id } });
@@ -100,6 +115,9 @@ export const changeClass = (params, opt) => {
 };
 export const getHttpProxy = (proxy = null) => {
   return defHttp.get({ url: originApi.getHttpProxy, params: {} }, { apiUrl: null, isTransformResponse: false, proxy });
+};
+export const getOriginIp = (proxy = null) => {
+  return defHttp.get({ url: "https://httpbin.io/ip", params: {} }, { apiUrl: null, isTransformResponse: false, proxy });
 };
 export const getAllMap = (params) => {
   return defHttp.get({ url: Api.getAllMap, params }, { loading: false });

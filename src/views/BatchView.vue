@@ -126,7 +126,6 @@ const showDialogOptions = (type) => {
 
 const sycnTree = (skillJson) => {
   showSkillJson.value = false;
-  console.log(skillJson);
   if (skillJson) {
     try {
       const skillJsonObj = JSON.parse(skillJson);
@@ -178,6 +177,13 @@ onMounted(() => {
     getAllMap().then((res) => {
       res && accountStore.setMapList(res);
     });
+  }
+  // 每天刷新一次token,如果accountStore.tokenDate不等于今天则刷新
+
+  if (accountStore.tokenDate !== new Date().toLocaleDateString()) {
+    if (accountStore.refreshAllAccountTokenInfo()) {
+      accountStore.setTokenDate(new Date().toLocaleDateString());
+    }
   }
 });
 </script>

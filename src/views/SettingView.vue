@@ -4,7 +4,7 @@
 
     <van-cell-group>
       <van-cell title="夜间模式" center value="内容"> <van-switch center :model-value="isDark" @update:model-value="onUpdateValue" /></van-cell>
-      <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
+      <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell>
       <!-- <van-button style="margin: 10px" plain type="primary" to="/equipment">装备列表</van-button> -->
       <!-- <icon-park-currency theme="multi-color" size="24" :fill="['#333', '#2F88FF', '#FFF', '#43CCF8']" strokeLinecap="square" /> -->
     </van-cell-group>

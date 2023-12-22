@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { store, useTokenStore } from "@/stores";
-import { login, getCharacterList, switchCharacter } from "@/api";
+import { login, getCharacterList, switchCharacter, getCharacterInfo } from "@/api";
 import { cloneDeep } from "lodash-es";
 import { showToast } from "vant";
 import { nextTick } from "vue";
@@ -13,6 +13,7 @@ export const useAccountStore = defineStore({
     currentCharacter: {},
     batchAccounts: [],
     mapList: [],
+    tokenDate: "",
   }),
   getters: {
     getMainAccount() {
@@ -134,6 +135,9 @@ export const useAccountStore = defineStore({
       // 3.操作完成后
       useTokenStore().setToken(this.currentCharacter.token);
     },
+    setTokenDate(date) {
+      this.tokenDate = date;
+    },
     getMapListOptions() {
       return this.mapList.map((item) => {
         return {
@@ -161,6 +165,19 @@ export const useAccountStore = defineStore({
         await this.getMainAccountTokenInfo(account);
       }
     },
+    async refreshAllAccountTokenInfo() {
+      let allTokenInfo = this.getAllAccountTokenInfo();
+      let result = true;
+      for (let index = 0; index < allTokenInfo.length; index++) {
+        let account = allTokenInfo[index];
+        let character = account.tokenInfo.characters[0];
+        await getCharacterInfo({ thirdToken: character.token }).catch(() => {
+          result &= false;
+        });
+      }
+      return result;
+    },
+
     async refrshCurrentAccountTokenInfo(token) {
       // 根据当前角色token,获取当前角色所在的账号信息及角色信息
       // 1.获取当前角色的token
@@ -183,7 +200,7 @@ export const useAccountStore = defineStore({
           }
         }
       }
-      console.log(currentAccount);
+
       if (!currentAccount.username || !currentAccount.password) {
         throw new Error("当前角色所在的账号不存在");
       }
@@ -198,7 +215,10 @@ export const useAccountStore = defineStore({
       for (let i = 0; i < currentAccount.tokenInfo.characters.length; i++) {
         currentAccount.tokenInfo.characters[i].token = tokenInfo.characters[i].token;
       }
-
+      //如果更新的账号是所选角色的账号，需要更新当前角色的token
+      if (currentAccount.username === this.currentCharacter.username) {
+        this.currentCharacter.token = currentCharacter.token;
+      }
       // useTokenStore().setToken(currentCharacter.token);
       return currentCharacter.token;
     },

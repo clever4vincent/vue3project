@@ -41,8 +41,8 @@ export default {
     },
   },
   setup(props) {
-    const username = ref("");
-    const password = ref("");
+    const username = ref("a666985252");
+    const password = ref("123456");
     const start = ref(0);
     const end = ref(10);
     const clearFields = () => {
@@ -50,7 +50,7 @@ export default {
       password.value = "";
     };
     const isMatched = () => {
-      if (props.mode === DialogModeEnum.SUB_SINGLE_ADD || props.mode === DialogModeEnum.MAIN_UPDATE) {
+      if (props.mode === DialogModeEnum.SUB_SINGLE_ADD || props.mode === DialogModeEnum.MAIN_UPDATE || props.mode === DialogModeEnum.CREATE_ACCOUNT) {
         return !!username.value && !!password.value;
       } else if (props.mode === DialogModeEnum.SUB_MULTIPLE_ADD) {
         return !!username.value && !!password.value && !!start.value && !!end.value && start.value <= end.value;

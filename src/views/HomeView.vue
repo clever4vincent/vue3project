@@ -109,6 +109,7 @@
       <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addSubAccount">添加小号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
       <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addMultipleSubAccount">批量添加小号</van-button>
+      <van-button style="margin: 10px" plain type="primary" icon="plus" to="/createAccount">创建账号</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="deleteSubAccounts">删除所有小号</van-button>
@@ -117,6 +118,8 @@
       <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
+
+      <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
     </div>
     <!-- <van-popup v-model:show="show" round position="bottom">
       <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
@@ -130,7 +133,7 @@
 </template>
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
-import { getCurrency, sell, buy, getMarket, getBackpack } from "@/api";
+import { getCurrency, sell, buy, getMarket, getBackpack, remove } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
@@ -193,7 +196,9 @@ watch(activeName, (newVal, oldVal) => {
     }
   }
 });
-onMounted(async () => {});
+onMounted(async () => {
+  useTokenStore().setToken(currentCharacter.value.token);
+});
 onActivated(async () => {
   console.log("onActivated");
 });
@@ -297,6 +302,18 @@ const packetPrice = (currentCurrency) => {
   };
 };
 
+const test = () => {
+  // 6572987795ddf85d1169f87e 虚空之牙 653f849f2a1f0433c8ca1421放电之护身符 657002c795ddf85d11455314手套 6571f06c95ddf85d11df1560鞋子
+  // 65461f46836b33b678c83da5 戒指
+  //   console.log(res);
+  // });
+  // sell("654c4adaba145208f7c09edb", { 1: 1, 2: 1, 3: 1, 4: 1, 5: 1 }).then((res) => {
+  //   console.log(res);
+  // });
+  // buy("6572987795ddf85d1169f87e").then((res) => {
+  //   console.log(res);
+  // });
+};
 const onCancel = () => {
   show.value = false;
   cascaderValue.value = "";

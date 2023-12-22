@@ -205,9 +205,8 @@ export class ZAxios {
       conf = beforeRequestHook(conf, opt);
     }
     conf.requestOptions = opt;
-
-    if (requestOptions.proxy) {
-      conf.proxy = requestOptions.proxy;
+    if (conf.requestOptions.proxy) {
+      conf.proxy = conf.requestOptions.proxy;
     }
     // conf = this.supportFormData(conf);
 

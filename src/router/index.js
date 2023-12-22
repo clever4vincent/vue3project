@@ -40,6 +40,12 @@ const router = createRouter({
       component: () => import("../views/EquipmentView.vue"),
     },
     {
+      path: "/createAccount",
+      name: "createAccount",
+      meta: { index: 2, keepAlive: true },
+      component: () => import("../views/CreateAccountView.vue"),
+    },
+    {
       path: "/test",
       name: "test",
       meta: { index: 2 },
