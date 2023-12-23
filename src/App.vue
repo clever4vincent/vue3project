@@ -19,8 +19,9 @@
 
     <router-view v-slot="{ Component }">
       <Transition :name="transitionName">
-        <KeepAlive :include="['home']">
-          <component :is="Component" :key="route.name" :name="route.name" :class="isMainRouter ? 'is-main-page' : ''" />
+        <!-- <KeepAlive :include="['HomeView', 'MyView', 'SettingView', 'BatchView']"> -->
+        <KeepAlive :include="include">
+          <component :is="Component" :key="route.name" :class="isMainRouter ? 'is-main-page' : ''" />
         </KeepAlive>
 
         <!-- <component v-else :is="Component" :key="route.name" /> -->
@@ -64,6 +65,33 @@ const isFooterHideen = computed(() => appStore.isFooterHideen);
 const transitionName = computed(() => {
   return appStore.transitionName;
 });
+const include = ref([]);
+// const include = computed(() => {
+//   // 将name转换为组件名
+//   let result = appStore.history
+//     .map((item) => {
+//       // 将home转换为HomeView
+//       return item.name.replace(/^[a-z]/, (s) => s.toUpperCase()) + "View";
+//     })
+//     .filter((item) => item !== "TestView");
+//   console.log(result);
+//   return result;
+// });
+watch(
+  () => appStore.history,
+  (newHistory) => {
+    // 将name转换为组件名
+    let result = newHistory
+      .filter((item) => item.meta.keepAlive)
+      .map((item) => {
+        // 将home转换为HomeView
+        return item.name.replace(/^[a-z]/, (s) => s.toUpperCase()) + "View";
+      });
+    include.value = result;
+  },
+  { deep: true }
+);
+// console.log(include);
 </script>
 
 <style lang="scss">

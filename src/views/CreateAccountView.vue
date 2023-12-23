@@ -3,7 +3,12 @@
     <van-nav-bar title="创建账号" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
     <div class="container">
       <van-cell title="创建账号" is-link @click="showAccountDialog('创建账号', DialogModeEnum.CREATE_ACCOUNT)" />
-      <van-cell title="test" is-link @click="test" />
+      <!-- <van-cell title="test" is-link @click="test" /> -->
+      <div>
+        {{ count }}
+      </div>
+      <van-cell title="数字" center value="加1" @click="add"></van-cell>
+      <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell>
     </div>
   </div>
 </template>
@@ -24,11 +29,15 @@ const router = useRouter();
 const accountStore = useAccountStore();
 const createDialogRef = ref(null);
 const mode = ref("");
+const count = ref(1);
 const onClickLeft = () => router.go(-1);
 const test = () => {
   getCharacterInfo().then((res) => {
     console.log(res);
   });
+};
+const add = () => {
+  count.value++;
 };
 const createBtn = async (account) => {
   for (let index = 0; index < 2; index++) {
@@ -65,6 +74,9 @@ const beforeClose = (action) =>
       resolve(true);
     }
   });
+onActivated(async () => {
+  console.log("onActivated");
+});
 const showAccountDialog = (title, Mode) => {
   mode.value = Mode;
   showConfirmDialog({

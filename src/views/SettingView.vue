@@ -18,7 +18,9 @@ const isDark = useDark();
 
 const toggleDark = useToggle(isDark);
 // const checked = ref(themeStore.theme === "dark");
-
+onActivated(async () => {
+  console.log("setting onActivated");
+});
 function onUpdateValue(value) {
   toggleDark();
   // let isDark = document.documentElement.classList.contains("van-theme-dark");

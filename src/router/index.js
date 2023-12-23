@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useRouterStoreWithOut, useStoreWithOut } from "@/stores";
 import HomeView from "../views/HomeView.vue";
+import MyView from "../views/MyView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,15 +16,15 @@ const router = createRouter({
       },
       component: HomeView,
     },
-    {
-      path: "/my",
-      meta: { isMain: true, index: 1 },
-      name: "my",
-      component: () => import("../views/MyView.vue"),
-    },
+    // {
+    //   path: "/my",
+    //   meta: { isMain: true, index: 1 },
+    //   name: "my",
+    //   component: () => import("../views/MyView.vue"),
+    // },
     {
       path: "/batch",
-      meta: { isMain: true, index: 1 },
+      meta: { isMain: true, index: 1, keepAlive: true },
       name: "batch",
       component: () => import("../views/BatchView.vue"),
     },
@@ -69,7 +70,7 @@ const router = createRouter({
     }
   },
 });
-let history = [];
+// let history = useStoreWithOut().history;
 
 router.beforeEach((to, from, next) => {
   // 如果是直接访问 URL 或刷新页面，且不是已经在 'home' 路由，才重定向到 'home' 路由
@@ -77,12 +78,13 @@ router.beforeEach((to, from, next) => {
     next({ name: "home" });
     return;
   }
-  const index = history.findIndex((h) => h.path === to.path);
+  const index = useStoreWithOut().history.findIndex((h) => h.path === to.path);
   if (index !== -1) {
-    history = history.slice(0, index + 1);
+    useStoreWithOut().history = useStoreWithOut().history.slice(0, index + 1);
   } else {
-    history.push(to);
+    useStoreWithOut().history.push(to);
   }
+  console.log("history", useStoreWithOut().history);
   if (to.meta.index > from.meta.index) {
     // 说明是由主级路由跳转到次级路由 页面从右边滑入
     useStoreWithOut().transitionName = "slide-right";

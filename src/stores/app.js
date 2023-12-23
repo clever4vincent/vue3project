@@ -23,6 +23,7 @@ export const useThemeStore = defineStore(
 export const useStore = defineStore("app", () => {
   const transitionName = ref("");
   const isFooterHideen = ref(false);
+  const history = ref([]);
 
   function setTransitionName(value) {
     transitionName.value = value;
@@ -31,7 +32,7 @@ export const useStore = defineStore("app", () => {
     isFooterHideen.value = value;
   }
 
-  return { transitionName, setTransitionName, isFooterHideen, setIsFooterHideen };
+  return { transitionName, setTransitionName, isFooterHideen, setIsFooterHideen, history };
 });
 export const useLoadingStore = defineStore("loading", () => {
   const loading = ref(0);

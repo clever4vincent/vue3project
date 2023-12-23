@@ -19,9 +19,9 @@ const imageList = [
 ];
 onMounted(() => {
   // console.log('mounted!');
-  showToast({
-    message: "请求网络数据!",
-  });
+  // router.push({
+  //   name: "home",
+  // });
 });
 </script>
 <style>

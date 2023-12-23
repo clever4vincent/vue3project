@@ -47,61 +47,61 @@
 
         <van-collapse-item title="小号" name="2">
           <van-cell-group :border="false" class="group">
-            <transition-group
+            <!-- <transition-group
               :duration="450"
               leave-active-class="animate__animated animate__slideOutLeft"
               enter-active-class="animate__animated animate__slideInRight"
               tag="div"
+            > -->
+            <RecycleScroller
+              ref="scroller"
+              :items="characterAncillaryAccounts"
+              :minItemSize="minItemSize"
+              :style="{ height: dynamicHeight + 'px' }"
+              key="name"
+              key-field="username"
+              v-slot="{ item }"
             >
-              <RecycleScroller
-                ref="scroller"
-                :items="characterAncillaryAccounts"
-                :minItemSize="minItemSize"
-                :style="{ height: dynamicHeight + 'px' }"
-                key="name"
-                key-field="username"
-                v-slot="{ item }"
-              >
-                <!-- <van-cell-group :border="true" v-for="item in characterAncillaryAccounts" :key="item.username"> -->
+              <!-- <van-cell-group :border="true" v-for="item in characterAncillaryAccounts" :key="item.username"> -->
 
-                <van-cell-group ref="cellGroup" :border="true" :key="item.username">
-                  <van-cell class="account" :title="item.username" :value="item.password">
-                    <template #right-icon>
-                      <van-button class="delete" size="mini" plain type="danger" @click="deleteAccount(item)">删除</van-button>
-                    </template></van-cell
-                  >
+              <van-cell-group ref="cellGroup" :border="true" :key="item.username">
+                <van-cell class="account" :title="item.username" :value="item.password">
+                  <template #right-icon>
+                    <van-button class="delete" size="mini" plain type="danger" @click="deleteAccount(item)">删除</van-button>
+                  </template></van-cell
+                >
 
-                  <van-cell
-                    class="character"
-                    :key="character.id"
-                    :title="character.name"
-                    v-for="character in item.tokenInfo.characters"
-                    :border="false"
-                  >
-                    <template #right-icon>
-                      <van-button
-                        v-if="character.id !== currentCharacter.id"
-                        class="delete"
-                        size="mini"
-                        plain
-                        type="success"
-                        @click="selectCharacter(character, item)"
-                        >选择角色</van-button
-                      >
-                      <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
-                      <van-button
-                        class="delete"
-                        size="mini"
-                        plain
-                        :type="character.cantTransfer ? 'danger' : 'success'"
-                        @click="switchCantTransfer(character)"
-                        >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
-                      >
-                    </template>
-                  </van-cell>
-                </van-cell-group>
-              </RecycleScroller>
-            </transition-group>
+                <van-cell
+                  class="character"
+                  :key="character.id"
+                  :title="character.name"
+                  v-for="character in item.tokenInfo.characters"
+                  :border="false"
+                >
+                  <template #right-icon>
+                    <van-button
+                      v-if="character.id !== currentCharacter.id"
+                      class="delete"
+                      size="mini"
+                      plain
+                      type="success"
+                      @click="selectCharacter(character, item)"
+                      >选择角色</van-button
+                    >
+                    <van-tag v-else color="#ffe1e1" text-color="#ad0000">当前角色</van-tag>
+                    <van-button
+                      class="delete"
+                      size="mini"
+                      plain
+                      :type="character.cantTransfer ? 'danger' : 'success'"
+                      @click="switchCantTransfer(character)"
+                      >{{ character.cantTransfer ? "不可被转移通货" : "可被转移通货" }}</van-button
+                    >
+                  </template>
+                </van-cell>
+              </van-cell-group>
+            </RecycleScroller>
+            <!-- </transition-group> -->
           </van-cell-group>
         </van-collapse-item>
       </van-collapse>
@@ -118,12 +118,13 @@
       <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
-
+      <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
     </div>
     <!-- <van-popup v-model:show="show" round position="bottom">
       <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
     </van-popup> -->
+
     <van-popup v-model:show="show" round position="bottom">
       <van-cascader v-model="cascaderValue" active-color="#ee0a24" title="请选择目标角色" :options="options" @close="onCancel" @finish="onConfirm" />
     </van-popup>
