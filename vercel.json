@@ -2,10 +2,10 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/node",
+      "use": "@vercel/static-build",
       "config": {
         "includeFiles": "public/**",
-        "outputDirectory": "dist"
+        "distDir": "dist"
       }
     }
   ],
