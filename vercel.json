@@ -5,14 +5,14 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": "public/**",
-        "outputDirectory": "output"
+        "outputDirectory": "dist"
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "output/$1"
+      "dest": "dist/$1"
     }
   ]
 }
