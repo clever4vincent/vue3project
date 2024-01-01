@@ -3,7 +3,7 @@
     <van-nav-bar title="歌词搜" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
 
     <form action="/">
-      <van-search shape="round" class="text-sm" v-model="value" show-action placeholder="根据明星搜索歌曲" @search="onSearch" />
+      <van-search class="text-sm" v-model="value" show-action placeholder="根据明星搜索歌曲" @search="onSearch" />
     </form>
     <!-- <RecycleScroller
       :items="songList"
