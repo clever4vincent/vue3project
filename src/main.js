@@ -3,6 +3,7 @@ import "animate.css";
 import "./utils/rem.js";
 import "vant/es/toast/style";
 import "vant/es/dialog/style";
+import "vant/es/search/style";
 import "vant/es/notify/style";
 import "@icon-park/vue-next/styles/index.css";
 import { setupStore } from "@/stores";
