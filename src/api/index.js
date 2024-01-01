@@ -125,3 +125,6 @@ export const getAllMap = (params) => {
 export const getSkillTree = (params, opt) => {
   return defHttp.get({ url: Api.skilltree, params }, { ...opt });
 };
+export const findSong = (params) => {
+  return defHttp.get({ url: "https://lyric.dalpoer.cn/findSong", params }, { apiUrl: null });
+};

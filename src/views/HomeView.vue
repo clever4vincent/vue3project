@@ -9,6 +9,7 @@
       <van-cell-group inset class="current-character">
         <van-cell title="当前角色" :value="currentCharacter.name || '未选择'" :class="changeClass" />
       </van-cell-group>
+      <van-cell title="歌词搜" center is-link to="/music"></van-cell>
       <!-- </van-sticky> -->
 
       <van-collapse v-model="activeName" accordion>
@@ -144,7 +145,7 @@ import { nextTick } from "vue";
 
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
-const minItemSize = ref(180);
+const minItemSize = ref(300);
 const dynamicHeight = ref(400);
 const show = ref(false);
 const loadingStore = useLoadingStore();

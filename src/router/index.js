@@ -37,7 +37,7 @@ const router = createRouter({
     {
       path: "/equipment",
       name: "equipment",
-      meta: { index: 2, keepAlive: true },
+      meta: { index: 2 },
       component: () => import("../views/EquipmentView.vue"),
     },
     {
@@ -51,6 +51,12 @@ const router = createRouter({
       name: "test",
       meta: { index: 2 },
       component: () => import("../views/TestView.vue"),
+    },
+    {
+      path: "/music",
+      name: "music",
+      meta: { index: 2 },
+      component: () => import("../views/MusicView.vue"),
     },
     {
       path: "/about",
@@ -84,7 +90,7 @@ router.beforeEach((to, from, next) => {
   } else {
     useStoreWithOut().history.push(to);
   }
-  console.log("history", useStoreWithOut().history);
+
   if (to.meta.index > from.meta.index) {
     // 说明是由主级路由跳转到次级路由 页面从右边滑入
     useStoreWithOut().transitionName = "slide-right";

@@ -28,4 +28,4 @@ auto-imports.d.ts
 *.njsproj
 *.sln
 *.sw?
-src/lib/通货膨胀/通货膨胀.js
+src/lib/通货转移api版本.js
