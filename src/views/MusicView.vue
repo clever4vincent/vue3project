@@ -17,7 +17,10 @@
     <van-cell-group :border="false" v-for="item in songList" :key="item._id">
       <!-- <van-cell-group> -->
       <div v-if="item.lyric && item.lyric.length > 20">
-        <p class="text-center text-xs">{{ item.song_name }}</p>
+        <p class="text-center">
+          <a class="text-blue-500 block-inline text-xs" target="_blank" :href="item.song_url">{{ item.song_name }}</a>
+        </p>
+
         <van-text-ellipsis rows="5" position="start" :content="item.lyric" expand-text="展开" collapse-text="收起" class="lyric" />
       </div>
     </van-cell-group>
@@ -46,7 +49,7 @@ const onSearch = (val) => {
   findSong({ singerName: `[ "${val}" ]` }).then((res) => {
     // 修改歌词
     res.forEach((item) => {
-      item.lyric = item.lyric?.replace(/(\\n)|(&#39)|(&#13)/g, " ");
+      item.lyric = item.lyric?.replace(/(\\n)|(&#\d{2})/g, " ");
     });
     if (res.length === 0) {
       showFailToast("没有找到歌曲!");
