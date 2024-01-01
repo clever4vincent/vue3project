@@ -59,7 +59,9 @@ const onSearch = (val) => {
     if (res.length === 0) {
       showFailToast("没有找到歌曲!");
     }
-    songList.value = res;
+    mextTick(() => {
+      songList.value = res;
+    });
   });
 };
 </script>
