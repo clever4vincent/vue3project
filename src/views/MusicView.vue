@@ -36,7 +36,7 @@
 import { useRouter } from "vue-router";
 import { findSong } from "@/api";
 import { showFailToast } from "vant";
-
+import { nextTick } from "vue";
 const router = useRouter();
 const page = ref(null);
 
@@ -59,7 +59,7 @@ const onSearch = (val) => {
     if (res.length === 0) {
       showFailToast("没有找到歌曲!");
     }
-    mextTick(() => {
+    nextTick(() => {
       songList.value = res;
     });
   });
