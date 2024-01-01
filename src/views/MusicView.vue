@@ -1,9 +1,9 @@
 <template>
-  <div class="page">
+  <div class="page" ref="page">
     <van-nav-bar title="歌词搜" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
 
     <form action="/">
-      <van-search v-model="value" show-action placeholder="根据明星搜索歌曲" @search="onSearch" />
+      <van-search v-model="value" show-action placeholder="根据明星搜索歌曲" @search="onSearch" @clear="onClear" />
     </form>
     <!-- <RecycleScroller
       :items="songList"
@@ -24,6 +24,7 @@
         <van-text-ellipsis rows="5" position="start" :content="item.lyric" expand-text="展开" collapse-text="收起" class="lyric" />
       </div>
     </van-cell-group>
+    <van-back-top right="10vh" bottom="10vh" style="position: absolute" />
     <!-- <div :key="item.song_name" class="text-sm max-h-10">
       {{ item.song_name }}
     </div> -->
@@ -37,6 +38,7 @@ import { findSong } from "@/api";
 import { showFailToast } from "vant";
 
 const router = useRouter();
+const page = ref(null);
 
 const songList = ref([]);
 
@@ -45,6 +47,9 @@ const onClickLeft = () => router.go(-1);
 //   console.log(res);
 // });
 const value = ref("");
+const onClear = () => {
+  console.log("onClear");
+};
 const onSearch = (val) => {
   findSong({ singerName: `[ "${val}" ]` }).then((res) => {
     // 修改歌词
