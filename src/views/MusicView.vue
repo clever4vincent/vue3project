@@ -18,7 +18,7 @@
       <!-- <van-cell-group> -->
       <div v-if="item.lyric && item.lyric.length > 20">
         <p class="text-center">
-          <a class="text-blue-500 block-inline text-xs" target="_blank" :href="item.song_url">{{ item.song_name }}</a>
+          <a class="text-blue-500 block-inline" target="_blank" :href="item.song_url">{{ item.song_name }}</a>
         </p>
 
         <van-text-ellipsis rows="5" position="start" :content="item.lyric" expand-text="展开" collapse-text="收起" class="lyric" />
