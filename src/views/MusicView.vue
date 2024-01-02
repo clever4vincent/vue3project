@@ -14,17 +14,17 @@
       key-field="song_name"
       v-slot="{ item }"
     > -->
-    <van-cell-group :border="false" v-for="item in songList" :key="item._id">
+    <van-cell-group :border="true" v-for="item in songList" :key="item._id">
       <!-- <van-cell-group> -->
-      <div v-if="item.lyric && item.lyric.length > 20">
-        <p class="text-center">
+      <div v-if="item.lyric && item.lyric.length > 20" class="pt-1">
+        <p class="text-center text-2xl">
           <a class="text-blue-500 block-inline" target="_blank" :href="item.song_url">{{ item.song_name }}</a>
         </p>
 
         <van-text-ellipsis rows="5" position="start" :content="item.lyric" expand-text="展开" collapse-text="收起" class="lyric" />
       </div>
     </van-cell-group>
-    <van-back-top right="10vh" bottom="10vh" style="position: absolute" />
+    <van-back-top right="5vh" bottom="10vh" style="position: absolute" />
     <!-- <div :key="item.song_name" class="text-sm max-h-10">
       {{ item.song_name }}
     </div> -->
