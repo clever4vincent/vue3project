@@ -18,7 +18,7 @@ const imageList = [
   "https://fastly.jsdelivr.net/npm/@vant/assets/apple-2.jpeg",
 ];
 onMounted(() => {
-  // console.log('mounted!');
+  // console.log('1mounted!');
   // router.push({
   //   name: "home",
   // });
