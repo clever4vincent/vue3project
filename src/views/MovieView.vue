@@ -40,7 +40,7 @@ const copyAndRedirect = async (e, item) => {
     try {
       const copySuccessful = await copyToClipboard(psd);
       if (copySuccessful) {
-        showSuccessToast("复制提取码成功!");
+        // showSuccessToast("复制提取码成功!");
       } else {
         console.error("Failed to copy");
       }
@@ -48,9 +48,14 @@ const copyAndRedirect = async (e, item) => {
       console.error("Failed to copy: ", err);
     }
   }
-
+  // 如果item.wangPanUrl最后一位是#号，需要去掉
+  let url = item.wangPanUrl;
+  if (psd && url[url.length - 1] === "#") {
+    url = url.slice(0, url.length - 1);
+  }
+  psd && (url = `${url}?pwd=${psd}`);
   setTimeout(() => {
-    window.open(item.wangPanUrl, "_blank");
+    window.open(url, "_blank");
   }, 200);
 };
 const copyToClipboard = (text) => {
