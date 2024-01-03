@@ -9,7 +9,8 @@
       <van-cell-group inset class="current-character">
         <van-cell title="当前角色" :value="currentCharacter.name || '未选择'" :class="changeClass" />
       </van-cell-group>
-      <van-cell title="歌词搜" center is-link to="/music"></van-cell>
+      <van-cell title="歌词" center is-link to="/music"></van-cell>
+      <van-cell title="影视" center is-link to="/movie" class="mb-2"></van-cell>
       <!-- </van-sticky> -->
 
       <van-collapse v-model="activeName" accordion>

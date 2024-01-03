@@ -1,6 +1,6 @@
 <template>
   <div class="page" ref="page">
-    <van-nav-bar title="歌词搜" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
+    <van-nav-bar title="歌词" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
 
     <form action="/">
       <van-search v-model="value" show-action placeholder="根据明星搜索歌曲" @search="onSearch" @clear="onClear" />
@@ -54,7 +54,7 @@ const onSearch = (val) => {
   findSong({ singerName: `[ "${val}" ]` }).then((res) => {
     // 修改歌词
     res.forEach((item) => {
-      item.lyric = item.lyric?.replace(/(\\n)|(&#\d{2})/g, " ");
+      item.lyric = item.lyric?.replace(/(\\n)|(&#\d{2})|(;)/g, " ");
     });
     if (res.length === 0) {
       showFailToast("没有找到歌曲!");

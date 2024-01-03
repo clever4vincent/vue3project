@@ -59,6 +59,12 @@ const router = createRouter({
       component: () => import("../views/MusicView.vue"),
     },
     {
+      path: "/movie",
+      name: "movie",
+      meta: { index: 2 },
+      component: () => import("../views/MovieView.vue"),
+    },
+    {
       path: "/about",
       meta: { isMain: true, index: 1 },
       name: "about",

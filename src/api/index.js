@@ -128,3 +128,6 @@ export const getSkillTree = (params, opt) => {
 export const findSong = (params) => {
   return defHttp.get({ url: "https://lyric.dalpoer.cn/findSong", params }, { apiUrl: null });
 };
+export const findMovie = (params) => {
+  return defHttp.get({ url: "https://lyric.dalpoer.cn/findMovie", params }, { apiUrl: null });
+};

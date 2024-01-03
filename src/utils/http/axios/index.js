@@ -44,11 +44,11 @@ const transform = {
       throw new Error("数据返回有问题");
     }
     //  这里 code，result，message为 后台统一的字段，需要在 types.ts内修改为项目自己的接口返回格式
-    const { success, message } = data;
+    const { success, message, status } = data;
     const result = data.data || data.message || {};
     // 这里逻辑可以根据项目进行修改
 
-    const hasSuccess = data && success;
+    const hasSuccess = data && (success || status == 200);
 
     if (hasSuccess) {
       // 接口返回成功
@@ -203,6 +203,7 @@ const transform = {
         if (errorMessageMode === "modal") {
           // createErrorModal({ title: t("sys.api.errorTip"), content: errMessage });
         } else if (errorMessageMode === "message") {
+          showToast({ message: errMessage });
           // createMessage.error(errMessage);
         }
         return Promise.reject(error);
