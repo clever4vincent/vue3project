@@ -75,11 +75,8 @@ const onSearch = (val) => {
     return;
   }
   findMovie({ movieName: encodeURIComponent(val) }).then((res) => {
-    console.log(Object.values(res));
-    let arr = Object.values(res);
-    let item = Object.values(arr[0]);
-    console.log(item);
     movieList.value = Object.values(res);
+    activeName.value = 0;
   });
 };
 </script>
