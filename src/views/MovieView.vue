@@ -53,7 +53,10 @@ const copyAndRedirect = async (e, item) => {
   if (psd && url[url.length - 1] === "#") {
     url = url.slice(0, url.length - 1);
   }
-  psd && (url = `${url}?pwd=${psd}`);
+  // 如果url中有?pwd=说明之前已经有密码了，不需要再加pwd=了!
+  if (psd && url.indexOf("?pwd=") === -1) {
+    url = `${url}?pwd=${psd}`;
+  }
   setTimeout(() => {
     window.open(url, "_blank");
   }, 200);
