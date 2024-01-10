@@ -120,6 +120,7 @@
       <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
       <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
+      <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
     </div>
@@ -146,7 +147,7 @@ import { nextTick } from "vue";
 
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
-const minItemSize = ref(300);
+const minItemSize = ref(210);
 const dynamicHeight = ref(400);
 const show = ref(false);
 const loadingStore = useLoadingStore();
@@ -202,6 +203,9 @@ watch(activeName, (newVal, oldVal) => {
 onMounted(async () => {
   useTokenStore().setToken(currentCharacter.value.token);
 });
+// const validate = () => {
+//   console.log(window.vaptchaObj.validate());
+// };
 onActivated(async () => {
   console.log("onActivated");
 });
@@ -226,19 +230,23 @@ const beforeClose = (action) =>
         // 拦截确认操作
         if (mode.value === DialogModeEnum.SUB_SINGLE_ADD) {
           //添加账号
-          addAccountAndToken({ username, password })
-            .then(() => {
-              // dialogRef.value.clearFields();
+          try {
+            addAccountAndToken({ username, password })
+              .then(() => {
+                // dialogRef.value.clearFields();
 
-              tokenStore.setToken(currentCharacter.value.token);
-              activeName.value = "2";
-              showSuccessToast("添加成功");
-            })
+                tokenStore.setToken(currentCharacter.value.token);
+                activeName.value = "2";
+                showSuccessToast("添加成功");
+              })
 
-            .finally(() => {
-              // dialogRef.value.clearFields();
-              resolve(true);
-            });
+              .finally(() => {
+                // dialogRef.value.clearFields();
+                resolve(true);
+              });
+          } catch (error) {
+            resolve(true);
+          }
         } else if (mode.value === DialogModeEnum.MAIN_UPDATE) {
           //更新主号
           setMainAccountAndToken({ username, password })

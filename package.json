@@ -24,6 +24,7 @@
     "fastclick": "^1.0.6",
     "lint-staged": "^15.1.0",
     "lodash-es": "^4.17.21",
+    "mitt": "^3.0.1",
     "mockjs": "^1.1.0",
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.0",

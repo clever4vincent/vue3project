@@ -45,6 +45,8 @@ const createBtn = async (account) => {
     await accountStore.addSubAccount(account);
     let str = account.username;
     account.username = str.replace(/a6669852(\d+)/, (match, p1) => "a6669852" + (Number(p1) + 1));
+    accountStore.accountNo = account.username;
+    createDialogRef.value.username = account.username;
   }
   // console.log("getAxios", defHttp.getAxios().defaults);
   showSuccessToast("创建成功");
@@ -60,11 +62,15 @@ const beforeClose = (action) =>
         // 拦截确认操作
         if (mode.value === DialogModeEnum.CREATE_ACCOUNT) {
           //添加账号
-          createBtn({ username, password })
-            .then(() => {})
-            .finally(() => {
-              resolve(true);
-            });
+          try {
+            createBtn({ username, password })
+              .then(() => {})
+              .finally(() => {
+                resolve(true);
+              });
+          } catch (error) {
+            resolve(true);
+          }
         }
       } else {
         createDialogRef.value.getForm().validate();

@@ -19,7 +19,7 @@ const Api = {
   chooseMap: "/battle/start",
   getSkillStones: "/character/skillstones",
   equip: "/equipment/equip",
-  takeOff: "/equipment/takeOff",
+  takeOff: "/equipment/takeoff",
   insertStone: "/equipment/insertStone",
   removeStone: "/equipment/removeStone",
   upgradeStone: "/skillstone/upgrade",
@@ -41,8 +41,8 @@ export const switchCharacter = (params) => {
   return defHttp.post({ url: Api.switchCharacter, params });
 };
 export const createAccount = (params, opt) => {
-  // return defHttp.post({ url: Api.createAccount, params }, { ...opt });
-  return defHttp.post({ url: `http://192.168.0.103:3001/api${Api.createAccount}`, params }, { apiUrl: null, ...opt });
+  return defHttp.post({ url: Api.createAccount, params }, { ...opt });
+  // return defHttp.post({ url: `http://192.168.0.103:3001/api${Api.createAccount}`, params }, { apiUrl: null, ...opt });
 };
 export const getCharacterList = (opt) => {
   return defHttp.get({ url: Api.characterList }, { ...opt });
@@ -58,29 +58,29 @@ export const getCharacterInfoThird = (opt) => {
   // return defHttp.get({ url: Api.getCharacterInfo }, { ...opt });
   return defHttp.get({ url: `http://192.168.0.103:3001/api${Api.getCharacterInfo}` }, { apiUrl: null, ...opt });
 };
-export const getCurrency = (params) => {
-  return defHttp.get({ url: Api.getCurrency, params });
+export const getCurrency = (params, opt) => {
+  return defHttp.get({ url: Api.getCurrency, params }, { ...opt });
 };
-export const getBackpack = (page = 1, params) => {
-  return defHttp.get({ url: `${Api.getBackpack}/${page}`, params });
+export const getBackpack = (page = 1, params, opt) => {
+  return defHttp.get({ url: `${Api.getBackpack}/${page}`, params }, { ...opt });
 };
-export const getSkillStones = (page = 1, params) => {
-  return defHttp.get({ url: `${Api.getSkillStones}/${page}`, params });
+export const getSkillStones = (page = 1, params, opt) => {
+  return defHttp.get({ url: `${Api.getSkillStones}/${page}`, params }, { ...opt });
 };
-export const getMarket = (params = { page: 1 }) => {
-  return defHttp.get({ url: Api.getMarket, params });
+export const getMarket = (params = { page: 1 }, opt) => {
+  return defHttp.get({ url: Api.getMarket, params }, { ...opt });
 };
-export const sell = (id, price) => {
-  return defHttp.post({ url: Api.sell, params: { itemId: id, price, type: 2 } });
+export const sell = (id, price, opt) => {
+  return defHttp.post({ url: Api.sell, params: { itemId: id, price, type: 2 } }, { ...opt });
 };
 export const remove = (id) => {
   return defHttp.post({ url: Api.remove, params: { id: id } });
 };
-export const buy = (id) => {
-  return defHttp.post({ url: Api.buy, params: { id: id } });
+export const buy = (id, opt) => {
+  return defHttp.post({ url: Api.buy, params: { id: id } }, { ...opt });
 };
-export const buyShop = (itemId) => {
-  return defHttp.post({ url: Api.buyShop, params: { itemId: itemId, quantity: 1 } });
+export const buyShop = (itemId, opt) => {
+  return defHttp.post({ url: Api.buyShop, params: { itemId: itemId, quantity: 1 } }, { ...opt });
 };
 export const updateSkilltree = (skilltree, opt) => {
   return defHttp.post({ url: Api.updateSkilltree, params: { passives: skilltree } }, { ...opt });
@@ -88,14 +88,14 @@ export const updateSkilltree = (skilltree, opt) => {
 export const chooseMap = (mapId, opt) => {
   return defHttp.post({ url: Api.chooseMap, params: { mapId: mapId } }, { ...opt });
 };
-export const equip = (equipmentId, characterId) => {
-  return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } });
+export const equip = (equipmentId, characterId, opt) => {
+  return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } }, { ...opt });
 };
-export const takeOff = (equipmentId, characterId) => {
-  return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } });
+export const takeOff = (equipmentId, characterId, opt) => {
+  return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } }, { ...opt });
 };
-export const insertStone = (equipmentId, socketId, stoneId) => {
-  return defHttp.post({ url: Api.insertStone, params: { equipmentId, socketId, stoneId } });
+export const insertStone = (equipmentId, socketId, stoneId, opt) => {
+  return defHttp.post({ url: Api.insertStone, params: { equipmentId, socketId, stoneId } }, { ...opt });
 };
 export const removeStone = (equipmentId, socketId) => {
   return defHttp.post({ url: Api.removeStone, params: { equipmentId, socketId } });

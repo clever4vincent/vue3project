@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { store, useTokenStore } from "@/stores";
 import { login, getCharacterList, switchCharacter, getCharacterInfo } from "@/api";
+import { loginProgress } from "@/hooks/useLogin";
 import { cloneDeep } from "lodash-es";
 import { showToast } from "vant";
 import { nextTick } from "vue";
@@ -14,6 +15,7 @@ export const useAccountStore = defineStore({
     batchAccounts: [],
     mapList: [],
     tokenDate: "",
+    accountNo: "",
   }),
   getters: {
     getMainAccount() {
@@ -102,7 +104,7 @@ export const useAccountStore = defineStore({
       this.mapList = list;
     },
     // 1.获取所有账号的tokenInfo,筛选出批量操作的账号
-    async batchAccountsOperation(operation) {
+    async batchAccountsOperation(operation, isAsync = true) {
       let allTokenInfo = this.getAllAccountTokenInfo();
       let batchAccounts = this.getBatchAccounts;
       let batchAccountsTokenInfo = [];
@@ -120,18 +122,24 @@ export const useAccountStore = defineStore({
         let characters = account.tokenInfo.characters;
         for (let j = 0; j < characters.length; j++) {
           let character = characters[j];
-
+          if (!isAsync) {
+            await operation({ thirdToken: character.token, character });
+          } else {
+            operations.push(operation({ thirdToken: character.token, character }));
+          }
           // await operation();
           // operations.push(
           //   ((character) => () => {
           //     operation({ thirdToken: character.token });
           //   })(character)
           // );
-          operations.push(operation({ thirdToken: character.token }));
         }
       }
       // await Promise.all(operations.map((op) => op()));
-      await Promise.all(operations);
+      if (isAsync) {
+        await Promise.all(operations);
+      }
+
       // 3.操作完成后
       useTokenStore().setToken(this.currentCharacter.token);
     },
@@ -268,7 +276,9 @@ export const useAccountStore = defineStore({
     async requestAccountTokenInfo(account) {
       let accountToken = null;
       let characters = [];
-      await login(account).then((res) => {
+
+      // await login(account).then((res) => {
+      await loginProgress(account).then((res) => {
         if (res.token) {
           //    await
           accountToken = res.token;

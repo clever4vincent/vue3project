@@ -16,6 +16,7 @@
 <script>
 // import g from '../lib/g'
 import { DialogModeEnum } from "@/enums/appEnum";
+import { useAccountStore } from "@/stores";
 export default {
   props: ["mode"],
   // props: {
@@ -41,7 +42,9 @@ export default {
     },
   },
   setup(props) {
-    const username = ref("a666985252");
+    const accountStore = useAccountStore();
+    const username = ref("");
+    username.value = accountStore.accountNo || "a6669852";
     const password = ref("123456");
     const start = ref(0);
     const end = ref(10);
@@ -59,6 +62,7 @@ export default {
 
     return {
       isMatched,
+      accountStore,
       clearFields,
       password,
       username,

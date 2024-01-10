@@ -20,8 +20,25 @@
       <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('UPDATE_STONE')">升级衣服技能石</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('DESTROY_ALL')">丢弃所有装备</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('SYCN_TREE')">同步当前角色天赋</van-button>
+      <van-popover v-model:show="showPopover" theme="dark" :actions="actions" @select="onSelect">
+        <template #reference>
+          <van-button style="margin: 10px" plain type="primary">装备选项</van-button>
+        </template>
+      </van-popover>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('BUY_STONE')">购买初始宝石</van-button>
+      <!-- <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_HELMET')">装备头盔</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_AMULET')">装备项链</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_GLOVE')">装备手套</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_SHOE')">装备鞋子</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_BELT')">装备腰带</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_RING')">装备戒指</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_WEAPON')">装备武器</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('EQUIP_ALL')">装备所有</van-button> -->
       <van-button style="margin: 10px" plain type="primary" @click="showFilterJson = true">同步过滤规则</van-button>
       <van-button style="margin: 10px" plain type="primary" @click="showSkillJson = true">同步天赋JSON</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="findEndlessGarment">收集无尽</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="getEndlessGarment">获取无尽</van-button>
+      <van-button style="margin: 10px" plain type="primary" @click="getCurrency">获取初始通货</van-button>
     </div>
     <van-action-sheet v-model:show="showFilterJson" title="导入过滤JSON" @open="open" @close="close">
       <van-field v-model="filterJson" placeholder="导入过滤JSON" type="textarea" rows="8" autosize :border="false" />
@@ -54,8 +71,8 @@
 import { useLoadingStore, useAccountStore, useStore } from "@/stores";
 import { skilltree } from "@/lib/data";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
-import { getAllMap, chooseMap, updateSkilltree, destroyAll, getSkillTree, addGoodsRule } from "@/api";
-import { upgradeAllStoneOnEquipment, updateSkilltreeComb } from "@/hooks";
+import { getAllMap, chooseMap, updateSkilltree, destroyAll, getSkillTree, addGoodsRule, getBackpack } from "@/api";
+import { upgradeAllStoneOnEquipment, updateSkilltreeComb, buySkillStone, Character, getEquipmentList, startEquipmentTransfer } from "@/hooks";
 import { onMounted } from "vue";
 import { nextTick } from "vue";
 import { onDeactivated } from "vue";
@@ -66,10 +83,36 @@ const DIALOG_TYPE = {
   UPDATE_STONE_TEXT: "升级技能石",
   SYCN_TREE: "sycnTree",
   SYCN_TREE_TEXT: "同步当前角色天赋",
+  BUY_STONE: "buyStone",
+  BUY_STONE_TEXT: "购买初始宝石",
+  EQUIP_HELMET: "equipHelmet",
+  EQUIP_HELMET_TEXT: "装备头盔",
+  EQUIP_AMULET: "equipAmulet",
+  EQUIP_AMULET_TEXT: "装备项链",
+  EQUIP_GLOVE: "equipGlove",
+  EQUIP_GLOVE_TEXT: "装备手套",
+  EQUIP_SHOE: "equipShoe",
+  EQUIP_SHOE_TEXT: "装备鞋子",
+  EQUIP_BELT: "equipBelt",
+  EQUIP_BELT_TEXT: "装备腰带",
+  EQUIP_RING: "equipRing",
+  EQUIP_RING_TEXT: "装备戒指",
+  EQUIP_WEAPON: "equipWeapon",
+  EQUIP_WEAPON_TEXT: "装备武器",
+  EQUIP_ALL: "equipAll",
+  EQUIP_ALL_TEXT: "装备所有",
 };
+const skillStoneList = [
+  "Multistrike_Support",
+  "Sweep",
+  "Faster_Attacks_Support",
+  "Melee_Physical_Damage_Support",
+  "Increased_Critical_Strikes_Support",
+  "Haste",
+];
 const accountStore = useAccountStore();
 const activeNames = ref(["0"]);
-const filterJson = ref("");
+const filterJson = ref(`[{"rarity":3},{"rarity":4}]`);
 const skillJson = ref("");
 const showPicker = ref(false);
 const showFilterJson = ref(false);
@@ -77,6 +120,22 @@ const showSkillJson = ref(false);
 let checkedResult = ref([]);
 const columns = accountStore.getMapListOptions() || [];
 const checkboxGroup = ref(null);
+const showPopover = ref(false);
+// 通过 actions 属性来定义菜单选项
+const actions = [
+  { text: "所有", value: "EQUIP_ALL" },
+  { text: "头盔", value: "EQUIP_HELMET" },
+  { text: "武器", value: "EQUIP_WEAPON" },
+  { text: "项链", value: "EQUIP_AMULET" },
+  { text: "手套", value: "EQUIP_GLOVE" },
+  { text: "鞋子", value: "EQUIP_SHOE" },
+  { text: "腰带", value: "EQUIP_BELT" },
+  { text: "戒指", value: "EQUIP_RING" },
+];
+const onSelect = (action) => {
+  showPopover.value = false;
+  showDialogOptions(action.value);
+};
 const allAccount = computed(() => {
   return useAccountStore().getAllAccountTokenInfo();
 });
@@ -98,12 +157,58 @@ const close = () => {
 const checkedResultChange = (value) => {
   accountStore.setBatchAccounts(value);
 };
-
-const swtichMap = (value) => {
-  // 批量操作所有账号选择地图
+const findEndlessGarment = () => {
   accountStore.batchAccountsOperation((thirdToken) => {
+    Character.findEndlessGarment(thirdToken);
+  });
+};
+const getCurrency = () => {
+  let accounts = useAccountStore().getAllAccountTokenInfo();
+  // 找到角色为t20的账号
+  let account = accounts.find((item) => item.username == "a6669852");
+
+  let buyCharacter = account.tokenInfo.characters[1];
+  let buyToken = buyCharacter.token;
+  accountStore.batchAccountsOperation(async ({ thirdToken }) => {
+    let result = [];
+    await getBackpack(1, {}, { thirdToken }).then((data) => {
+      result = data.items;
+    });
+    await startEquipmentTransfer({ sellToken: thirdToken, buyToken, equipment: result[0], price: { 8: 5, 10: 1 } });
+  });
+};
+const getEndlessGarment = async () => {
+  let accounts = useAccountStore().getAllAccountTokenInfo();
+  // 找到角色为t20的账号
+  let account = accounts.find((item) => item.username == "a66698522");
+
+  let sellCharacter = account.tokenInfo.characters[0];
+  let sellToken = sellCharacter.token;
+  let list = await getEquipmentList(17045651456);
+
+  accountStore.batchAccountsOperation(async ({ thirdToken }) => {
+    // return Character.findEndlessGarment(thirdToken);
+    if (list.length === 0) {
+      console.log("没有装备了");
+      return;
+    }
+    if (sellToken === thirdToken) {
+      console.log("不能自己给自己转移装备");
+      return;
+    }
+
+    await startEquipmentTransfer({ sellToken, buyToken: thirdToken, equipment: list[0] });
+    await Character.insertStoneToEndlessGarment(skillStoneList, { thirdToken }, list[0]);
+    list.shift();
+  }, false);
+};
+
+const swtichMap = async (value) => {
+  // 批量操作所有账号选择地图
+  await accountStore.batchAccountsOperation((thirdToken) => {
     return chooseMap(value, thirdToken);
   });
+  showSuccessToast("切换地图成功");
 };
 const showDialogOptions = (type) => {
   showConfirmDialog({
@@ -117,6 +222,48 @@ const showDialogOptions = (type) => {
           sycnTree();
         } else if (DIALOG_TYPE[type] === DIALOG_TYPE.UPDATE_STONE) {
           accountStore.batchAccountsOperation(upgradeAllStoneOnEquipment);
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.BUY_STONE) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return buySkillStone(skillStoneList, thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_HELMET) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipHelmet(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_AMULET) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipAmulet(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_GLOVE) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipGlove(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_SHOE) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipShoe(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_BELT) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipBelt(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_RING) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipRing(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_WEAPON) {
+          accountStore.batchAccountsOperation((thirdToken) => {
+            return Character.equipWeapon(thirdToken);
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.EQUIP_ALL) {
+          accountStore.batchAccountsOperation(async (thirdToken) => {
+            await Character.equipWeapon(thirdToken);
+            await Character.equipRing(thirdToken);
+            await Character.equipBelt(thirdToken);
+            await Character.equipShoe(thirdToken);
+            await Character.equipGlove(thirdToken);
+            await Character.equipAmulet(thirdToken);
+            await Character.equipHelmet(thirdToken);
+          });
         }
       }
       return true;

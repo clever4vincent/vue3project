@@ -45,13 +45,60 @@ import { useDark } from "@vueuse/core";
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
 import { ref } from "vue";
 import { nextTick } from "vue";
-
+import { EventBus } from "@/lib/EventBus";
 const active = ref(0);
 const route = useRoute();
 const themeStore = useThemeStore();
 const appStore = useStore();
 const theme = ref("");
 
+const loadV3Script = () => {
+  return new Promise((resolve) => {
+    if (typeof window.vaptcha === "function") {
+      resolve();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://v-cn.vaptcha.com/v3.js";
+      // script.src = "https://v.vaptcha.com/v3.js";
+      script.async = true;
+      script.onload = script.onreadystatechange = function () {
+        if (!this.readyState || this.readyState == "loaded" || this.readyState == "complete") {
+          resolve();
+          script.onload = script.onreadystatechange = null;
+        }
+      };
+      document.getElementsByTagName("head")[0].appendChild(script);
+    }
+  });
+};
+onMounted(() => {
+  const config = {
+    vid: "659c2e85d3784602950e6ec9",
+    mode: "invisible",
+    scene: 1,
+    // container: "#btnLogin",
+    style: "light",
+    color: "#00BFFF",
+    lang: "auto",
+    area: "auto",
+  };
+  loadV3Script().then(() => {
+    // console.log("vaptcha", window.vaptcha);
+    window.vaptcha(config).then((vaptchaObj) => {
+      window.vaptchaObj = vaptchaObj;
+      vaptchaObj.render();
+      vaptchaObj.listen("pass", () => {
+        console.log("验证成功");
+        EventBus.emit("vaptchaPass", true);
+        vaptchaObj.reset();
+      });
+      vaptchaObj.listen("close", () => {
+        EventBus.emit("vaptchaPass", false);
+        vaptchaObj.reset();
+      });
+    });
+  });
+});
 useDark({
   onChanged(dark) {
     theme.value = dark ? "dark" : "light";
@@ -335,3 +382,4 @@ html.ios.wechat {
   color: var(--van-tabbar-item-active-color);
 } */
 </style>
+@/utils/EventBus.js @/lib/EventBus.js

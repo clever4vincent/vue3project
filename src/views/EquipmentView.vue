@@ -4,22 +4,44 @@
 
     <div class="container">
       <div>
-        <van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" ref="listRef">
-          <van-cell
-            v-for="item in list"
-            :key="item.id"
-            immediate-check="false"
-            :title="item.name"
-            is-link
-            @click="showDetail(item)"
-            class="equipment-item"
-            :class="rarityClass[item.rarity]"
+        <van-tabs v-model:active="active" :sticky="true" offset-top="1.2267rem">
+          <van-tab title="装备背包"
+            ><van-list v-model:loading="loading" :finished="finished" finished-text="没有更多了" @load="onLoad" ref="listRef">
+              <van-cell
+                v-for="item in list"
+                :key="item.id"
+                immediate-check="false"
+                :title="item.name"
+                is-link
+                @click="showDetail(item)"
+                class="equipment-item"
+                :class="rarityClass[item.rarity]"
+              >
+                <template #right-icon>
+                  <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
+                </template>
+              </van-cell>
+            </van-list></van-tab
           >
-            <template #right-icon>
-              <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
-            </template>
-          </van-cell>
-        </van-list>
+          <van-tab title="储存背包"
+            ><van-list v-model:loading="loading2" :finished="finished2" finished-text="没有更多了" @load="onLoad2" ref="listRef2">
+              <van-cell
+                v-for="item in list2"
+                :key="item.id"
+                immediate-check="false"
+                :title="item.name"
+                is-link
+                @click="showDetail(item)"
+                class="equipment-item"
+                :class="rarityClass[item.rarity]"
+              >
+                <template #right-icon>
+                  <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
+                </template>
+              </van-cell>
+            </van-list></van-tab
+          >
+        </van-tabs>
 
         <!-- <van-popup v-model:show="show" round position="bottom">
           <van-picker title="请选择目标角色" :columns="options" @confirm="onConfirm" @cancel="onCancel" swipe-duration="300" />
@@ -47,16 +69,23 @@ import { useRouter } from "vue-router";
 import { showDialog, showSuccessToast } from "vant";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 const list = ref([]);
+const list2 = ref([]);
 const loading = ref(false);
+const loading2 = ref(false);
 const listRef = ref();
+const listRef2 = ref();
 const cascaderValue = ref("");
+const active = ref(0);
 const show = ref(false);
 const finished = ref(false);
+const finished2 = ref(false);
 const currentEquipment = ref(null);
 const router = useRouter();
 const options = ref([]);
 let isFisrt = true;
+let isFisrt2 = true;
 let page = 1;
+let page2 = 1;
 import { getBackpack } from "@/api";
 
 const onClickLeft = () => router.go(-1);
@@ -91,7 +120,23 @@ const onLoad = () => {
       loading.value = false;
     });
 };
-
+const onLoad2 = () => {
+  // 异步更新数据
+  if (page2 == 1 && !isFisrt2) {
+    loading2.value = false;
+    return;
+  }
+  isFisrt2 = false;
+  getBackpack(page2, { storage: true })
+    .then((res) => {
+      list2.value = list2.value.concat(res.items);
+      page++;
+      finished2.value = list2.value.length >= res.total;
+    })
+    .finally(() => {
+      loading2.value = false;
+    });
+};
 const showDetail = (item) => {
   showDialog({
     // title: "装备详情",
@@ -118,6 +163,7 @@ const startEquipmentTransfer = (characterId, token) => {
         useTokenStore().setToken(accountStore.currentCharacter.token);
         // 从list中删除上架的物品
         list.value = list.value.filter((item) => item.id != equipment.id);
+        list2.value = list2.value.filter((item) => item.id != equipment.id);
         showSuccessToast("转移成功");
       });
     });

@@ -6,5 +6,5 @@ export function setupStore(app) {
 }
 export { store };
 export { useStore, useLoadingStore, useRouterStore, useRouterStoreWithOut, useThemeStore, useStoreWithOut } from "./app";
-export { useAccountStore } from "./account";
+export { useAccountStore, useAccountStoreWithOut } from "./account";
 export { useTokenStore, useTokenStoreWithOut } from "./token";
