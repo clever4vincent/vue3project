@@ -43,6 +43,7 @@
 import { RouterView, useRoute } from "vue-router";
 import { useDark } from "@vueuse/core";
 import { useThemeStore, useLoadingStore, useRouterStore, useStore } from "./stores";
+import { initUseInterval, destroyUseInterval } from "@/hooks";
 import { ref } from "vue";
 import { nextTick } from "vue";
 import { EventBus } from "@/lib/EventBus";
@@ -72,6 +73,7 @@ const loadV3Script = () => {
   });
 };
 onMounted(() => {
+  initUseInterval();
   const config = {
     vid: "659c2e85d3784602950e6ec9",
     mode: "invisible",
@@ -98,6 +100,10 @@ onMounted(() => {
       });
     });
   });
+});
+onUnmounted(() => {
+  destroyUseInterval();
+  // window.vaptchaObj && window.vaptchaObj.destroy();
 });
 useDark({
   onChanged(dark) {
@@ -134,6 +140,17 @@ watch(
         // 将home转换为HomeView
         return item.name.replace(/^[a-z]/, (s) => s.toUpperCase()) + "View";
       });
+    // 如果不包含主界面的话，就加上
+    if (!result.includes("HomeView")) {
+      result.push("HomeView");
+    }
+    if (!result.includes("BatchView")) {
+      result.push("BatchView");
+    }
+    if (!result.includes("SettingView")) {
+      result.push("SettingView");
+    }
+
     include.value = result;
   },
   { deep: true }

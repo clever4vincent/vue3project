@@ -17,11 +17,11 @@ import { useLoadingStore, useAccountStore, useStore, useTokenStore } from "@/sto
 import { skilltree } from "@/lib/data";
 import { useRouter } from "vue-router";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
-import { getCharacterInfo } from "@/api";
+import { getCharacterInfo, chooseMap } from "@/api";
 import { createAccountProgress } from "@/hooks";
 import { DialogModeEnum } from "@/enums/appEnum";
 import { ref, watch, h } from "vue";
-
+import { EventBus } from "@/lib/EventBus";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useThemeStore } from "../stores";
 
@@ -40,18 +40,28 @@ const add = () => {
   count.value++;
 };
 const createBtn = async (account) => {
+  let value = [];
   for (let index = 0; index < 2; index++) {
     await createAccountProgress(account);
     await accountStore.addSubAccount(account);
     let str = account.username;
+    value.push(account.username);
     account.username = str.replace(/a6669852(\d+)/, (match, p1) => "a6669852" + (Number(p1) + 1));
     accountStore.accountNo = account.username;
     createDialogRef.value.username = account.username;
   }
   // console.log("getAxios", defHttp.getAxios().defaults);
+
+  accountStore.setBatchAccounts(value);
+  // 初始化角色信息
+  await accountStore.batchAccountsOperation(async (thirdToken) => {
+    // await buySkillStone(skillStoneList, thirdToken);
+    await chooseMap("1_1_1", thirdToken);
+  });
   showSuccessToast("创建成功");
   // 将切换回当前角色的token
   useTokenStore().setToken(useAccountStore().getCurrentCharacter.token);
+  EventBus.emit("startQueryLevelThread");
 };
 const beforeClose = (action) =>
   new Promise((resolve) => {

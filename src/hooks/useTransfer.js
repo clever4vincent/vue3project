@@ -7,11 +7,25 @@ export async function startEquipmentTransfer({ sellToken, buyToken, equipment, p
     // 购买物品
   });
   let marketId;
-  await getMarket({ page: 1 }, { thirdToken: buyToken }).then(async (res) => {
-    marketId = res.items.find((item) => item.equipmentId == equipment.id).id;
-  });
+  // 找前三页的市场物品，如果没有找到，就不再找了
+  for (let i = 0; i < 3; i++) {
+    await getMarket({ page: i + 1 }, { thirdToken: buyToken }).then(async (res) => {
+      let marketEquip = res.items.find((item) => item.equipmentId == equipment.id);
+      if (marketEquip) {
+        marketId = marketEquip.id;
+      }
+    });
+    if (marketId) {
+      break;
+    }
+  }
+
+  if (!marketId) {
+    console.log("没有找到物品");
+    return;
+  }
+
   await buy(marketId, { thirdToken: buyToken }).then(() => {
     console.log("转移成功");
-    // showSuccessToast("转移成功");
   });
 }

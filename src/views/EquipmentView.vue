@@ -74,7 +74,6 @@ const loading = ref(false);
 const loading2 = ref(false);
 const listRef = ref();
 const listRef2 = ref();
-const cascaderValue = ref("");
 const active = ref(0);
 const show = ref(false);
 const finished = ref(false);
@@ -82,6 +81,7 @@ const finished2 = ref(false);
 const currentEquipment = ref(null);
 const router = useRouter();
 const options = ref([]);
+const cascaderValue = ref("");
 let isFisrt = true;
 let isFisrt2 = true;
 let page = 1;
@@ -98,9 +98,10 @@ const onCancel = () => {
 const onConfirm = (value) => {
   show.value = false;
   cascaderValue.value = "";
-  let [characterId, token] = value.value.split("|");
+  // let [characterId, token] = value.value.split("|");
+  let character = value.value;
   // let [characterId, token] = value.selectedValues[1].split("|");
-  startEquipmentTransfer(characterId, token);
+  startEquipmentTransfer(character.id, character.token);
 };
 
 const onLoad = () => {
@@ -130,7 +131,7 @@ const onLoad2 = () => {
   getBackpack(page2, { storage: true })
     .then((res) => {
       list2.value = list2.value.concat(res.items);
-      page++;
+      page2++;
       finished2.value = list2.value.length >= res.total;
     })
     .finally(() => {

@@ -14,7 +14,7 @@
       <!-- </van-sticky> -->
 
       <van-collapse v-model="activeName" accordion>
-        <van-collapse-item title="主号" name="1">
+        <van-collapse-item title="主号" name="1" v-if="false">
           <van-cell class="account" :title="mainAccount?.username" :value="mainAccount?.password" v-if="mainAccount?.username" />
           <van-cell
             class="character"
@@ -47,7 +47,7 @@
           </van-cell>
         </van-collapse-item>
 
-        <van-collapse-item title="小号" name="2">
+        <van-collapse-item title="账号" name="2">
           <van-cell-group :border="false" class="group">
             <!-- <transition-group
               :duration="450"
@@ -108,18 +108,18 @@
         </van-collapse-item>
       </van-collapse>
       <!-- <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 10px"> -->
-      <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addSubAccount">添加小号</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="updateMainAccount">更新主号</van-button>
-      <van-button style="margin: 10px" plain type="primary" icon="plus" @click="addMultipleSubAccount">批量添加小号</van-button>
-      <van-button style="margin: 10px" plain type="primary" icon="plus" to="/createAccount">创建账号</van-button>
-      <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
-      <van-button style="margin: 10px" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="deleteSubAccounts">删除所有小号</van-button>
-      <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
-      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferAllCurrencies">转移所有通货到当前角色</van-button>
-      <van-button style="margin: 10px" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
-      <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider>
-      <van-button style="margin: 10px" plain type="primary" @click="toEquipment">装备列表</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" icon="plus" @click="addSubAccount">添加账号</van-button>
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="updateMainAccount">更新主号</van-button> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" icon="plus" @click="addMultipleSubAccount">批量添加账号</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" icon="plus" to="/createAccount">创建账号</van-button>
+      <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="deleteAllAccounts">删除所有账号</van-button>
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="deleteSubAccounts">删除所有小号</van-button> -->
+      <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="ShowTransferAllCurrencies">转移所有通货到当前角色</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
+      <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
@@ -139,7 +139,7 @@
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
 import { getCurrency, sell, buy, getMarket, getBackpack, remove } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
-import { DialogModeEnum } from "@/enums/appEnum";
+import { DialogModeEnum, CurrencyEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
@@ -292,25 +292,34 @@ const beforeClose = (action) =>
     }
   });
 const packetPrice = (currentCurrency) => {
-  return {
-    1: currentCurrency.jewellerOrb,
-    2: currentCurrency.chromaticOrb,
-    3: currentCurrency.orbOfFusing,
-    4: currentCurrency.orbOfTransmutation,
-    5: currentCurrency.orbOfChance,
-    6: currentCurrency.orbOfAlchemy,
-    7: currentCurrency.orbOfAugmentation,
-    8: currentCurrency.orbOfAlteration,
-    9: currentCurrency.exaltedOrb,
-    10: currentCurrency.chaosOrb,
-    11: currentCurrency.regalOrb,
-    12: currentCurrency.orbOfScouring,
-    13: currentCurrency.divineOrb,
-    14: currentCurrency.vaalOrb,
-    15: currentCurrency.mirrorOfKalandra,
-    16: currentCurrency.whetstone,
-    17: currentCurrency.armourersScrap,
-  };
+  // CurrencyEnum
+  let packetPriceObj = {};
+  for (let key in currentCurrency) {
+    if (currentCurrency[key] > 0) {
+      CurrencyEnum[key] && (packetPriceObj[CurrencyEnum[key]] = currentCurrency[key]);
+    }
+  }
+  return packetPriceObj;
+  // return {
+  //   1: currentCurrency.jewellerOrb,
+  //   2: currentCurrency.chromaticOrb,
+  //   3: currentCurrency.orbOfFusing,
+  //   4: currentCurrency.orbOfTransmutation,
+  //   5: currentCurrency.orbOfChance,
+  //   6: currentCurrency.orbOfAlchemy,
+  //   7: currentCurrency.orbOfAugmentation,
+  //   8: currentCurrency.orbOfAlteration,
+  //   9: currentCurrency.exaltedOrb,
+  //   10: currentCurrency.chaosOrb,
+  //   11: currentCurrency.regalOrb,
+  //   12: currentCurrency.orbOfScouring,
+  //   13: currentCurrency.divineOrb,
+  //   14: currentCurrency.vaalOrb,
+  //   15: currentCurrency.mirrorOfKalandra,
+  //   16: currentCurrency.whetstone,
+  //   17: currentCurrency.armourersScrap,
+  //   18: currentCurrency.orbOfAnnulment,
+  // };
 };
 
 const test = () => {
@@ -332,7 +341,8 @@ const onCancel = () => {
 const onConfirm = async (value) => {
   show.value = false;
   cascaderValue.value = "";
-  let [id, token, cantTransfer] = value.value.split("|");
+  // let [id, token, cantTransfer] = value.value.split("|");
+  let token = value.value.token;
   // let [id, token, cantTransfer] = value.selectedValues[1].split("|");
   // console.log(token);
   if (currentCharacter.value.cantTransfer) {

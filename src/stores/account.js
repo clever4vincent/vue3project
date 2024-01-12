@@ -4,7 +4,7 @@ import { login, getCharacterList, switchCharacter, getCharacterInfo } from "@/ap
 import { loginProgress } from "@/hooks/useLogin";
 import { cloneDeep } from "lodash-es";
 import { showToast } from "vant";
-import { nextTick } from "vue";
+import { nextTick, toRaw } from "vue";
 import { sleep } from "@/utils";
 export const useAccountStore = defineStore({
   id: "app-account",
@@ -16,6 +16,10 @@ export const useAccountStore = defineStore({
     mapList: [],
     tokenDate: "",
     accountNo: "",
+    endlessGarmentCharacter: {},
+    gloveCharacter: {},
+    shoeCharacter: {},
+    ringCharacter: {},
   }),
   getters: {
     getMainAccount() {
@@ -76,6 +80,9 @@ export const useAccountStore = defineStore({
     },
     getOtherAccountTokenInfoOptions() {
       return this.parseAccounts(this.getOtherAccountTokenInfo());
+    },
+    getAllAccountTokenInfoOptions() {
+      return this.parseAccounts(this.getAllAccountTokenInfo());
     },
     async addSubAccount(account) {
       await this.getAccountTokenInfo(account);
@@ -162,7 +169,8 @@ export const useAccountStore = defineStore({
           children: account.tokenInfo.characters.map((character) => {
             return {
               text: character.name,
-              value: character.id + "|" + character.token + "|" + character.cantTransfer,
+              // value: character.id + "|" + character.token + "|" + character.cantTransfer,
+              value: toRaw(character),
             };
           }),
         };
