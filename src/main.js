@@ -6,6 +6,8 @@ import "vant/es/dialog/style";
 import "vant/es/search/style";
 import "vant/es/back-top/style";
 import "vant/es/notify/style";
+import "vant/es/action-sheet/style";
+
 import "@icon-park/vue-next/styles/index.css";
 import { setupStore } from "@/stores";
 import { createApp } from "vue";
