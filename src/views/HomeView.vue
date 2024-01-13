@@ -139,7 +139,7 @@
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
 import { getCurrency, sell, buy, getMarket, getBackpack, remove } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
-import { DialogModeEnum, CurrencyEnum } from "@/enums/appEnum";
+import { DialogModeEnum, CurrencyBeanEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
@@ -147,13 +147,13 @@ import { nextTick } from "vue";
 
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
+const scroller = ref();
 const minItemSize = ref(210);
 const dynamicHeight = ref(400);
 const show = ref(false);
 const loadingStore = useLoadingStore();
 const accountStore = useAccountStore();
 const tokenStore = useTokenStore();
-const scroller = ref();
 const cellGroup = ref();
 const loading = ref(false);
 const router = useRouter();
@@ -295,31 +295,11 @@ const packetPrice = (currentCurrency) => {
   // CurrencyEnum
   let packetPriceObj = {};
   for (let key in currentCurrency) {
-    if (currentCurrency[key] > 0) {
-      CurrencyEnum[key] && (packetPriceObj[CurrencyEnum[key]] = currentCurrency[key]);
+    if (currentCurrency[key] > 0 && CurrencyBeanEnum[key] && CurrencyBeanEnum[key].need) {
+      packetPriceObj[CurrencyBeanEnum[key].value] = currentCurrency[key];
     }
   }
   return packetPriceObj;
-  // return {
-  //   1: currentCurrency.jewellerOrb,
-  //   2: currentCurrency.chromaticOrb,
-  //   3: currentCurrency.orbOfFusing,
-  //   4: currentCurrency.orbOfTransmutation,
-  //   5: currentCurrency.orbOfChance,
-  //   6: currentCurrency.orbOfAlchemy,
-  //   7: currentCurrency.orbOfAugmentation,
-  //   8: currentCurrency.orbOfAlteration,
-  //   9: currentCurrency.exaltedOrb,
-  //   10: currentCurrency.chaosOrb,
-  //   11: currentCurrency.regalOrb,
-  //   12: currentCurrency.orbOfScouring,
-  //   13: currentCurrency.divineOrb,
-  //   14: currentCurrency.vaalOrb,
-  //   15: currentCurrency.mirrorOfKalandra,
-  //   16: currentCurrency.whetstone,
-  //   17: currentCurrency.armourersScrap,
-  //   18: currentCurrency.orbOfAnnulment,
-  // };
 };
 
 const test = () => {

@@ -93,6 +93,8 @@ body {
   background: var(--vt-c-white);
   border: var(--vt-c-divider-white-2);
   transition: color background-color var(--vt-transition-time);
+
+  -webkit-overflow-scrolling: touch; /* 在 iOS 设备上启用原生滚动 */
 }
 .van-theme-dark body {
   background-color: var(--vt-c-black-hard);

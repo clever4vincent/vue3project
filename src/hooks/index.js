@@ -4,3 +4,4 @@ export * from "./useCharacter";
 export * from "./useTransfer";
 export * from "./useLogin";
 export * from "./useInterval";
+export * from "./useEquipment";

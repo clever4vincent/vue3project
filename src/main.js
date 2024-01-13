@@ -24,10 +24,12 @@ import "virtual:svg-icons-register";
 import "./utils/resetFastClick.js";
 import "./assets/base.css";
 import "vue-virtual-scroller/dist/vue-virtual-scroller.css";
+// import "./lib/inobounce.js";
 const app = createApp(App);
 setupStore(app);
 app.use(Lazyload);
 app.use(router);
 app.use(Toast);
+
 app.component("RecycleScroller", RecycleScroller);
 app.mount("#app");

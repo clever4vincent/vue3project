@@ -399,4 +399,3 @@ html.ios.wechat {
   color: var(--van-tabbar-item-active-color);
 } */
 </style>
-@/utils/EventBus.js @/lib/EventBus.js

@@ -20,6 +20,7 @@ export const useAccountStore = defineStore({
     gloveCharacter: {},
     shoeCharacter: {},
     ringCharacter: {},
+    weaponCharacter: {},
   }),
   getters: {
     getMainAccount() {
@@ -235,6 +236,20 @@ export const useAccountStore = defineStore({
       if (currentAccount.username === this.currentCharacter.username) {
         this.currentCharacter.token = currentCharacter.token;
       }
+      // 如果更新的账号是集中地的角色，需要更新集中地的角色的token
+      if (currentAccount.username === this.endlessGarmentCharacter.username) {
+        this.endlessGarmentCharacter.token = currentCharacter.token;
+      }
+      if (currentAccount.username === this.gloveCharacter.username) {
+        this.gloveCharacter.token = currentCharacter.token;
+      }
+      if (currentAccount.username === this.shoeCharacter.username) {
+        this.shoeCharacter.token = currentCharacter.token;
+      }
+      if (currentAccount.username === this.ringCharacter.username) {
+        this.ringCharacter.token = currentCharacter.token;
+      }
+
       // useTokenStore().setToken(currentCharacter.token);
       return currentCharacter.token;
     },

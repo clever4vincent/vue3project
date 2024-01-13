@@ -21,7 +21,7 @@ export async function loginProgress(user) {
             resolve(res);
           });
         } catch (error) {
-          reject("出错了");
+          reject("出错了" + error);
         }
       } else {
         reject("验证码取消");

@@ -4,24 +4,6 @@ export const DialogModeEnum = {
   MAIN_UPDATE: "main_update",
   CREATE_ACCOUNT: "create_account",
 };
-//  1: currentCurrency.jewellerOrb,
-// 2: currentCurrency.chromaticOrb,
-// 3: currentCurrency.orbOfFusing,
-// 4: currentCurrency.orbOfTransmutation,
-// 5: currentCurrency.orbOfChance,
-// 6: currentCurrency.orbOfAlchemy,
-// 7: currentCurrency.orbOfAugmentation,
-// 8: currentCurrency.orbOfAlteration,
-// 9: currentCurrency.exaltedOrb,
-// 10: currentCurrency.chaosOrb,
-// 11: currentCurrency.regalOrb,
-// 12: currentCurrency.orbOfScouring,
-// 13: currentCurrency.divineOrb,
-// 14: currentCurrency.vaalOrb,
-// 15: currentCurrency.mirrorOfKalandra,
-// 16: currentCurrency.whetstone,
-// 17: currentCurrency.armourersScrap,
-// 18: currentCurrency.orbOfAnnulment,
 export const CurrencyEnum = {
   jewellerOrb: 1,
   chromaticOrb: 2,
@@ -41,4 +23,88 @@ export const CurrencyEnum = {
   whetstone: 16,
   armourersScrap: 17,
   orbOfAnnulment: 18,
+};
+
+export const CurrencyBeanEnum = {
+  jewellerOrb: {
+    value: 1,
+    name: "工匠石",
+  },
+  chromaticOrb: {
+    value: 2,
+    name: "幻色石",
+  },
+  orbOfFusing: {
+    value: 3,
+    name: "链结石",
+  },
+  orbOfTransmutation: {
+    value: 4,
+    name: "蜕变石",
+  },
+  orbOfChance: {
+    value: 5,
+    name: "机会石",
+  },
+  orbOfAlchemy: {
+    value: 6,
+    name: "点金石",
+  },
+  orbOfAugmentation: {
+    value: 7,
+    name: "增幅石",
+  },
+  orbOfAlteration: {
+    value: 8,
+    name: "改造石",
+    need: true,
+  },
+  exaltedOrb: {
+    value: 9,
+    name: "崇高石",
+    need: true,
+  },
+  chaosOrb: {
+    value: 10,
+    name: "混沌石",
+    need: true,
+  },
+  regalOrb: {
+    value: 11,
+    name: "富豪石",
+    need: true,
+  },
+  orbOfScouring: {
+    value: 12,
+    name: "重铸石",
+    need: true,
+  },
+  divineOrb: {
+    value: 13,
+    name: "神圣石",
+    need: true,
+  },
+  vaalOrb: {
+    need: true,
+    value: 14,
+    name: "瓦尔宝珠",
+  },
+  mirrorOfKalandra: {
+    value: 15,
+    name: "卡兰德的魔镜",
+    need: true,
+  },
+  whetstone: {
+    value: 16,
+    name: "磨刀石",
+  },
+  armourersScrap: {
+    value: 17,
+    name: "护甲片",
+  },
+  orbOfAnnulment: {
+    need: true,
+    value: 18,
+    name: "剥离石",
+  },
 };

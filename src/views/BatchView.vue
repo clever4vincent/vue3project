@@ -4,8 +4,11 @@
     <div class="container">
       <van-collapse v-model="activeNames">
         <van-collapse-item title="批量账号列表" name="1">
-          <van-button style="margin-right: 12px" size="small" plain type="primary" @click="toggleAll" class=":f">反选</van-button>
-          <van-button style="margin-right: 8px" size="small" plain type="primary" @click="checkAll">全选</van-button>
+          <div class="flex justify-center mb-1">
+            <van-button style="margin-right: 20px" size="small" plain type="primary" @click="toggleAll">反选</van-button>
+            <van-button size="small" plain type="primary" @click="checkAll">全选</van-button>
+          </div>
+
           <van-checkbox-group v-model="checkedResult" ref="checkboxGroup" @change="checkedResultChange">
             <van-grid :border="false" :column-num="3" :center="false" class="text-xs">
               <van-grid-item v-for="item in allAccount" :key="item.username">
@@ -14,6 +17,21 @@
             </van-grid>
           </van-checkbox-group>
           <!-- <van-checkbox v-model="isCheckAll" :indeterminate="isIndeterminate" @change="checkAllChange"> 全选 </van-checkbox> -->
+        </van-collapse-item>
+      </van-collapse>
+
+      <van-collapse v-model="activeCollectName">
+        <van-collapse-item title="集中地角色" name="1">
+          <van-cell
+            title="无尽集中地角色"
+            :value="endlessGarmentCharacterName"
+            is-link
+            @click="showEquipAction(ACTION_TYPE.ENDLESSGARMENT)"
+          ></van-cell>
+          <van-cell title="戒指集中地角色" :value="ringCharacterName" is-link @click="showEquipAction(ACTION_TYPE.RING)"></van-cell>
+          <van-cell title="鞋子集中地角色" :value="shoeCharacterName" is-link @click="showEquipAction(ACTION_TYPE.SHOE)"></van-cell>
+          <van-cell title="手套集中地角色" :value="gloveCharacterName" is-link @click="showEquipAction(ACTION_TYPE.GLOVE)"></van-cell>
+          <van-cell title="武器集中地角色" :value="weaponCharacterName" is-link @click="showEquipAction(ACTION_TYPE.WEAPON)"></van-cell>
         </van-collapse-item>
       </van-collapse>
       <van-popover v-model:show="showPopover" theme="dark" :actions="actions" @select="onSelect" :offset="[24, 8]">
@@ -26,19 +44,19 @@
           <van-button style="margin: 10px" size="small" type="primary">初始选项</van-button>
         </template>
       </van-popover>
-      <van-cell title="无尽集中地角色" :value="endlessGarmentCharacterName" is-link @click="showEquipAction(ACTION_TYPE.ENDLESSGARMENT)"></van-cell>
-      <van-cell title="戒指集中地角色" :value="ringCharacterName" is-link @click="showEquipAction(ACTION_TYPE.RING)"></van-cell>
-      <van-cell title="鞋子集中地角色" :value="shoeCharacterName" is-link @click="showEquipAction(ACTION_TYPE.SHOE)"></van-cell>
-      <van-cell title="手套集中地角色" :value="gloveCharacterName" is-link @click="showEquipAction(ACTION_TYPE.GLOVE)"></van-cell>
-
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showPicker = true">切换地图</van-button>
-      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('UPDATE_STONE')">升级衣服技能石</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('UPDATE_STONE')"
+        >升级衣服头盔鞋子主武器技能石</van-button
+      >
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('DESTROY_ALL')">丢弃所有装备</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('SYCN_TREE')">同步当前角色天赋</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showFilterJson = true">同步过滤规则</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showSkillJson = true">同步天赋JSON</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="tokenCheck">token状态验证</van-button>
-      <van-button style="margin: 10px" plain size="small" type="primary" @click="sendMessage">发送轮询等级</van-button>
+      <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="sendMessage">等级轮询</van-button> -->
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_QUERY')">等级轮询</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_LEAST')">最低等级</van-button>
+
       <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="getEndlessGarment">获取无尽</van-button> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('INIT_CURRENCY')">获取初始通货</van-button> -->
     </div>
@@ -113,11 +131,11 @@ import {
   Character,
   getEquipmentList,
   startEquipmentTransfer,
+  getEquipmentLocal,
   getTokenInfo,
 } from "@/hooks";
 import { onMounted } from "vue";
 import { nextTick } from "vue";
-import { onDeactivated } from "vue";
 
 const ACTION_TYPE = {
   ENDLESSGARMENT: "ENDLESSGARMENT",
@@ -128,6 +146,8 @@ const ACTION_TYPE = {
   SHOE_TEXT: "鞋子集中地",
   GLOVE: "GLOVE",
   GLOVE_TEXT: "手套集中地",
+  WEAPON: "WEAPON",
+  WEAPON_TEXT: "武器集中地",
 };
 const DIALOG_TYPE = {
   DESTROY_ALL: "destroyAll",
@@ -158,6 +178,12 @@ const DIALOG_TYPE = {
   INIT_STONE_TEXT: "初始宝石",
   INIT_CURRENCY: "initCurrency",
   INIT_CURRENCY_TEXT: "初始通货",
+  LEVEL_QUERY: "levelQuery",
+  LEVEL_QUERY_TEXT: "等级轮询",
+  LEVEL_LEAST: "levelLeast",
+  LEVEL_LEAST_TEXT: "最低等级",
+  GET_LOW_LEVEL_WEAPON: "getLowLevelWeapon",
+  GET_LOW_LEVEL_WEAPON_TEXT: "获取低等级武器",
 };
 const skillStoneList = [
   "Multistrike_Support",
@@ -168,6 +194,7 @@ const skillStoneList = [
   "Haste",
 ];
 const accountStore = useAccountStore();
+const activeCollectName = ref(["0"]);
 const activeNames = ref(["0"]);
 const filterJson = ref(`[{"rarity":3},{"rarity":4}]`);
 const skillJson = ref("");
@@ -189,6 +216,7 @@ const endlessGarmentCharacterName = ref("");
 const ringCharacterName = ref("");
 const shoeCharacterName = ref("");
 const gloveCharacterName = ref("");
+const weaponCharacterName = ref("");
 // 通过 actions 属性来定义菜单选项
 const actions = [
   { text: "所有", value: "EQUIP_ALL" },
@@ -240,9 +268,7 @@ const onEquipSelect = (action) => {
 const allAccount = computed(() => {
   return useAccountStore().getAllAccountTokenInfo();
 });
-const sendMessage = () => {
-  EventBus.emit("startQueryLevelThread");
-};
+
 const checkAll = () => {
   checkboxGroup.value.toggleAll(true);
 };
@@ -262,6 +288,10 @@ const checkedResultChange = (value) => {
 };
 
 const collectEquipment = () => {
+  if (currentActionType == ACTION_TYPE.WEAPON) {
+    getLowLevelWeapon();
+    return;
+  }
   accountStore.batchAccountsOperation((thirdToken) => {
     if (currentActionType == ACTION_TYPE.ENDLESSGARMENT) {
       Character.findEndlessGarment(thirdToken);
@@ -433,11 +463,81 @@ const showDialogOptions = (type) => {
         } else if (DIALOG_TYPE[type] === DIALOG_TYPE.INIT_CURRENCY) {
           // 获取通货
           await getCurrency();
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.LEVEL_QUERY) {
+          // 等级轮询
+          EventBus.emit("startQueryLevelThread");
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.LEVEL_LEAST) {
+          // 最低等级
+          // await queryLevelLeast();
+          let level = 100;
+          await accountStore.batchAccountsOperation(async (thirdToken) => {
+            await getCharacterInfo(thirdToken).then((res) => {
+              // console.log(res);
+              console.log(thirdToken.character.name, res.level);
+              if (res.level < level) {
+                level = res.level;
+              }
+            });
+          });
+          showToast(`最低等级为${level}`);
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.GET_LOW_LEVEL_WEAPON) {
+          await getLowLevelWeapon();
         }
       }
       return true;
     },
   });
+};
+const getLowLevelWeapon = async () => {
+  // 获取低等级武器
+  let equipments = await getEquipmentLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then(
+    (res) => {
+      // 先过滤 双手剑 双手斧 双手锤
+      // 再过滤等级
+      let list = res
+        .filter((item) => {
+          let result = false;
+          "双手剑 双手斧 双手锤".split(" ").forEach((typeText) => {
+            result |= item.typeText == typeText;
+          });
+          return result;
+        })
+        .filter((item) => {
+          if (!item.requirements) {
+            return true;
+          }
+          return item.requirements.level <= 10;
+        })
+        .filter((item) => {
+          let magicsTexts = item.magicsText.split("|");
+          let sum = 0;
+          "基础闪电伤害 基础火焰伤害 基础冰霜伤害 基础混沌伤害 基础物理伤害".split(" ").forEach((text) => {
+            magicsTexts.forEach((magicText) => {
+              if (magicText.includes(text)) {
+                let match = magicText.match(/\d+-\d+|\d+/g);
+                let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];
+                if (numbers.length == 1) {
+                  sum += numbers[0];
+                } else if (numbers.length == 2) {
+                  sum += numbers[1];
+                }
+              }
+            });
+          });
+          sum += item.physicalDamage.max;
+          return sum >= 200;
+        });
+
+      return list;
+    }
+  );
+  console.log(equipments);
+  // 将低等级武器转移到集中地
+  for (let i = 0; i < equipments.length; i++) {
+    const equipment = equipments[i];
+    await startEquipmentTransfer({ sellToken: accountStore.currentCharacter.token, buyToken: accountStore.weaponCharacter.token, equipment });
+  }
+  showSuccessToast("转移低等级武器成功");
 };
 const initCharacterAll = async () => {
   // 获取通货
@@ -505,6 +605,9 @@ const onCharacterConfirm = (value) => {
   } else if (currentActionType == ACTION_TYPE.GLOVE) {
     accountStore.gloveCharacter = character;
     gloveCharacterName.value = character.name;
+  } else if (currentActionType == ACTION_TYPE.WEAPON) {
+    accountStore.weaponCharacter = character;
+    weaponCharacterName.value = character.name;
   }
 
   // console.log(value.value.name);
@@ -557,6 +660,7 @@ onMounted(() => {
   ringCharacterName.value = accountStore.ringCharacter.name;
   shoeCharacterName.value = accountStore.shoeCharacter.name;
   gloveCharacterName.value = accountStore.gloveCharacter.name;
+  weaponCharacterName.value = accountStore.weaponCharacter.name;
   // 初始化地图
   if (accountStore.getMapListOptions().length === 0) {
     getAllMap().then((res) => {

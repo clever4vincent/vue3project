@@ -23,9 +23,27 @@ export async function upgradeAllStoneOnEquipment(thirdToken) {
   await getCharacterInfo(thirdToken).then(async (data) => {
     // 获取无尽之衣的id
     let bodyArmor = data.equipmentSlots.bodyArmor;
-    let stones = bodyArmor.sockets[0];
+    let mainHand = data.equipmentSlots.mainHand;
+    let helmet = data.equipmentSlots.helmet;
+    let boot = data.equipmentSlots.boot;
+    // 将二维数组铺平
+    let stones = [];
+    // stones = bodyArmor.sockets && stones.concat(bodyArmor.sockets?.flat());
+    // stones = mainHand.sockets && stones.concat(mainHand.sockets?.flat());
+    // stones = boot.sockets && stones.concat(boot.sockets?.flat());
+    helmet?.sockets && (stones = stones.concat(helmet.sockets?.flat()));
+    bodyArmor?.sockets && (stones = stones.concat(bodyArmor.sockets?.flat()));
+    mainHand?.sockets && (stones = stones.concat(mainHand.sockets?.flat()));
+    boot?.sockets && (stones = stones.concat(boot.sockets?.flat()));
+
+    // let stones = bodyArmor.sockets[0];
+    // stones = stones.concat(mainHand.sockets[0]);
     for (let index = 0; index < stones.length; index++) {
       let item = stones[index];
+      if (!item.stoneId) {
+        // 如果没有宝石，跳过
+        continue;
+      }
       if (item.exp > item.levelUpExp) {
         let canUpgrade = true;
         while (canUpgrade) {
@@ -124,12 +142,7 @@ export async function initAccountProgress(accountItem) {
   // 2 选择角色
   // 3 选择层数挂机 https://poe.faith.wang/api/battle/start {"mapId":"1_1_1"
 }
-// 01.甲子 02.乙丑 03.丙寅 04.丁卯 05.戊辰 06.己巳 07.庚午 08.辛未 09.壬申 10.癸酉
-// 11.甲戌 12.乙亥 13.丙子 14.丁丑 15.戊寅 16.己卯 17.庚辰 18.辛巳 19.壬午 20.癸未
-// 21.甲申 22.乙酉 23.丙戌 24.丁亥 25.戊子 26.己丑 27.庚寅 28.辛卯 29.壬辰 30.癸巳
-// 31.甲午 32.乙未 33.丙申 34.丁酉 35.戊戌 36.己亥 37.庚子 38.辛丑 39.壬寅 40.癸卯
-// 41.甲辰 42.乙巳 43.丙午 44.丁未 45.戊申 46.己酉 47.庚戌 48.辛亥 49.壬子 50.癸丑
-// 51.甲寅 52.乙卯 53.丙辰 54.丁巳 55.戊午 56.己未 57.庚申 58.辛酉 59.壬戌 60.癸亥
+
 function generateRandomNickname() {
   return randomAdjective + randomNoun;
 }
@@ -183,7 +196,6 @@ const namePrefixs = {
   97: "庚戌",
   98: "辛亥",
   99: "壬子",
-  100: "癸丑",
 };
 function parseAccountName(accountName, index) {
   // 将a666985233变化成t33
@@ -637,8 +649,9 @@ export async function getEquipmentList(query, thirdToken) {
 
   let result = [];
   let pageCount = 1;
+  let allPromise = [];
   if (!thirdToken) {
-    console.log("集中地角色不存在");
+    console.log("角色不存在");
     return;
   }
 
@@ -653,13 +666,25 @@ export async function getEquipmentList(query, thirdToken) {
     });
     if (pageCount > 1) {
       for (let index = 2; index <= pageCount; index++) {
-        await getBackpack(index, query, { thirdToken }).then((data) => {
-          data.items && result.push(...data.items);
-        });
+        allPromise.push(
+          getBackpack(index, query, { thirdToken }).catch((err) => {
+            console.log(err);
+            return {
+              items: [],
+            };
+          })
+        );
+        // await getBackpack(index, query, { thirdToken }).then((data) => {
+        //   data.items && result.push(...data.items);
+        // });
       }
     }
   }
-
+  await Promise.all(allPromise).then((res) => {
+    res.forEach((data) => {
+      data.items && result.push(...data.items);
+    });
+  });
   return result;
 }
 function filterRequiredItems(items, currentCharacterInfo) {

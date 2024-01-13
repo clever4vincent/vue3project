@@ -12,7 +12,7 @@ import { useErrorLogStore } from "@/stores/errorLog";
 import { useLoadingStore, useTokenStore } from "@/stores";
 import { joinTimestamp, formatRequestDate } from "./helper";
 import { useAccountStoreWithOut } from "@/stores/account";
-import { ipPool } from "@/lib/ip-pool";
+
 const globSetting = getAppEnvConfig();
 const urlPrefix = globSetting.urlPrefix;
 let retryTokenCount = 0; // 重试次数
