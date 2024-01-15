@@ -24,7 +24,8 @@ export const useStore = defineStore("app", () => {
   const transitionName = ref("");
   const isFooterHideen = ref(false);
   const history = ref([]);
-
+  const isModifyRunning = ref(false);
+  const equipmentModify = ref({});
   function setTransitionName(value) {
     transitionName.value = value;
   }

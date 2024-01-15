@@ -87,6 +87,12 @@ export const getEquipmentNetwork = async (thirdToken) => {
   });
   return parseList;
 };
+export const updateEquipmentLocal = async (thirdToken, list) => {
+  await localforage.setItem(thirdToken.character.name, list).catch((err) => {
+    // 处理错误
+    console.error(err);
+  });
+};
 export const getEquipmentLocal = async (thirdToken) => {
   let result = await localforage.getItem(thirdToken.character.name);
   if (!result) {
@@ -94,16 +100,19 @@ export const getEquipmentLocal = async (thirdToken) => {
   }
   return result;
 };
-function parseMagics(list) {
+export function parseMagics(list) {
   return list.map((item) => {
-    item.magicsText = "";
-    item.typeText = equipmentFilterTypes[item.equipmentType] || "";
-    for (const k in item.magics) {
-      item.magicsText += magics[k](item.magics[k]) + "|";
-    }
-    for (const k in item.fixedMagics) {
-      item.magicsText += magics[k](item.fixedMagics[k]) + "|";
-    }
-    return item;
+    return parseItemMagics(item);
   });
+}
+export function parseItemMagics(item) {
+  item.magicsText = "";
+  item.typeText = equipmentFilterTypes[item.equipmentType] || "";
+  for (const k in item.magics) {
+    item.magicsText += magics[k](item.magics[k]) + "|";
+  }
+  for (const k in item.fixedMagics) {
+    item.magicsText += magics[k](item.fixedMagics[k]) + "|";
+  }
+  return item;
 }

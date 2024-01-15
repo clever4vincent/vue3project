@@ -30,6 +30,7 @@ export const CurrencyBeanEnum = {
     value: 1,
     name: "工匠石",
   },
+
   chromaticOrb: {
     value: 2,
     name: "幻色石",
@@ -53,6 +54,7 @@ export const CurrencyBeanEnum = {
   orbOfAugmentation: {
     value: 7,
     name: "增幅石",
+    need: true,
   },
   orbOfAlteration: {
     value: 8,

@@ -29,6 +29,7 @@ const Api = {
   skilltree: "/skilltree",
   remove: "/market/remove",
   changeClass: "/character/changeClass",
+  modify: "/equipment/modify",
 };
 
 export const login = (params, opt) => {
@@ -90,6 +91,9 @@ export const chooseMap = (mapId, opt) => {
 };
 export const equip = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } }, { ...opt });
+};
+export const modify = (equipmentId, type, opt) => {
+  return defHttp.post({ url: Api.modify, params: { equipmentId, type } }, { ...opt });
 };
 export const takeOff = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } }, { ...opt });

@@ -2,11 +2,13 @@ import "./assets/main.css";
 import "animate.css";
 import "./utils/rem.js";
 import "vant/es/toast/style";
+import "vant/es/field/style";
 import "vant/es/dialog/style";
 import "vant/es/search/style";
 import "vant/es/back-top/style";
 import "vant/es/notify/style";
 import "vant/es/action-sheet/style";
+import "vant/es/popup/style";
 
 import "@icon-park/vue-next/styles/index.css";
 import { setupStore } from "@/stores";

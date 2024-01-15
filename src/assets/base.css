@@ -6,6 +6,7 @@
   --rare-color: #ff7;
   --unique-color: #af6025;
   --error-color: #e63946;
+  --van-primary-color: var(--error-color);
 
   --vt-c-white: #ffffff;
   --vt-c-white-soft: #f8f8f8;

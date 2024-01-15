@@ -687,7 +687,7 @@ export async function getEquipmentList(query, thirdToken) {
   });
   return result;
 }
-function filterRequiredItems(items, currentCharacterInfo) {
+export function filterRequiredItems(items, currentCharacterInfo) {
   // 过滤掉不符合要求的物品
   return items.filter((item) => {
     let result = true;

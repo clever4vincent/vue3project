@@ -249,7 +249,9 @@ export const useAccountStore = defineStore({
       if (currentAccount.username === this.ringCharacter.username) {
         this.ringCharacter.token = currentCharacter.token;
       }
-
+      if (currentAccount.username === this.weaponCharacter.username) {
+        this.weaponCharacter.token = currentCharacter.token;
+      }
       // useTokenStore().setToken(currentCharacter.token);
       return currentCharacter.token;
     },

@@ -56,9 +56,6 @@
       <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="sendMessage">等级轮询</van-button> -->
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_QUERY')">等级轮询</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_LEAST')">最低等级</van-button>
-
-      <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="getEndlessGarment">获取无尽</van-button> -->
-      <!-- <van-button style="margin: 10px" plain type="primary" @click="showDialogOptions('INIT_CURRENCY')">获取初始通货</van-button> -->
     </div>
     <van-action-sheet
       v-model:show="showAction"
@@ -132,6 +129,10 @@ import {
   getEquipmentList,
   startEquipmentTransfer,
   getEquipmentLocal,
+  getEquipmentNetwork,
+  parseMagics,
+  filterRequiredItems,
+  updateEquipmentLocal,
   getTokenInfo,
 } from "@/hooks";
 import { onMounted } from "vue";
@@ -319,6 +320,9 @@ const getEquipment = async (actionType) => {
   } else if (actionType == ACTION_TYPE.GLOVE) {
     sellCharacter = accountStore.gloveCharacter;
     query = { keyword: "意识", type: 2064384, rarity: 4 };
+  } else if (actionType == ACTION_TYPE.WEAPON) {
+    sellCharacter = accountStore.weaponCharacter;
+    query = { type: 32256, rarity: 3 };
   }
 
   let sellToken = sellCharacter.token;
@@ -327,7 +331,9 @@ const getEquipment = async (actionType) => {
     return;
   }
   let list = await getEquipmentList(query, sellToken);
-
+  if (actionType == ACTION_TYPE.WEAPON) {
+    list = filterWeaponList(parseMagics(list), 30, 200);
+  }
   accountStore.batchAccountsOperation(async ({ thirdToken }) => {
     // return Character.findEndlessGarment(thirdToken);
     if (list.length === 0) {
@@ -338,20 +344,42 @@ const getEquipment = async (actionType) => {
       console.log("不能自己给自己转移装备");
       return;
     }
-
-    await startEquipmentTransfer({ sellToken, buyToken: thirdToken, equipment: list[0] });
-    if (actionType == ACTION_TYPE.ENDLESSGARMENT) {
-      await Character.insertStoneToEndlessGarment(skillStoneList, { thirdToken }, list[0]);
+    let equipment;
+    if (actionType == ACTION_TYPE.WEAPON) {
+      await getCharacterInfo({ thirdToken }).then((res) => {
+        let filterList = filterRequiredItems(list, res);
+        console.log(filterList);
+        equipment = filterList.length > 0 && filterList[0];
+      });
+    } else {
+      equipment = list[0];
     }
+    if (!equipment) {
+      console.log("没有装备了");
+      return;
+    }
+    console.log(equipment);
+
+    await startEquipmentTransfer({ sellToken, buyToken: thirdToken, equipment });
+    if (actionType == ACTION_TYPE.ENDLESSGARMENT) {
+      await Character.insertStoneToEndlessGarment(skillStoneList, { thirdToken }, equipment);
+    }
+
     // await Character.insertStoneToEndlessGarment(skillStoneList, { thirdToken }, list[0]);
-    await equip(list[0].id, getTokenInfo(thirdToken).characterId, { thirdToken });
-    list.shift();
+    await equip(equipment.id, getTokenInfo(thirdToken).characterId, { thirdToken });
+    // 去掉转移的装备
+    if (actionType == ACTION_TYPE.WEAPON) {
+      list = list.filter((item) => {
+        return equipment.id !== item.id;
+      });
+    } else {
+      list.shift();
+    }
   }, false);
 };
 const getCurrency = async () => {
   let accounts = useAccountStore().getAllAccountTokenInfo();
-  // 找到角色为t20的账号
-  let account = accounts.find((item) => item.username == "a666985211");
+  let account = accounts.find((item) => item.username == "a6669852");
 
   let buyCharacter = account.tokenInfo.characters[2];
   let buyToken = buyCharacter.token;
@@ -366,33 +394,6 @@ const getCurrency = async () => {
     }
     await startEquipmentTransfer({ sellToken: thirdToken, buyToken, equipment: result[0], price: { 8: 5, 10: 1, 4: 4 } });
   });
-};
-const getEndlessGarment = async () => {
-  getEquipment(ACTION_TYPE.ENDLESSGARMENT);
-  // let sellCharacter = accountStore.endlessGarmentCharacter;
-  // let sellToken = sellCharacter.token;
-  // if (!sellToken) {
-  //   showFailToast("请先选择无尽集中地角色");
-  //   return;
-  // }
-  // let list = await getEquipmentList({ type: 17045651456, rarity: 4 }, sellToken);
-
-  // accountStore.batchAccountsOperation(async ({ thirdToken }) => {
-  //   // return Character.findEndlessGarment(thirdToken);
-  //   if (list.length === 0) {
-  //     console.log("没有装备了");
-  //     return;
-  //   }
-  //   if (sellToken === thirdToken) {
-  //     console.log("不能自己给自己转移装备");
-  //     return;
-  //   }
-
-  //   await startEquipmentTransfer({ sellToken, buyToken: thirdToken, equipment: list[0] });
-  //   await Character.insertStoneToEndlessGarment(skillStoneList, { thirdToken }, list[0]);
-  //   await equip(list[0].id, getTokenInfo(thirdToken).characterId, { thirdToken });
-  //   list.shift();
-  // }, false);
 };
 
 const swtichMap = async (value) => {
@@ -489,56 +490,71 @@ const showDialogOptions = (type) => {
   });
 };
 const getLowLevelWeapon = async () => {
+  let originList;
   // 获取低等级武器
   let equipments = await getEquipmentLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then(
     (res) => {
       // 先过滤 双手剑 双手斧 双手锤
       // 再过滤等级
-      let list = res
-        .filter((item) => {
-          let result = false;
-          "双手剑 双手斧 双手锤".split(" ").forEach((typeText) => {
-            result |= item.typeText == typeText;
-          });
-          return result;
-        })
-        .filter((item) => {
-          if (!item.requirements) {
-            return true;
-          }
-          return item.requirements.level <= 10;
-        })
-        .filter((item) => {
-          let magicsTexts = item.magicsText.split("|");
-          let sum = 0;
-          "基础闪电伤害 基础火焰伤害 基础冰霜伤害 基础混沌伤害 基础物理伤害".split(" ").forEach((text) => {
-            magicsTexts.forEach((magicText) => {
-              if (magicText.includes(text)) {
-                let match = magicText.match(/\d+-\d+|\d+/g);
-                let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];
-                if (numbers.length == 1) {
-                  sum += numbers[0];
-                } else if (numbers.length == 2) {
-                  sum += numbers[1];
-                }
-              }
-            });
-          });
-          sum += item.physicalDamage.max;
-          return sum >= 200;
-        });
-
-      return list;
+      originList = res;
+      return filterWeaponList(originList, 20, 400);
     }
   );
   console.log(equipments);
+
   // 将低等级武器转移到集中地
   for (let i = 0; i < equipments.length; i++) {
     const equipment = equipments[i];
     await startEquipmentTransfer({ sellToken: accountStore.currentCharacter.token, buyToken: accountStore.weaponCharacter.token, equipment });
   }
+  // 转移成功后,将转移的武器从本地删除
+  let newList = originList.filter((item) => {
+    return !equipments.some((equipment) => {
+      return equipment.id == item.id;
+    });
+  });
+
+  await updateEquipmentLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }, newList);
   showSuccessToast("转移低等级武器成功");
 };
+function filterWeaponList(originList, maxLevel, minSum) {
+  // 再过滤等级
+  let list = originList
+    .filter((item) => {
+      let result = false;
+      "双手剑 双手斧 双手锤".split(" ").forEach((typeText) => {
+        result |= item.typeText == typeText;
+      });
+      return result;
+    })
+    .filter((item) => {
+      if (!item.requirements) {
+        return true;
+      }
+      return item.requirements.level <= maxLevel;
+    })
+    .filter((item) => {
+      let magicsTexts = item.magicsText.split("|");
+      let sum = 0;
+      "基础闪电伤害 基础火焰伤害 基础冰霜伤害 基础混沌伤害 基础物理伤害".split(" ").forEach((text) => {
+        magicsTexts.forEach((magicText) => {
+          if (magicText.includes(text)) {
+            let match = magicText.match(/\d+-\d+|\d+/g);
+            let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];
+            if (numbers.length == 1) {
+              sum += numbers[0];
+            } else if (numbers.length == 2) {
+              sum += numbers[1];
+            }
+          }
+        });
+      });
+      sum += item.physicalDamage.max;
+      return sum >= minSum;
+    });
+
+  return list;
+}
 const initCharacterAll = async () => {
   // 获取通货
   await getCurrency();

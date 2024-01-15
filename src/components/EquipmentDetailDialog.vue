@@ -245,22 +245,10 @@ body.light .equipment {
     text-align: center;
   }
 
-  &.normal {
-    background:
-      url("../assets/header-normal-left.webp") top left no-repeat,
-      url("../assets/header-normal-right.webp") top right no-repeat,
-      url("../assets/header-normal-middle.webp") top center repeat-x;
-  }
-
   &.magic {
     .title-bar {
       color: var(--magic-color);
     }
-
-    background:
-      url("../assets/header-magic-left.webp") top left no-repeat,
-      url("../assets/header-magic-right.webp") top right no-repeat,
-      url("../assets/header-magic-middle.webp") top center repeat-x;
 
     .separator {
       background: var(--van-border-color) center no-repeat;
@@ -362,14 +350,8 @@ body.light .equipment {
   }
 
   .equipment .title-bar {
-    line-height: 34px;
+    line-height: 24px;
     text-align: center;
-  }
-
-  .equipment.normal {
-  }
-
-  .equipment.magic {
   }
 
   .equipment.magic .title-bar {

@@ -37,8 +37,14 @@ const router = createRouter({
     {
       path: "/equipment",
       name: "equipment",
-      meta: { index: 2 },
+      meta: { index: 2, keepAlive: true },
       component: () => import("../views/EquipmentView.vue"),
+    },
+    {
+      path: "/equipmentModify",
+      name: "equipmentModify",
+      meta: { index: 3 },
+      component: () => import("../views/EquipmentModifyView.vue"),
     },
     {
       path: "/createAccount",

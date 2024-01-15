@@ -21,8 +21,8 @@
             <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
           </van-dropdown-menu>
           <van-cell-group :border="true" style="padding-bottom: 0.48rem">
-            <van-field v-model="filterName" placeholder="搜索装备名称" />
-            <van-field v-model="filterWord" placeholder="搜索词缀" />
+            <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
+            <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
             <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
           </van-cell-group>
         </van-config-provider>
@@ -107,7 +107,7 @@
 </template>
 <script setup>
 import { rarityClass } from "@/lib/data";
-import { useAccountStore, useTokenStore, useLoadingStore } from "@/stores";
+import { useAccountStore, useTokenStore, useLoadingStore, useStore } from "@/stores";
 import { sell, buy, getMarket, getBackpack } from "@/api";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -226,11 +226,19 @@ const onLoad2 = () => {
 const showDetail = (item) => {
   showDialog({
     // title: "装备详情",
+    showCancelButton: true,
+    confirmButtonText: "改造",
+    confirmButtonColor: "var(--error-color)",
     message: () => {
       return h(EquipmentDetailDialog, {
         equipment: item,
       });
     },
+  }).then(() => {
+    useStore().equipmentModify = item;
+    router.push({
+      name: "equipmentModify",
+    });
   });
 };
 const startEquipmentTransfer = (characterId, token) => {
