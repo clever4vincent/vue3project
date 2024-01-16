@@ -224,6 +224,8 @@ const onLoad2 = () => {
     });
 };
 const showDetail = (item) => {
+  useStore().equipmentModify = ref(item);
+  const itemRef = ref(item);
   showDialog({
     // title: "装备详情",
     showCancelButton: true,
@@ -231,11 +233,10 @@ const showDetail = (item) => {
     confirmButtonColor: "var(--error-color)",
     message: () => {
       return h(EquipmentDetailDialog, {
-        equipment: item,
+        equipment: itemRef.value,
       });
     },
   }).then(() => {
-    useStore().equipmentModify = item;
     router.push({
       name: "equipmentModify",
     });
@@ -342,7 +343,7 @@ onMounted(async () => {
     orginList = res;
     list.value = orginList;
   });
-
+  // console.log(orginList);
   dynamicHeight.value = container.value.clientHeight - search.value.clientHeight; // 获取 container 的高度
 
   nextTick(() => {
@@ -353,6 +354,10 @@ onMounted(async () => {
 });
 onActivated(async () => {
   console.log("onActivated");
+  await getEquipmentLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then((res) => {
+    orginList = res;
+    onSearch();
+  });
 });
 onDeactivated(async () => {});
 </script>
@@ -376,7 +381,7 @@ onDeactivated(async () => {});
 // :deep(.van-cell__value) {
 //   flex: 0.5;
 // }
-:deep(.magics) {
+:deep(.magic) {
   color: var(--magic-color) !important;
 }
 :deep(.rare) {

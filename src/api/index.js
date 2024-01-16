@@ -93,7 +93,7 @@ export const equip = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } }, { ...opt });
 };
 export const modify = (equipmentId, type, opt) => {
-  return defHttp.post({ url: Api.modify, params: { equipmentId, type } }, { ...opt });
+  return defHttp.post({ url: Api.modify, params: { equipmentId, type } }, { ...opt, loading: false });
 };
 export const takeOff = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } }, { ...opt });

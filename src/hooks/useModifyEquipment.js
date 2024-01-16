@@ -1,26 +1,37 @@
 import { modify } from "@/api";
+import { sleep } from "@/utils";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
 import { useStoreWithOut } from "@/stores";
 import { parseItemMagics } from "@/hooks";
+import { updateEquipmentItemLocal } from "@/hooks";
 const audio = new Audio("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3");
 // 当前的角色上架物品，然后将Token切换成选择的角色，再购买物品，购买物品后，再切回Token.
 export async function doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken) {
-  let { result, keepCount } = await startRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken);
+  let { result, keepCount, equipmentResult } = await startRenovation(
+    equipment,
+    { customAttrs, type, termCount, isOpenMakeup, retryCount },
+    thirdToken
+  );
+  useStoreWithOut().isModifyRunning = false;
   if (keepCount <= 0) {
-    if (retryCount >= 2000) {
-      audio.play();
-      console.log("次数用完了");
-      audio.pause();
-      audio.currentTime = 0;
-    }
+    audio.play();
+    console.log("次数用完了");
+    await sleep(100);
+    audio.pause();
+    audio.currentTime = 0;
   } else {
-    if (retryCount >= 2000 && result) {
+    if (result) {
       audio.play();
       console.log("达标了");
+      await sleep(100);
       audio.pause();
       audio.currentTime = 0;
+    } else {
+      console.log("中止了！");
     }
   }
+  //更新装备列表中的装备
+  await updateEquipmentItemLocal(thirdToken, equipmentResult);
 }
 export async function startRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount = Number.MAX_SAFE_INTEGER }, thirdToken) {
   let currentEquipment = equipment;
@@ -28,21 +39,25 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
   if (currentEquipment.rarity === 1) {
     // 如果是白色装备，使用蜕变石改成蓝色装备
     await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
-      currentEquipment = res.equipment;
-      useStoreWithOut.equipmentModify = res.equipment;
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      useStoreWithOut().equipmentModify = equipment;
     });
   }
   if (currentEquipment.rarity === 3) {
     // 如果黄色装备，先使用重铸石，再使用蜕变石改成蓝色装备
     await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
-      currentEquipment = res.equipment;
-      useStoreWithOut.equipmentModify = res.equipment;
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      useStoreWithOut().equipmentModify = equipment;
     });
     await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
-      currentEquipment = res.equipment;
-      useStoreWithOut.equipmentModify = res.equipment;
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      useStoreWithOut().equipmentModify = equipment;
     });
   }
+
   // 进入循环改造
   let result = false;
   while (!result && useStoreWithOut().isModifyRunning && retryCount-- > 0) {
@@ -50,14 +65,17 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
     // 如果不满足条件，就继续改造
     if (!result) {
       await modify(currentEquipment.id, type, thirdToken).then((res) => {
-        currentEquipment = res.equipment;
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        useStoreWithOut().equipmentModify = equipment;
       });
     }
     // 如果改造后的词缀条数只有1条，就是用增幅石改造
-    if (Object.keys(currentEquipment.magics).length === 1) {
+    if (Object.keys(currentEquipment.affixes).length === 1) {
       await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAugmentation.value, thirdToken).then((res) => {
-        currentEquipment = res.equipment;
-        useStoreWithOut.equipmentModify = res.equipment;
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        useStoreWithOut().equipmentModify = equipment;
       });
       result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
     }
@@ -67,21 +85,37 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
     if (result) {
       // 使用富豪石
       await modify(currentEquipment.id, CurrencyBeanEnum.regalOrb.value, thirdToken).then((res) => {
-        currentEquipment = res.equipment;
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        useStoreWithOut().equipmentModify = equipment;
       });
       // 如果使用富豪石之后，词条数量不满足要求，就重新进入改造流程
       let result = isMatchCustomAttr(currentEquipment, customAttrs, termCount + 1);
       if (!result) {
-        result = await startRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken);
+        let { result1, equipmentResult } = await startRenovation(
+          currentEquipment,
+          { customAttrs, type, termCount, isOpenMakeup, retryCount },
+          thirdToken
+        );
+        currentEquipment = equipmentResult;
+        result = result1;
       }
     } else {
       // 重新使用改造石
-      result = await startRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken);
+      let { result1, equipmentResult } = await startRenovation(
+        currentEquipment,
+        { customAttrs, type, termCount, isOpenMakeup, retryCount },
+        thirdToken
+      );
+      currentEquipment = equipmentResult;
+      result = result1;
     }
   }
-  return { result, keepCount };
+  // 最后再匹配一次结果
+  result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+  return { result, keepCount: retryCount, equipmentResult: currentEquipment };
 }
-function isMatchCustomAttr(equipment, customAttrs, termCount) {
+export function isMatchCustomAttr(equipment, customAttrs, termCount) {
   // 匹配成功的个数
   let count = 0;
   let mustCount = 0;
@@ -91,7 +125,7 @@ function isMatchCustomAttr(equipment, customAttrs, termCount) {
       // customAttrs是一个数组
       // 遍历数组，判断是否包含自定义属性中的词条
       let result = customAttrs.some((customAttr) => {
-        if (div.includes(customAttr.name)) {
+        if (div.replace(/\d+/g, "#").indexOf(customAttr.name) > -1) {
           // 如果有这个，就判断数字是否满足自定义属性中的值
           let match = div.match(/\d+-\d+|\d+/g);
           let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];

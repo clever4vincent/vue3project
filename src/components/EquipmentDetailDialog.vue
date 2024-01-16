@@ -67,7 +67,7 @@
 // import g from '../lib/g'
 import { magics, rarityClass } from "@/lib/data";
 import { equipmentFilterTypes } from "@/hooks";
-
+import { useStore } from "@/stores";
 export default {
   props: ["equipment"],
   // props: {
@@ -95,7 +95,27 @@ export default {
     },
   },
   setup(props) {
-    let lineCount = 0;
+    const lineCount = ref(0);
+    // const store = useStore();
+    // const forceUpdate = ref(0);
+    // const equipment = reactive(store.equipmentModify);
+    // console.log("equipmentModify", equipment);
+    // onMounted(() => {
+    //   console.log("equipmentModify", equipment);
+    // });
+    // watch(
+    //   () => store.equipmentModify,
+    //   (newVal, oldVal) => {
+    //     console.log("equipmentModify changed", newVal, oldVal);
+    //     // equipment.value = newVal;
+    //     // forceUpdate.value++;
+    //     //更新dom
+    //     // this.$nextTick(() => {
+    //     //     this.$refs.equipmentDetailDialog.resetLineCount();
+    //     // });
+    //   },
+    //   { deep: true }
+    // );
     // let magics = magics;
     return { lineCount, magics, rarityClass, equipmentFilterTypes };
   },

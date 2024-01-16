@@ -20,6 +20,19 @@ export const useThemeStore = defineStore(
     persist: true,
   }
 );
+export const useConditionStore = defineStore(
+  "condition",
+  () => {
+    const conditionGroups = ref({});
+    const currentGroup = ref({});
+    const currentRetry = ref();
+    const currentTermCount = ref();
+    return { conditionGroups, currentGroup, currentRetry, currentTermCount };
+  },
+  {
+    persist: true,
+  }
+);
 export const useStore = defineStore("app", () => {
   const transitionName = ref("");
   const isFooterHideen = ref(false);
@@ -33,7 +46,7 @@ export const useStore = defineStore("app", () => {
     isFooterHideen.value = value;
   }
 
-  return { transitionName, setTransitionName, isFooterHideen, setIsFooterHideen, history };
+  return { transitionName, setTransitionName, isFooterHideen, setIsFooterHideen, history, equipmentModify, isModifyRunning };
 });
 export const useLoadingStore = defineStore("loading", () => {
   const loading = ref(0);
@@ -64,4 +77,7 @@ export function useStoreWithOut() {
 }
 export function useRouterStoreWithOut() {
   return useRouterStore(store);
+}
+export function useConditionStoreWithOut() {
+  return useConditionStore(store);
 }
