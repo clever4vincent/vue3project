@@ -59,7 +59,8 @@ const loadV3Script = () => {
       resolve();
     } else {
       const script = document.createElement("script");
-      script.src = "https://v-cn.vaptcha.com/v3.js";
+      // script.src = "https://v-cn.vaptcha.com/v3.js";
+      script.src = "https://turing.captcha.qcloud.com/TCaptcha.js";
       // script.src = "https://v.vaptcha.com/v3.js";
       script.async = true;
       script.onload = script.onreadystatechange = function () {
@@ -74,34 +75,68 @@ const loadV3Script = () => {
 };
 onMounted(() => {
   initUseInterval();
-  const config = {
-    vid: "659c2e85d3784602950e6ec9",
-    mode: "invisible",
-    scene: 1,
-    // container: "#btnLogin",
-    style: "light",
-    color: "#00BFFF",
-    lang: "auto",
-    area: "auto",
-  };
+  // const config = {
+  //   vid: "659c2e85d3784602950e6ec9",
+  //   mode: "invisible",
+  //   scene: 1,
+  //   // container: "#btnLogin",
+  //   style: "light",
+  //   color: "#00BFFF",
+  //   lang: "auto",
+  //   area: "auto",
+  // };
   loadV3Script().then(() => {
     // console.log("vaptcha", window.vaptcha);
-    window.vaptcha(config).then((vaptchaObj) => {
-      window.vaptchaObj = vaptchaObj;
-      vaptchaObj.render();
-      vaptchaObj.listen("pass", () => {
-        console.log("验证成功");
-        EventBus.emit("vaptchaPass", true);
-        vaptchaObj.reset();
-      });
-      vaptchaObj.listen("close", () => {
-        EventBus.emit("vaptchaPass", false);
-        vaptchaObj.reset();
-      });
-    });
+    // window.vaptcha(config).then((vaptchaObj) => {
+    //   window.vaptchaObj = vaptchaObj;
+    //   vaptchaObj.render();
+    //   vaptchaObj.listen("pass", () => {
+    //     console.log("验证成功");
+    //     EventBus.emit("vaptchaPass", true);
+    //     vaptchaObj.reset();
+    //   });
+    //   vaptchaObj.listen("close", () => {
+    //     EventBus.emit("vaptchaPass", false);
+    //     vaptchaObj.reset();
+    //   });
+    // });
+  });
+
+  EventBus.on("validate", () => {
+    try {
+      // 生成一个验证码对象
+      // CaptchaAppId：登录验证码控制台，从【验证管理】页面进行查看。如果未创建过验证，请先新建验证。注意：不可使用客户端类型为小程序的CaptchaAppId，会导致数据统计错误。
+      //callback：定义的回调函数
+      const captcha = new TencentCaptcha(
+        "196751366",
+        (res) => {
+          // res（用户主动关闭验证码）= {ret: 2, ticket: null}
+          // res（验证成功） = {ret: 0, ticket: "String", randstr: "String"}
+          // res（请求验证码发生错误，验证码自动返回terror_前缀的容灾票据） = {ret: 0, ticket: "String", randstr: "String",  errorCode: Number, errorMessage: "String"}
+          // 此处代码仅为验证结果的展示示例，真实业务接入，建议基于ticket和errorCode情况做不同的业务处理
+          if (res.ret === 0) {
+            // 复制结果至剪切板
+            EventBus.emit("vaptchaPass", res);
+            // login({ ticket: res.ticket, randStr: res.randstr });
+          }
+        },
+        {
+          loading: false,
+          enableDarkMode: "force",
+        }
+      );
+      // 调用方法，显示验证码
+      captcha.show();
+    } catch (error) {
+      // 加载异常，调用验证码js加载错误处理函数
+      // message.error("验证码加载异常, 请刷新重试");
+      console.log(error);
+      // pending.value = false;
+    }
   });
 });
 onUnmounted(() => {
+  EventBus.off("validate");
   destroyUseInterval();
   // window.vaptchaObj && window.vaptchaObj.destroy();
 });

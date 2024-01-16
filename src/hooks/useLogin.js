@@ -3,17 +3,15 @@ import { useTokenStoreWithOut, useAccountStore, useStore } from "@/stores";
 import { EventBus } from "@/lib/EventBus";
 export async function loginProgress(user) {
   return new Promise((resolve, reject) => {
-    if (!window.vaptchaObj) {
-      reject("验证模块未加载!");
-      return;
-    }
-    window.vaptchaObj.validate();
+    // window.vaptchaObj.validate();
+    EventBus.emit("validate");
     // 监听验证码验证成功事件
     EventBus.on("vaptchaPass", async (reuslt) => {
       if (reuslt) {
-        const serverToken = window.vaptchaObj.getServerToken();
+        // const serverToken = window.vaptchaObj.getServerToken();
+        // login({ticket: res.ticket, randStr: res.randstr})
         try {
-          await login({ ...user, ...serverToken }).then(async (res) => {
+          await login({ ...user, ...reuslt }).then(async (res) => {
             if (res.token) {
               useTokenStoreWithOut().setToken(res.token);
               // await useTokenStore()

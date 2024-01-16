@@ -23,6 +23,7 @@ export const CurrencyEnum = {
   whetstone: 16,
   armourersScrap: 17,
   orbOfAnnulment: 18,
+  fracturingOrb: 19,
 };
 
 export const CurrencyBeanEnum = {
@@ -108,5 +109,10 @@ export const CurrencyBeanEnum = {
     need: true,
     value: 18,
     name: "剥离石",
+  },
+  fracturingOrb: {
+    need: true,
+    value: 19,
+    name: "破溃宝珠",
   },
 };

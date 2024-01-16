@@ -120,7 +120,7 @@ const startModify = () => {
         customAttrs: conditions,
         termCount: termCount.value,
         retryCount: retryCount.value || Number.MAX_SAFE_INTEGER,
-        isOpenMakeup: true,
+        isOpenMakeup: false,
         type: CurrencyBeanEnum.orbOfAlteration.value,
       },
       { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }
