@@ -120,6 +120,7 @@
       <van-button style="margin: 10px" size="small" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
@@ -144,7 +145,7 @@ import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
 import { nextTick } from "vue";
-
+import { threadPool } from "@/utils/ThreadPool";
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
 const scroller = ref();
@@ -219,6 +220,10 @@ const toEquipment = () => {
   router.push({
     name: "equipment",
   });
+};
+const doThread = () => {
+  //
+  threadPool.run(123);
 };
 const beforeClose = (action) =>
   new Promise((resolve) => {

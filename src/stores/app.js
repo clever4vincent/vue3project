@@ -26,8 +26,12 @@ export const useConditionStore = defineStore(
     const conditionGroups = ref({});
     const currentGroup = ref({});
     const currentRetry = ref();
+    const currentOpenMakeup = ref(false);
+    const currentOpenEEE = ref(false);
+
     const currentTermCount = ref();
-    return { conditionGroups, currentGroup, currentRetry, currentTermCount };
+
+    return { conditionGroups, currentGroup, currentRetry, currentTermCount, currentOpenMakeup, currentOpenEEE };
   },
   {
     persist: true,

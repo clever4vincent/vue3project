@@ -7,8 +7,16 @@
       </div>
 
       <!-- <van-cell-group> -->
-      <van-field v-model="termCount" type="number" label="达标条数" placeholder="请输入达标条数" :border="false" autocomplete="off" />
-      <van-field v-model="retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off" />
+      <van-field v-model="termCount" type="number" label="达标条数" placeholder="请输入达标条数" :border="false" autocomplete="off">
+        <template #right-icon>
+          <van-checkbox v-model="openEEE" icon-size="16px" checked-color="#e63946">崇高</van-checkbox>
+        </template>
+      </van-field>
+      <van-field v-model="retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off">
+        <template #right-icon>
+          <van-checkbox v-model="openMakeup" icon-size="16px" checked-color="#e63946">富豪</van-checkbox>
+        </template>
+      </van-field>
       <!-- </van-cell-group> -->
       <div class="addCondition">
         <van-button style="margin: 10px" size="small" plain type="primary" @click="addCondition()">添加条件</van-button>
@@ -73,6 +81,8 @@ const accountStore = useAccountStore();
 const onClickLeft = () => router.go(-1);
 const filterMagics = ref("");
 const termCount = ref("");
+const openMakeup = ref(false);
+const openEEE = ref(false);
 const retryCount = ref("");
 const conditionGroupName = ref("");
 const filterFields = ref([]);
@@ -110,6 +120,8 @@ const startModify = () => {
   useConditionStore().currentGroup = getCurrentCondition();
   useConditionStore().currentRetry = retryCount.value;
   useConditionStore().currentTermCount = termCount.value;
+  useConditionStore().currentOpenMakeup = openMakeup.value;
+  useConditionStore().currentOpenEEE = openEEE.value;
 
   let conditions = getCurrentCondition();
 
@@ -120,7 +132,8 @@ const startModify = () => {
         customAttrs: conditions,
         termCount: termCount.value,
         retryCount: retryCount.value || Number.MAX_SAFE_INTEGER,
-        isOpenMakeup: false,
+        isOpenMakeup: openMakeup.value,
+        isOpenEEE: openEEE.value,
         type: CurrencyBeanEnum.orbOfAlteration.value,
       },
       { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }
@@ -214,6 +227,8 @@ onMounted(async () => {
     items.value = cloneDeep(useConditionStore().currentGroup);
     termCount.value = useConditionStore().currentTermCount;
     retryCount.value = useConditionStore().currentRetry;
+    openMakeup.value = useConditionStore().currentOpenMakeup;
+    openEEE.value = useConditionStore().currentOpenEEE;
   }
   watch(
     () => useStore().equipmentModify,

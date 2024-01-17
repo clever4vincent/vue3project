@@ -5,6 +5,7 @@ import "vant/es/toast/style";
 import "vant/es/field/style";
 import "vant/es/dialog/style";
 import "vant/es/search/style";
+import "vant/es/dropdown-menu/style";
 import "vant/es/back-top/style";
 import "vant/es/notify/style";
 import "vant/es/action-sheet/style";

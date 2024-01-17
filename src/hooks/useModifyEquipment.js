@@ -6,10 +6,10 @@ import { parseItemMagics } from "@/hooks";
 import { updateEquipmentItemLocal } from "@/hooks";
 const audio = new Audio("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3");
 // 当前的角色上架物品，然后将Token切换成选择的角色，再购买物品，购买物品后，再切回Token.
-export async function doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken) {
+export async function doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount }, thirdToken) {
   let { result, keepCount, equipmentResult } = await startRenovation(
     equipment,
-    { customAttrs, type, termCount, isOpenMakeup, retryCount },
+    { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
     thirdToken
   );
   useStoreWithOut().isModifyRunning = false;
@@ -33,7 +33,11 @@ export async function doRenovation(equipment, { customAttrs, type, termCount, is
   //更新装备列表中的装备
   await updateEquipmentItemLocal(thirdToken, equipmentResult);
 }
-export async function startRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount = Number.MAX_SAFE_INTEGER }, thirdToken) {
+export async function startRenovation(
+  equipment,
+  { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount = Number.MAX_SAFE_INTEGER },
+  thirdToken
+) {
   let currentEquipment = equipment;
   // 进入循环改造前的处理，将没有词条的装备使用蜕变石改成有词条的装备
   if (currentEquipment.rarity === 1) {
@@ -61,7 +65,7 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
   // 进入循环改造
   let result = false;
   while (!result && useStoreWithOut().isModifyRunning && retryCount-- > 0) {
-    result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+    result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE || isOpenMakeup ? 2 : termCount);
     // 如果不满足条件，就继续改造
     if (!result) {
       await modify(currentEquipment.id, type, thirdToken).then((res) => {
@@ -77,10 +81,11 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
         currentEquipment = equipment;
         useStoreWithOut().equipmentModify = equipment;
       });
-      result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+      result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE || isOpenMakeup ? 2 : termCount);
     }
   }
-  if (type === CurrencyBeanEnum.orbOfAlteration.value && useStoreWithOut().isModifyRunning && retryCount > 0 && isOpenMakeup) {
+  console.log("普通改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
+  if (type === CurrencyBeanEnum.orbOfAlteration.value && useStoreWithOut().isModifyRunning && retryCount > 0 && (isOpenMakeup || isOpenEEE)) {
     // 比较增幅之后的词条数量是否满足要求
     if (result) {
       // 使用富豪石
@@ -89,22 +94,45 @@ export async function startRenovation(equipment, { customAttrs, type, termCount,
         currentEquipment = equipment;
         useStoreWithOut().equipmentModify = equipment;
       });
+      console.log("富豪石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
       // 如果使用富豪石之后，词条数量不满足要求，就重新进入改造流程
-      let result = isMatchCustomAttr(currentEquipment, customAttrs, termCount + 1);
+      let result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE ? 3 : termCount);
       if (!result) {
         let { result1, equipmentResult } = await startRenovation(
           currentEquipment,
-          { customAttrs, type, termCount, isOpenMakeup, retryCount },
+          { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
           thirdToken
         );
         currentEquipment = equipmentResult;
         result = result1;
+      } else {
+        if (isOpenEEE) {
+          // 如果满足要求，连续使用3次崇高石
+          for (let i = 0; i < 3; i++) {
+            await modify(currentEquipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
+              let equipment = parseItemMagics(res.equipment);
+              currentEquipment = equipment;
+              useStoreWithOut().equipmentModify = equipment;
+            });
+          }
+          console.log("崇高石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
+          result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+          if (!result) {
+            let { result1, equipmentResult } = await startRenovation(
+              currentEquipment,
+              { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
+              thirdToken
+            );
+            currentEquipment = equipmentResult;
+            result = result1;
+          }
+        }
       }
     } else {
       // 重新使用改造石
       let { result1, equipmentResult } = await startRenovation(
         currentEquipment,
-        { customAttrs, type, termCount, isOpenMakeup, retryCount },
+        { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
         thirdToken
       );
       currentEquipment = equipmentResult;
@@ -132,7 +160,7 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
           if (numbers.length > 1) {
             // 这是 10 - 100 的数据类型
             if (numbers[1] >= customAttr.value) {
-              console.log(`满足条件的词条--${customAttr.name} : ${numbers[1]}`);
+              // console.log(`满足条件的词条--${customAttr.name} : ${numbers[1]}`);
               if (customAttr.isMust) {
                 mustCount++;
               } else {
@@ -143,7 +171,7 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
             return false;
           } else {
             if (numbers[0] >= customAttr.value) {
-              console.log(`满足条件的词条--${customAttr.name} : ${numbers[0]}`);
+              // console.log(`满足条件的词条--${customAttr.name} : ${numbers[0]}`);
               if (customAttr.isMust) {
                 mustCount++;
               } else {

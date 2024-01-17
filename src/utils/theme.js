@@ -3,8 +3,8 @@
  * @returns {string} 'dark' | 'light'
  */
 export function getTheme() {
-  const theme = localStorage.getItem('theme')
-  return theme
+  const theme = localStorage.getItem("theme");
+  return theme;
 }
 
 /**
@@ -12,5 +12,5 @@ export function getTheme() {
  * @returns {string} 'dark' | 'light'
  */
 export function getPrefersColorScheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
