@@ -2,11 +2,16 @@ import { modify } from "@/api";
 import { sleep } from "@/utils";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
 import { useStoreWithOut } from "@/stores";
+import { nextTick, toRaw } from "vue";
 import { parseItemMagics } from "@/hooks";
 import { updateEquipmentItemLocal } from "@/hooks";
 const audio = new Audio("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3");
 // 当前的角色上架物品，然后将Token切换成选择的角色，再购买物品，购买物品后，再切回Token.
 export async function doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount }, thirdToken) {
+  // 将装备的状态改成改造中
+  equipment.isModifying = true;
+  console.log("开始改造", toRaw(equipment));
+  await updateEquipmentItemLocal(thirdToken, toRaw(equipment));
   let { result, keepCount, equipmentResult } = await startRenovation(
     equipment,
     { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
@@ -31,6 +36,7 @@ export async function doRenovation(equipment, { customAttrs, type, termCount, is
     }
   }
   //更新装备列表中的装备
+  equipmentResult.isModifying = false;
   await updateEquipmentItemLocal(thirdToken, equipmentResult);
 }
 export async function startRenovation(

@@ -237,19 +237,19 @@ export const useAccountStore = defineStore({
         this.currentCharacter.token = currentCharacter.token;
       }
       // 如果更新的账号是集中地的角色，需要更新集中地的角色的token
-      if (currentAccount.username === this.endlessGarmentCharacter.username) {
+      if (currentCharacter.name === this.endlessGarmentCharacter.name) {
         this.endlessGarmentCharacter.token = currentCharacter.token;
       }
-      if (currentAccount.username === this.gloveCharacter.username) {
+      if (currentCharacter.name === this.gloveCharacter.name) {
         this.gloveCharacter.token = currentCharacter.token;
       }
-      if (currentAccount.username === this.shoeCharacter.username) {
+      if (currentCharacter.name === this.shoeCharacter.name) {
         this.shoeCharacter.token = currentCharacter.token;
       }
-      if (currentAccount.username === this.ringCharacter.username) {
+      if (currentCharacter.name === this.ringCharacter.name) {
         this.ringCharacter.token = currentCharacter.token;
       }
-      if (currentAccount.username === this.weaponCharacter.username) {
+      if (currentCharacter.name === this.weaponCharacter.name) {
         this.weaponCharacter.token = currentCharacter.token;
       }
       // useTokenStore().setToken(currentCharacter.token);

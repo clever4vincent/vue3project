@@ -106,7 +106,7 @@ export const updateEquipmentItemLocal = async (thirdToken, equipment) => {
   if (result) {
     // 将传过来的equipment替换本地数据
     result.forEach((item, index) => {
-      if (item.id == equipment.id && item.name != equipment.name) {
+      if (item.id == equipment.id && (item.name != equipment.name || item.isModifying != equipment.isModifying)) {
         result.splice(index, 1, parseItemMagics(equipment));
         isUpdate = true;
       }

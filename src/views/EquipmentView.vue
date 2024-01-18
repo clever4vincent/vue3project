@@ -18,6 +18,7 @@
         <van-config-provider :theme-vars="themeVars">
           <van-dropdown-menu active-color="#ee0a24">
             <van-dropdown-item v-model="equipmentFilterType" :options="option1" @change="onTypeChange" />
+            <van-dropdown-item v-model="modifyType" :options="option2" @change="onTypeChange" />
             <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
           </van-dropdown-menu>
           <van-cell-group :border="true" style="padding-bottom: 0.48rem">
@@ -145,6 +146,7 @@ let page = 1;
 let page2 = 1;
 
 const equipmentFilterType = ref("所有类型");
+const modifyType = ref("正常");
 const value2 = ref("a");
 const themeVars = reactive({
   dropdownMenuContentMaxHeight: "40%",
@@ -176,13 +178,20 @@ const option1 = [
   { text: "腰带", value: "腰带" },
   { text: "项链", value: "项链" },
   { text: "戒指", value: "戒指" },
+  { text: "改造中", value: "改造中" },
 ];
-const option2 = [{ text: "默认排序", value: "a" }];
+
+const option2 = [
+  { text: "正常", value: "正常" },
+  { text: "改造中", value: "改造中" },
+];
+
 const onClickLeft = () => router.go(-1);
 const accountStore = useAccountStore();
 
 const onTypeChange = (value) => {
   // console.log(value);
+  onSearch();
 };
 const onCancel = () => {
   show.value = false;
@@ -299,12 +308,17 @@ const onSearch = (value) => {
       value: result[1] || 0,
     };
   });
-  if (equipmentFilterType.value !== "所有类型") {
+  if (equipmentFilterType.value == "所有类型") {
+    resultList = orginList;
+  } else {
     resultList = orginList.filter((item) => {
       return item.typeText == equipmentFilterType.value;
     });
-  } else {
-    resultList = orginList;
+  }
+  if (modifyType.value == "改造中") {
+    resultList = resultList.filter((item) => {
+      return item.isModifying;
+    });
   }
   // console.log(resultList);
   resultList = resultList.filter((item) => {
@@ -319,6 +333,10 @@ const onSearch = (value) => {
       } else {
         isMatch = false;
         return;
+      }
+
+      if (magicsTexts[0] == "" && !condition.key) {
+        return true;
       }
       let magicsText = magicsTexts.find((item) => item.indexOf(condition.key) > -1);
       if (!magicsText) {

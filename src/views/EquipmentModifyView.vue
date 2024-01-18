@@ -178,7 +178,12 @@ const deleteGroup = (name) => {
     });
 };
 const selectConditionGroup = (values) => {
-  items.value = cloneDeep(values);
+  let result = cloneDeep(values).map((item, index) => {
+    item.time = new Date().getTime() + "" + index;
+    return item;
+  });
+  items.value = result;
+
   showConditionGroup.value = false;
 };
 const saveGroupConfirm = (action) => {
