@@ -120,7 +120,8 @@
       <van-button style="margin: 10px" size="small" plain type="primary" @click="ShowTransferCurrenciesTo">当前角色通货转移</van-button>
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
-      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipmentModify">改造列表</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button>
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
@@ -221,10 +222,21 @@ const toEquipment = () => {
     name: "equipment",
   });
 };
+const toEquipmentModify = () => {
+  if (!tokenStore.getToken) {
+    showDialog({ message: "请先选择角色" });
+    return;
+  }
+  router.push({
+    name: "equipmentModify",
+  });
+};
 const doThread = () => {
   //
-  threadPool.run(123);
+  // threadPool.run(123);
+  console.log(CurrencyBeanEnum);
 };
+
 const beforeClose = (action) =>
   new Promise((resolve) => {
     if (action === "confirm") {
@@ -301,7 +313,7 @@ const packetPrice = (currentCurrency) => {
   let packetPriceObj = {};
   for (let key in currentCurrency) {
     if (currentCurrency[key] > 0 && CurrencyBeanEnum[key] && CurrencyBeanEnum[key].need) {
-      packetPriceObj[CurrencyBeanEnum[key].value] = currentCurrency[key];
+      packetPriceObj[CurrencyBeanEnum[key].value] = Math.floor(currentCurrency[key]);
     }
   }
   return packetPriceObj;

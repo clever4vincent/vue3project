@@ -1,41 +1,73 @@
 <template>
   <div class="page" ref="modifyPage">
-    <van-nav-bar title="装备改造" left-text="返回" left-arrow @click-left="onClickLeft" fixed />
+    <van-nav-bar title="装备改造" left-text="返回" left-arrow @click-left="onClickLeft" fixed>
+      <template #right>
+        <van-icon name="list-switch" @click="toList" />
+      </template>
+    </van-nav-bar>
+
     <div class="container">
-      <div style="height: 8rem; overflow-y: auto">
-        <EquipmentDetailDialog :equipment="state.equipment" />
-      </div>
-
-      <!-- <van-cell-group> -->
-      <van-field v-model="termCount" type="number" label="达标条数" placeholder="请输入达标条数" :border="false" autocomplete="off">
-        <template #right-icon>
-          <van-checkbox v-model="openEEE" icon-size="16px" checked-color="#e63946">崇高</van-checkbox>
-        </template>
-      </van-field>
-      <van-field v-model="retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off">
-        <template #right-icon>
-          <van-checkbox v-model="openMakeup" icon-size="16px" checked-color="#e63946">富豪</van-checkbox>
-        </template>
-      </van-field>
-      <!-- </van-cell-group> -->
-      <div class="addCondition">
-        <van-button style="margin: 10px" size="small" plain type="primary" @click="addCondition()">添加条件</van-button>
-        <van-button style="margin: 10px" size="small" plain type="primary" @click="selectConditions()">选择条件组</van-button>
-        <van-button style="margin: 10px" size="small" plain type="primary" @click="saveConditions()">保存当前条件</van-button>
-        <van-button style="margin: 10px" size="small" plain type="primary" @click="startModify">{{
-          !useStore().isModifyRunning ? "开始改造" : "停止改造"
-        }}</van-button>
-      </div>
-
-      <FilterMagicsField
-        v-for="(item, index) in items"
-        :key="item.time"
-        :item="item"
-        ref="filterFields"
-        :modifyPage="modifyPage"
-        @delete="deleteItem"
-        :index="index"
-      />
+      <van-collapse v-model="activeName" accordion>
+        <van-collapse-item
+          :title="item.equipment.name"
+          :name="itemIndex"
+          v-for="(item, itemIndex) in state.equipmentModifys"
+          :key="item.id"
+          :title-class="rarityClass[item.equipment.rarity]"
+        >
+          <div style="height: 8rem; overflow-y: auto">
+            <EquipmentDetailDialog :equipment="item.equipment" />
+          </div>
+          <van-dropdown-menu>
+            <van-dropdown-item v-model="item.makeType" :options="option1" />
+          </van-dropdown-menu>
+          <van-field v-model="item.termCount" type="number" label="达标条数" placeholder="请输入达标条数" :border="false" autocomplete="off">
+            <template #right-icon>
+              <van-checkbox
+                v-if="item.makeType == CurrencyBeanEnum.chaosOrb.value || item.makeType == CurrencyBeanEnum.orbOfAlteration.value"
+                v-model="item.openEEE"
+                icon-size="16px"
+                checked-color="#e63946"
+                >崇高</van-checkbox
+              >
+            </template>
+          </van-field>
+          <van-field v-model="item.retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off">
+            <template #right-icon>
+              <van-checkbox
+                v-if="item.makeType == CurrencyBeanEnum.chaosOrb.value || item.makeType == CurrencyBeanEnum.orbOfAlteration.value"
+                v-model="item.openMakeup"
+                icon-size="16px"
+                checked-color="#e63946"
+                >富豪</van-checkbox
+              >
+            </template>
+          </van-field>
+          <div class="addCondition">
+            <van-button style="margin: 10px" size="small" plain type="primary" @click="addCondition(item)">添加条件</van-button>
+            <van-button style="margin: 10px" size="small" plain type="primary" @click="selectConditions(itemIndex)">选择条件组</van-button>
+            <van-button style="margin: 10px" size="small" plain type="primary" @click="saveConditions(itemIndex)">保存当前条件</van-button>
+            <van-button style="margin: 10px" size="small" plain type="primary" @click="startModify(itemIndex)">{{
+              !item.isModifyRunning ? "开始改造" : "停止改造"
+            }}</van-button>
+            <van-button style="margin: 10px" size="small" type="primary" @click="removeEquipment(itemIndex)">移除装备</van-button>
+            <FilterMagicsField
+              v-for="(condition, index) in item.conditions"
+              :key="condition.time"
+              :item="condition"
+              :ref="
+                (el) => {
+                  if (el) filterFields[itemIndex][index] = el;
+                }
+              "
+              :modifyPage="modifyPage"
+              @delete="deleteItem(item, index)"
+              :index="index"
+            />
+          </div> </van-collapse-item
+      ></van-collapse>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allStart">一键开始</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allPause">一键停止</van-button>
     </div>
     <van-dialog v-model:show="showSaveDialog" title="保存当前条件" confirm-button-text="保存" :before-close="saveGroupConfirm" show-cancel-button>
       <div class="p-2">
@@ -67,101 +99,173 @@
 <!-- --van-popover-action-width -->
 <script setup>
 import { useRouter } from "vue-router";
+import { rarityClass } from "@/lib/data";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import FilterMagicsField from "@/components/FilterMagicsField.vue";
 import { cloneDeep } from "lodash-es";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
 import { magics } from "@/lib/data";
-import { isMatchCustomAttr, doRenovation } from "@/hooks";
+import { isMatchCustomAttr, doRenovation, doLockRenovation } from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
+import { sleep } from "@/utils";
+
 const modifyPage = ref(null);
 const router = useRouter();
 const accountStore = useAccountStore();
 const onClickLeft = () => router.go(-1);
 const filterMagics = ref("");
-const termCount = ref("");
-const openMakeup = ref(false);
-const openEEE = ref(false);
-const retryCount = ref("");
+
+const activeName = ref("0");
+const type = ref("0");
+const makeType = ref("0");
+
 const conditionGroupName = ref("");
-const filterFields = ref([]);
+// const filterFields = ref([[]]);
+const option1 = [
+  { text: "改造石", value: CurrencyBeanEnum.orbOfAlteration.value },
+  { text: "混沌石", value: CurrencyBeanEnum.chaosOrb.value },
+  { text: "锁后缀", value: CurrencyBeanEnum.lockBack.value },
+  { text: "锁前缀", value: CurrencyBeanEnum.lockPre.value },
+];
+// const option2 = [
+//   { text: "普通", value: "a" },
+//   { text: "工艺台", value: "b" },
+// ];
 const conditionGroups = ref(useConditionStore().conditionGroups);
 const items = ref([]);
 const showConditionGroup = ref(false);
 const showSaveDialog = ref(false);
 const bodyWidth = ref("");
+const currentEquipmentIndex = ref(0);
 bodyWidth.value = document.body.clientWidth;
 
 const state = reactive({});
 state.equipment = useStore().equipmentModify;
-//
-// const actions = [
-//   { text: "选项一", className: "popupText" },
-//   { text: "选项二", className: "popupText" },
-//   { text: "选项三", className: "popupText" },
-// ];
-const startModify = () => {
+state.equipmentModifys = useConditionStore().equipmentModifys;
+const filterFields = reactive(useConditionStore().equipmentModifys.map(() => []));
+const startModify = (itemIndex) => {
   //
-  if (useStore().isModifyRunning === true) {
-    useStore().isModifyRunning = false;
+
+  if (useConditionStore().equipmentModifys[itemIndex].isModifyRunning === true) {
+    useConditionStore().equipmentModifys[itemIndex].isModifyRunning = false;
     return;
   }
-  if (!termCount.value && termCount.value <= 0) {
+
+  if (!useConditionStore().equipmentModifys[itemIndex].termCount && useConditionStore().equipmentModifys[itemIndex].termCount <= 0) {
     showFailToast("达标条数不能为空或小于0");
     return;
   }
-  if (getCurrentCondition().length === 0) {
+  if (getCurrentCondition(itemIndex).length === 0) {
     showFailToast("当前条件为空");
     return;
   }
-  useStore().isModifyRunning = true;
-  // 保存当前条件
-  useConditionStore().currentGroup = getCurrentCondition();
-  useConditionStore().currentRetry = retryCount.value;
-  useConditionStore().currentTermCount = termCount.value;
-  useConditionStore().currentOpenMakeup = openMakeup.value;
-  useConditionStore().currentOpenEEE = openEEE.value;
-
-  let conditions = getCurrentCondition();
-
-  if (useStore().isModifyRunning) {
-    doRenovation(
-      state.equipment,
-      {
-        customAttrs: conditions,
-        termCount: termCount.value,
-        retryCount: retryCount.value || Number.MAX_SAFE_INTEGER,
-        isOpenMakeup: openMakeup.value,
-        isOpenEEE: openEEE.value,
-        type: CurrencyBeanEnum.orbOfAlteration.value,
-      },
-      { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }
-    );
+  useConditionStore().equipmentModifys[itemIndex].isModifyRunning = true;
+  useConditionStore().equipmentModifys[itemIndex].makeType = state.equipmentModifys[itemIndex].makeType;
+  let conditions = getCurrentCondition(itemIndex);
+  useConditionStore().equipmentModifys[itemIndex].customAttrs = conditions;
+  // useConditionStore().equipmentModifys[itemIndex].conditions = conditions;
+  if (useConditionStore().equipmentModifys[itemIndex].isModifyRunning) {
+    if (
+      useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.lockPre.value ||
+      useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.lockBack.value
+    ) {
+      doLockRenovation(useConditionStore().equipmentModifys[itemIndex], {
+        thirdToken: accountStore.currentCharacter.token,
+        character: accountStore.currentCharacter,
+      });
+    } else if (
+      useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.orbOfAlteration.value ||
+      useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.chaosOrb.value
+    ) {
+      doRenovation(
+        useConditionStore().equipmentModifys[itemIndex],
+        {
+          customAttrs: conditions,
+          termCount: useConditionStore().equipmentModifys[itemIndex].termCount,
+          retryCount: useConditionStore().equipmentModifys[itemIndex].retryCount || Number.MAX_SAFE_INTEGER,
+          isOpenMakeup: useConditionStore().equipmentModifys[itemIndex].openMakeup,
+          isOpenEEE: useConditionStore().equipmentModifys[itemIndex].openEEE,
+          type: useConditionStore().equipmentModifys[itemIndex].makeType,
+        },
+        { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }
+      );
+    }
+    // doLockRenovation
   }
-  // doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, retryCount }, thirdToken)
-  // console.log(isMatchCustomAttr(equipment.value, conditions, termCount.value));
-  // isMatchCustomAttr
 };
-const getCurrentCondition = () => {
+
+const getCurrentCondition = (itemIndex) => {
   let conditions = [];
-  filterFields.value.forEach((field) => {
+  filterFields[itemIndex].forEach((field) => {
     let obj = field.getMagicText();
     if (obj.name) {
       conditions.push(field.getMagicText());
     }
   });
+  useConditionStore().equipmentModifys[itemIndex].conditions = conditions;
   return conditions;
 };
-const addCondition = () => {
-  items.value.push({ time: new Date().getTime(), name: "", value: "", value2: "" });
+const addCondition = (item) => {
+  // items.value.push({ time: new Date().getTime(), name: "", value: "", value2: "" });
+  if (!item.conditions) {
+    item.conditions = [];
+  }
+  item.conditions.push({ time: new Date().getTime(), name: "", value: "", value2: "" });
 };
-const saveConditions = () => {
-  if (getCurrentCondition().length === 0) {
+const toList = () => {
+  router.push({
+    name: "equipment",
+  });
+};
+const allStart = () => {
+  // startModify
+  // activeName.value = 1;
+  // 依次触发一次界面的更新，然后开始改造
+  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+    if (item.isModifyRunning === false) {
+      // 先触发一次界面的更新
+      activeName.value = index;
+      // await sleep(1000);
+      startModify(index);
+    }
+  });
+  // useConditionStore().equipmentModifys.forEach((item, index) => {
+  //   if (item.isModifyRunning === false) {
+  //     // 先触发一次界面的更新
+  //     activeName.value = index;
+  //     // startModify(index);
+  //   }
+  // });
+};
+const allPause = () => {
+  useConditionStore().equipmentModifys.forEach((item, index) => {
+    item.isModifyRunning = false;
+  });
+};
+const saveConditions = (itemIndex) => {
+  if (getCurrentCondition(itemIndex).length === 0) {
     showFailToast("当前条件为空");
     return;
   }
   showSaveDialog.value = true;
+};
+const removeEquipment = (itemIndex) => {
+  showConfirmDialog({
+    title: "移除装备",
+    message: "确定移除该装备吗？",
+  })
+    .then(() => {
+      // 移动前先将开始改造的装备停止
+      if (useConditionStore().equipmentModifys[itemIndex].isModifyRunning) {
+        useConditionStore().equipmentModifys[itemIndex].isModifyRunning = false;
+      }
+      useConditionStore().equipmentModifys.splice(itemIndex, 1);
+      showSuccessToast("移除成功");
+    })
+    .catch(() => {
+      // on cancel
+    });
 };
 const deleteGroup = (name) => {
   showConfirmDialog({
@@ -182,7 +286,9 @@ const selectConditionGroup = (values) => {
     item.time = new Date().getTime() + "" + index;
     return item;
   });
-  items.value = result;
+  state.equipmentModifys[currentEquipmentIndex.value].conditions = result;
+  filterFields[currentEquipmentIndex.value] = [];
+  // items.value = result;
 
   showConditionGroup.value = false;
 };
@@ -194,22 +300,26 @@ const saveGroupConfirm = (action) => {
     showFailToast("名称不能为空");
     return false;
   }
-  // getCurrentCondition()
-  useConditionStore().conditionGroups[conditionGroupName.value] = getCurrentCondition();
-  console.log(useConditionStore().conditionGroups);
+
+  useConditionStore().conditionGroups[conditionGroupName.value] = getCurrentCondition(currentEquipmentIndex.value);
+
   // showSaveDialog.value = false;
   return true;
 };
-const selectConditions = () => {
+const selectConditions = (index) => {
   if (Object.keys(conditionGroups.value).length === 0) {
     showFailToast("当前没有条件组");
     return;
   }
+  currentEquipmentIndex.value = index;
   showConditionGroup.value = true;
   // console.log(getCurrentCondition());
 };
-const deleteItem = (index) => {
-  items.value.splice(index, 1);
+const deleteItem = (item, index) => {
+  // console.log(item, index);
+  item.conditions.splice(index, 1);
+  filterFields[currentEquipmentIndex.value].splice(index, 1);
+  // items.value.splice(index, 1);
 };
 const actions = computed(() => {
   return Object.keys(magics)
@@ -227,18 +337,10 @@ const actions = computed(() => {
 onMounted(async () => {
   bodyWidth.value = document.body.clientWidth;
 
-  // 初始化数据
-  if (useConditionStore().currentGroup.length > 0) {
-    items.value = cloneDeep(useConditionStore().currentGroup);
-    termCount.value = useConditionStore().currentTermCount;
-    retryCount.value = useConditionStore().currentRetry;
-    openMakeup.value = useConditionStore().currentOpenMakeup;
-    openEEE.value = useConditionStore().currentOpenEEE;
-  }
   watch(
-    () => useStore().equipmentModify,
+    () => useAccountStore().equipmentModifys,
     (value) => {
-      state.equipment = value;
+      state.equipmentModifys = value;
     },
     { deep: true }
   );
@@ -260,8 +362,10 @@ onDeactivated(async () => {
     font-size: 12px;
     background: var(--van-cell-background);
     margin-bottom: 40px;
-    :deep(.van-cell) {
-      padding: 2px 12px;
+    .addCondition {
+      :deep(.van-cell) {
+        padding: 2px 12px;
+      }
     }
   }
 }
@@ -273,10 +377,13 @@ onDeactivated(async () => {
 :deep(.van-field__control) {
   color: var(--magic-color);
 }
-:deep(.van-cell__value) {
-  text-align: left;
+:deep(.van-action-sheet__content) {
+  .van-cell__value {
+    text-align: left;
+  }
 }
 
+// padding: var(--van-collapse-item-content-padding);
 :deep(.van-popover__wrapper) {
   display: block;
 }

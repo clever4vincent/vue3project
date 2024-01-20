@@ -763,7 +763,7 @@ export const magics = {
   282: (value) => `<div>连续攻击 ${value} 次</div>`,
   283: (value) => `<div>技能宝石等级提高 +${value}</div>`,
   284: (value) => `<div>击中生命小于 ${value}% 的敌人时，会将其秒杀</div>`,
-  // 285: (value) => `<div>投射物可重复击中相同目标</div>`,
+  285: (value) => `<div>投射物可重复击中相同目标</div>`,
   286: (value) => `<div>近战攻击速度提高 +${value}%</div>`,
   287: (value) => `<div>技能的保留效能提高 ${value}%</div>`,
   288: (value) => `<div>法术伤害的暴击伤害加成 +${value}%</div>`,
@@ -918,6 +918,14 @@ export const magics = {
   424: (value) => `<div>攻击技能的混沌伤害提高 ${value}%</div>`,
   425: (value) => `<div>攻击技能的火焰伤害提高 ${value}%</div>`,
   426: (value) => `<div>压制 ${value}% 物理伤害减免</div>`,
+
+  427: (value) => `<div>弓类的物理伤害提高 ${value}%</div>`,
+  428: (value) => `<div>投射物攻击技能的暴击率提高 ${value}%</div>`,
+  429: (value) => `<div>投射物攻击技能的暴击伤害加成 +${value}%</div>`,
+  430: (value) => `<div>非伤害性异常状态效果提高 ${value}%</div>`,
+  431: (value) => `<div>+${value}% 冰霜持续伤害加成</div>`,
+  432: (value) => `<div>前缀无法被改变</div>`,
+  433: (value) => `<div>后缀无法被改变</div>`,
 };
 
 const abs = (value) => {

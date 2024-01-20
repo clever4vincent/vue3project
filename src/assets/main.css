@@ -24,6 +24,15 @@
   width: 100%;
   min-height: 100%;
 }
+.magic {
+  color: var(--magic-color);
+}
+.rare {
+  color: var(--rare-color);
+}
+.unique {
+  color: var(--unique-color);
+}
 /* .container {
 
 } */

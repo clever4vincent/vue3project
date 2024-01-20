@@ -25,7 +25,25 @@ export const CurrencyEnum = {
   orbOfAnnulment: 18,
   fracturingOrb: 19,
 };
-
+// const needCurrency = ["改造石", "破溃宝珠", "混沌石", "卡兰德的魔镜", "富豪石", "神圣石", "崇高石", "瓦尔宝珠", "剥离石"];
+const needCurrency = [
+  // "改造石",
+  "破溃宝珠",
+  "混沌石",
+  "卡兰德的魔镜",
+  // "富豪石",
+  "神圣石",
+  "崇高石",
+  // "瓦尔宝珠",
+  // "剥离石",
+  // "蜕变石",
+  // "增幅石",
+  // "机会石",
+  // "点金石",
+  // "重铸石",
+  // "工匠石",
+  // "幻色石",
+];
 export const CurrencyBeanEnum = {
   jewellerOrb: {
     value: 1,
@@ -55,47 +73,38 @@ export const CurrencyBeanEnum = {
   orbOfAugmentation: {
     value: 7,
     name: "增幅石",
-    need: true,
   },
   orbOfAlteration: {
     value: 8,
     name: "改造石",
-    need: true,
   },
   exaltedOrb: {
     value: 9,
     name: "崇高石",
-    need: true,
   },
   chaosOrb: {
     value: 10,
     name: "混沌石",
-    need: true,
   },
   regalOrb: {
     value: 11,
     name: "富豪石",
-    need: true,
   },
   orbOfScouring: {
     value: 12,
     name: "重铸石",
-    need: true,
   },
   divineOrb: {
     value: 13,
     name: "神圣石",
-    need: true,
   },
   vaalOrb: {
-    need: true,
     value: 14,
     name: "瓦尔宝珠",
   },
   mirrorOfKalandra: {
     value: 15,
     name: "卡兰德的魔镜",
-    need: true,
   },
   whetstone: {
     value: 16,
@@ -106,13 +115,26 @@ export const CurrencyBeanEnum = {
     name: "护甲片",
   },
   orbOfAnnulment: {
-    need: true,
     value: 18,
     name: "剥离石",
   },
   fracturingOrb: {
-    need: true,
     value: 19,
     name: "破溃宝珠",
   },
+  lockPre: {
+    value: 98,
+    type: 1,
+    name: "锁前缀",
+  },
+  lockBack: {
+    value: 99,
+    type: 2,
+    name: "锁后缀",
+  },
 };
+Object.keys(CurrencyBeanEnum).forEach((key) => {
+  if (needCurrency.includes(CurrencyBeanEnum[key].name)) {
+    CurrencyBeanEnum[key].need = true;
+  }
+});

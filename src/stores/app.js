@@ -28,10 +28,10 @@ export const useConditionStore = defineStore(
     const currentRetry = ref();
     const currentOpenMakeup = ref(false);
     const currentOpenEEE = ref(false);
-
+    const equipmentModifys = ref([]);
     const currentTermCount = ref();
 
-    return { conditionGroups, currentGroup, currentRetry, currentTermCount, currentOpenMakeup, currentOpenEEE };
+    return { conditionGroups, currentGroup, currentRetry, currentTermCount, currentOpenMakeup, currentOpenEEE, equipmentModifys };
   },
   {
     persist: true,
@@ -43,6 +43,7 @@ export const useStore = defineStore("app", () => {
   const history = ref([]);
   const isModifyRunning = ref(false);
   const equipmentModify = ref({});
+
   function setTransitionName(value) {
     transitionName.value = value;
   }

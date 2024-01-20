@@ -81,6 +81,8 @@ export const getEquipmentNetwork = async (thirdToken) => {
   let parseList = parseMagics(result);
   // list.value = orginList;
   // scroller?.value?.updateVisibleItems();
+  // 更新装备改造列表中的装备。如果该装备不在改造中才更新
+
   localforage.setItem(thirdToken.character.name, parseList).catch((err) => {
     // 处理错误
     console.error(err);
@@ -143,8 +145,8 @@ export function parseItemMagics(item) {
     }
     item.magicsFilterText += magics[k](arr) + "|";
   }
-  for (const k in item.fixedMagics) {
-    item.magicsText += magics[k](item.fixedMagics[k]) + "|";
-  }
+  // for (const k in item.fixedMagics) {
+  //   item.magicsText += magics[k](item.fixedMagics[k]) + "|";
+  // }
   return item;
 }

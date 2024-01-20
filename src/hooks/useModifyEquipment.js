@@ -1,4 +1,4 @@
-import { modify } from "@/api";
+import { modify, craft } from "@/api";
 import { sleep } from "@/utils";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
 import { useStoreWithOut } from "@/stores";
@@ -7,17 +7,21 @@ import { parseItemMagics } from "@/hooks";
 import { updateEquipmentItemLocal } from "@/hooks";
 const audio = new Audio("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3");
 // 当前的角色上架物品，然后将Token切换成选择的角色，再购买物品，购买物品后，再切回Token.
-export async function doRenovation(equipment, { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount }, thirdToken) {
+export async function doRenovation(equipmentModify, { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount }, thirdToken) {
   // 将装备的状态改成改造中
-  equipment.isModifying = true;
-  console.log("开始改造", toRaw(equipment));
-  await updateEquipmentItemLocal(thirdToken, toRaw(equipment));
-  let { result, keepCount, equipmentResult } = await startRenovation(
-    equipment,
+  // equipmentModify.equipment.isModifying = true;
+
+  // await updateEquipmentItemLocal(thirdToken, toRaw(equipmentModify.equipment));
+  let { result, keepCount, equipmentResult, error } = await startRenovation(
+    equipmentModify,
     { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
     thirdToken
   );
-  useStoreWithOut().isModifyRunning = false;
+  equipmentModify.isModifyRunning = false;
+  if (error) {
+    return;
+  }
+  // useStoreWithOut().isModifyRunning = false;
   if (keepCount <= 0) {
     audio.play();
     console.log("次数用完了");
@@ -36,76 +40,158 @@ export async function doRenovation(equipment, { customAttrs, type, termCount, is
     }
   }
   //更新装备列表中的装备
-  equipmentResult.isModifying = false;
+  // equipmentResult.isModifying = false;
   await updateEquipmentItemLocal(thirdToken, equipmentResult);
 }
 export async function startRenovation(
-  equipment,
+  equipmentModify,
   { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount = Number.MAX_SAFE_INTEGER },
   thirdToken
 ) {
-  let currentEquipment = equipment;
+  let currentEquipment = equipmentModify.equipment;
   // 进入循环改造前的处理，将没有词条的装备使用蜕变石改成有词条的装备
-  if (currentEquipment.rarity === 1) {
-    // 如果是白色装备，使用蜕变石改成蓝色装备
-    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
-      let equipment = parseItemMagics(res.equipment);
-      currentEquipment = equipment;
-      useStoreWithOut().equipmentModify = equipment;
-    });
-  }
-  if (currentEquipment.rarity === 3) {
-    // 如果黄色装备，先使用重铸石，再使用蜕变石改成蓝色装备
-    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
-      let equipment = parseItemMagics(res.equipment);
-      currentEquipment = equipment;
-      useStoreWithOut().equipmentModify = equipment;
-    });
-    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
-      let equipment = parseItemMagics(res.equipment);
-      currentEquipment = equipment;
-      useStoreWithOut().equipmentModify = equipment;
-    });
-  }
+  if (type === CurrencyBeanEnum.orbOfAlteration.value) {
+    if (currentEquipment.rarity === 1) {
+      // 如果是白色装备，使用蜕变石改成蓝色装备
 
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    }
+    if (currentEquipment.rarity === 3) {
+      // 如果黄色装备，先使用重铸石，再使用蜕变石改成蓝色装备
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+      if (currentEquipment.rarity == 1) {
+        await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+        });
+      }
+    }
+  }
+  if (type === CurrencyBeanEnum.chaosOrb.value) {
+    if (currentEquipment.rarity !== 3) {
+      // 如果不是黄色装备，提示
+      // console.log("不是黄色装备，不能使用混沌石改造");
+      // return { result: false, keepCount: retryCount, equipmentResult: currentEquipment, error: true };
+      if (currentEquipment.rarity == 1) {
+        await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+        });
+      }
+      // 使用富豪石改造
+      await modify(currentEquipment.id, CurrencyBeanEnum.regalOrb.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    } else {
+      // 如果是黄色装备，先使用混沌石改造
+      await modify(currentEquipment.id, CurrencyBeanEnum.chaosOrb.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    }
+  }
   // 进入循环改造
   let result = false;
-  while (!result && useStoreWithOut().isModifyRunning && retryCount-- > 0) {
+  while (!result && equipmentModify.isModifyRunning && retryCount-- > 0) {
     result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE || isOpenMakeup ? 2 : termCount);
     // 如果不满足条件，就继续改造
     if (!result) {
-      await modify(currentEquipment.id, type, thirdToken).then((res) => {
-        let equipment = parseItemMagics(res.equipment);
-        currentEquipment = equipment;
-        useStoreWithOut().equipmentModify = equipment;
-      });
+      try {
+        await modify(currentEquipment.id, type, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+        });
+      } catch (error) {
+        console.log(error);
+      }
     }
     // 如果改造后的词缀条数只有1条，就是用增幅石改造
     if (Object.keys(currentEquipment.affixes).length === 1) {
-      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAugmentation.value, thirdToken).then((res) => {
-        let equipment = parseItemMagics(res.equipment);
-        currentEquipment = equipment;
-        useStoreWithOut().equipmentModify = equipment;
-      });
+      try {
+        await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAugmentation.value, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+
       result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE || isOpenMakeup ? 2 : termCount);
     }
   }
   console.log("普通改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
-  if (type === CurrencyBeanEnum.orbOfAlteration.value && useStoreWithOut().isModifyRunning && retryCount > 0 && (isOpenMakeup || isOpenEEE)) {
+  if (type === CurrencyBeanEnum.chaosOrb.value && equipmentModify.isModifyRunning && retryCount > 0 && isOpenEEE) {
+    // 判断改造后的词条数量，如果大于等于5条，就重新进入改造流程
+    if (Object.keys(currentEquipment.affixes).length >= 5) {
+      // 先判断改造后的词条数量是否满足要求
+      result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+      if (!result) {
+        let { result1, equipmentResult } = await startRenovation(
+          equipmentModify,
+          { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
+          thirdToken
+        );
+        currentEquipment = equipmentResult;
+        result = result1;
+      }
+    } else {
+      // 如果小于5条，就使用崇高石改造到5条
+      //先判断当前条数与目标条数的差值
+      let diff = 5 - Object.keys(currentEquipment.affixes).length;
+      if (diff > 0) {
+        for (let i = 0; i < diff; i++) {
+          await modify(currentEquipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
+            let equipment = parseItemMagics(res.equipment);
+            currentEquipment = equipment;
+            equipmentModify.equipment = equipment;
+          });
+        }
+      }
+
+      console.log("崇高石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
+      //判断改造后的词条数量是否满足要求
+      result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+      if (!result) {
+        let { result1, equipmentResult } = await startRenovation(
+          equipmentModify,
+          { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
+          thirdToken
+        );
+        currentEquipment = equipmentResult;
+        result = result1;
+      }
+    }
+  }
+  if (type === CurrencyBeanEnum.orbOfAlteration.value && equipmentModify.isModifyRunning && retryCount > 0 && (isOpenMakeup || isOpenEEE)) {
     // 比较增幅之后的词条数量是否满足要求
     if (result) {
       // 使用富豪石
       await modify(currentEquipment.id, CurrencyBeanEnum.regalOrb.value, thirdToken).then((res) => {
         let equipment = parseItemMagics(res.equipment);
         currentEquipment = equipment;
-        useStoreWithOut().equipmentModify = equipment;
+        equipmentModify.equipment = equipment;
       });
       console.log("富豪石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
       // 如果使用富豪石之后，词条数量不满足要求，就重新进入改造流程
       let result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE ? 3 : termCount);
       if (!result) {
         let { result1, equipmentResult } = await startRenovation(
-          currentEquipment,
+          equipmentModify,
           { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
           thirdToken
         );
@@ -114,18 +200,18 @@ export async function startRenovation(
       } else {
         if (isOpenEEE) {
           // 如果满足要求，连续使用3次崇高石
-          for (let i = 0; i < 3; i++) {
+          for (let i = 0; i < 2; i++) {
             await modify(currentEquipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
               let equipment = parseItemMagics(res.equipment);
               currentEquipment = equipment;
-              useStoreWithOut().equipmentModify = equipment;
+              equipmentModify.equipment = equipment;
             });
           }
           console.log("崇高石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
           result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
           if (!result) {
             let { result1, equipmentResult } = await startRenovation(
-              currentEquipment,
+              equipmentModify,
               { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
               thirdToken
             );
@@ -137,7 +223,7 @@ export async function startRenovation(
     } else {
       // 重新使用改造石
       let { result1, equipmentResult } = await startRenovation(
-        currentEquipment,
+        equipmentModify,
         { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
         thirdToken
       );
@@ -149,6 +235,69 @@ export async function startRenovation(
   result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
   return { result, keepCount: retryCount, equipmentResult: currentEquipment };
 }
+
+export async function doLockRenovation(equipmentModify, thirdToken) {
+  let retryCount = equipmentModify.retryCount;
+  console.log("equipmentModify", equipmentModify);
+  let result = false;
+  if (!(equipmentModify.makeType === CurrencyBeanEnum.lockPre.value || equipmentModify.makeType === CurrencyBeanEnum.lockBack.value)) {
+    console.log("不是锁定前缀或者后缀");
+    return;
+  }
+  let type = equipmentModify.makeType === CurrencyBeanEnum.lockPre.value ? 2 : 1;
+  let lockType = equipmentModify.makeType === CurrencyBeanEnum.lockPre.value ? CurrencyBeanEnum.lockPre.type : CurrencyBeanEnum.lockBack.type;
+  while (equipmentModify.isModifyRunning && retryCount-- > 0) {
+    // 先判断当前装备修改的类型
+
+    // 如果是锁定前缀，先判断装备词条中是否有前缀之
+    if (equipmentModify.equipment.affixes.filter((affix) => affix.isCrafted && affix.type == type).length > 0) {
+      // 有的话判断后缀是否满足要求
+      // 先判断除开前缀之这个词条后的后缀的词条数
+      let suffixCount = equipmentModify.equipment.affixes.filter((affix) => !affix.isCrafted && affix.type == type).length;
+
+      if (suffixCount > 0) {
+        // 根据后缀的词条数判断是否满足要求
+        result = isMatchCustomAttr(equipmentModify.equipment, equipmentModify.customAttrs, suffixCount);
+
+        if (result) {
+          // 如果后缀的条数等于达标的条数，就说明满足要求，不再改造
+          if (suffixCount == equipmentModify.termCount) {
+            equipmentModify.isModifyRunning = false;
+          } else {
+            // 如果后缀的条数小于达标的条数，就使用崇高石改造
+            await modify(equipmentModify.equipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
+              equipmentModify.equipment = parseItemMagics(res.equipment);
+            });
+          }
+        } else {
+          // 如果后缀的条数不满足要求，就使用进入剥离流程
+          await modify(equipmentModify.equipment.id, CurrencyBeanEnum.orbOfAnnulment.value, thirdToken).then((res) => {
+            equipmentModify.equipment = parseItemMagics(res.equipment);
+          });
+        }
+      } else {
+        // 如果没有后缀，就使用崇高石改造
+        await modify(equipmentModify.equipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
+          equipmentModify.equipment = parseItemMagics(res.equipment);
+        });
+      }
+    } else {
+      // 如果没有锁定前缀，就锁定前缀
+      await craft(equipmentModify.equipment.id, lockType, thirdToken).then((res) => {
+        equipmentModify.equipment = parseItemMagics(res.equipment);
+      });
+    }
+  }
+
+  equipmentModify.isModifyRunning = false;
+  if (result) {
+    console.log("达标了", equipmentModify);
+  } else {
+    console.log("中止了！", equipmentModify);
+  }
+  await updateEquipmentItemLocal(thirdToken, toRaw(equipmentModify.equipment));
+}
+
 export function isMatchCustomAttr(equipment, customAttrs, termCount) {
   // 匹配成功的个数
   let count = 0;

@@ -30,6 +30,7 @@ const Api = {
   remove: "/market/remove",
   changeClass: "/character/changeClass",
   modify: "/equipment/modify",
+  craft: "/craft",
 };
 
 export const login = (params, opt) => {
@@ -94,6 +95,9 @@ export const equip = (equipmentId, characterId, opt) => {
 };
 export const modify = (equipmentId, type, opt) => {
   return defHttp.post({ url: Api.modify, params: { equipmentId, type } }, { ...opt, loading: false });
+};
+export const craft = (equipmentId, craftId, opt) => {
+  return defHttp.post({ url: Api.craft, params: { equipmentId, craftId } }, { ...opt, loading: false });
 };
 export const takeOff = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } }, { ...opt });

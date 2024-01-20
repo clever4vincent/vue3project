@@ -18,7 +18,7 @@
         <van-config-provider :theme-vars="themeVars">
           <van-dropdown-menu active-color="#ee0a24">
             <van-dropdown-item v-model="equipmentFilterType" :options="option1" @change="onTypeChange" />
-            <van-dropdown-item v-model="modifyType" :options="option2" @change="onTypeChange" />
+            <!-- <van-dropdown-item v-model="modifyType" :options="option2" @change="onTypeChange" /> -->
             <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
           </van-dropdown-menu>
           <van-cell-group :border="true" style="padding-bottom: 0.48rem">
@@ -108,7 +108,7 @@
 </template>
 <script setup>
 import { rarityClass } from "@/lib/data";
-import { useAccountStore, useTokenStore, useLoadingStore, useStore } from "@/stores";
+import { useAccountStore, useTokenStore, useLoadingStore, useStore, useConditionStore } from "@/stores";
 import { sell, buy, getMarket, getBackpack } from "@/api";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
@@ -116,6 +116,7 @@ import { showDialog, showSuccessToast } from "vant";
 import { getEquipmentLocal, getEquipmentNetwork } from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
+import { CurrencyBeanEnum } from "@/enums/appEnum";
 const list = ref([]);
 const list2 = ref([]);
 const filterWord = ref("");
@@ -178,7 +179,6 @@ const option1 = [
   { text: "腰带", value: "腰带" },
   { text: "项链", value: "项链" },
   { text: "戒指", value: "戒指" },
-  { text: "改造中", value: "改造中" },
 ];
 
 const option2 = [
@@ -209,6 +209,15 @@ const onConfirm = (value) => {
 const onLoad = async () => {
   getEquipmentNetwork({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then((res) => {
     orginList = res;
+    useConditionStore().equipmentModifys.forEach((item) => {
+      if (!item.isModifyRunning) {
+        orginList.forEach((equipment) => {
+          if (item.equipment.id == equipment.id) {
+            item.equipment = equipment;
+          }
+        });
+      }
+    });
     // list.value = orginList;
     // scroller?.value?.updateVisibleItems();
     onSearch();
@@ -233,8 +242,8 @@ const onLoad2 = () => {
     });
 };
 const showDetail = (item) => {
-  useStore().equipmentModify = ref(item);
   const itemRef = ref(item);
+  // useConditionStore().equipmentModifys = [];
   showDialog({
     // title: "装备详情",
     showCancelButton: true,
@@ -246,9 +255,16 @@ const showDetail = (item) => {
       });
     },
   }).then(() => {
-    router.push({
-      name: "equipmentModify",
-    });
+    if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+      useConditionStore().equipmentModifys.push({ equipment: item, makeType: CurrencyBeanEnum.orbOfAlteration.value });
+      showSuccessToast("加入改造列表成功");
+    } else {
+      showSuccessToast("已经在改造列表中");
+    }
+
+    // router.push({
+    //   name: "equipmentModify",
+    // });
   });
 };
 const startEquipmentTransfer = (characterId, token) => {
@@ -315,11 +331,11 @@ const onSearch = (value) => {
       return item.typeText == equipmentFilterType.value;
     });
   }
-  if (modifyType.value == "改造中") {
-    resultList = resultList.filter((item) => {
-      return item.isModifying;
-    });
-  }
+  // if (modifyType.value == "改造中") {
+  //   resultList = resultList.filter((item) => {
+  //     return item.isModifying;
+  //   });
+  // }
   // console.log(resultList);
   resultList = resultList.filter((item) => {
     // let name = item.name;

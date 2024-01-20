@@ -12,6 +12,7 @@ import "vant/es/notify/style";
 import "vant/es/action-sheet/style";
 import "vant/es/popup/style";
 import "vant/es/popover/style";
+import "vant/es/checkbox/style";
 
 import "@icon-park/vue-next/styles/index.css";
 import { setupStore } from "@/stores";
