@@ -10,6 +10,7 @@ const Api = {
   switchCharacter: "/character/switch",
   createAccount: "/character/create",
   getCurrency: "/character/currency",
+  resetStatistics: "/character/resetStatistics",
   getBackpack: "/character/backpack",
   getMarket: "/market",
   sell: "/market/sell",
@@ -62,6 +63,9 @@ export const getCharacterInfoThird = (opt) => {
 };
 export const getCurrency = (params, opt) => {
   return defHttp.get({ url: Api.getCurrency, params }, { ...opt });
+};
+export const resetStatistics = (opt) => {
+  return defHttp.post({ url: Api.resetStatistics }, { ...opt });
 };
 export const getBackpack = (page = 1, params, opt) => {
   return defHttp.get({ url: `${Api.getBackpack}/${page}`, params }, { ...opt });

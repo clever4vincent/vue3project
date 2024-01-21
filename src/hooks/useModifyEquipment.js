@@ -187,37 +187,37 @@ export async function startRenovation(
         equipmentModify.equipment = equipment;
       });
       console.log("富豪石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
-      // 如果使用富豪石之后，词条数量不满足要求，就重新进入改造流程
-      let result = isMatchCustomAttr(currentEquipment, customAttrs, isOpenEEE ? 3 : termCount);
-      if (!result) {
-        let { result1, equipmentResult } = await startRenovation(
-          equipmentModify,
-          { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
-          thirdToken
-        );
-        currentEquipment = equipmentResult;
-        result = result1;
+      if (isOpenEEE) {
+        // 如果满足要求，连续使用2次崇高石
+        for (let i = 0; i < 1; i++) {
+          await modify(currentEquipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
+            let equipment = parseItemMagics(res.equipment);
+            currentEquipment = equipment;
+            equipmentModify.equipment = equipment;
+          });
+        }
+        console.log("崇高石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
+        result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+        if (!result) {
+          let { result1, equipmentResult } = await startRenovation(
+            equipmentModify,
+            { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
+            thirdToken
+          );
+          currentEquipment = equipmentResult;
+          result = result1;
+        }
       } else {
-        if (isOpenEEE) {
-          // 如果满足要求，连续使用3次崇高石
-          for (let i = 0; i < 2; i++) {
-            await modify(currentEquipment.id, CurrencyBeanEnum.exaltedOrb.value, thirdToken).then((res) => {
-              let equipment = parseItemMagics(res.equipment);
-              currentEquipment = equipment;
-              equipmentModify.equipment = equipment;
-            });
-          }
-          console.log("崇高石改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
-          result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
-          if (!result) {
-            let { result1, equipmentResult } = await startRenovation(
-              equipmentModify,
-              { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
-              thirdToken
-            );
-            currentEquipment = equipmentResult;
-            result = result1;
-          }
+        // 如果使用富豪石之后，词条数量不满足要求，就重新进入改造流程
+        result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+        if (!result) {
+          let { result1, equipmentResult } = await startRenovation(
+            equipmentModify,
+            { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount },
+            thirdToken
+          );
+          currentEquipment = equipmentResult;
+          result = result1;
         }
       }
     } else {

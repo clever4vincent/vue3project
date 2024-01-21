@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { store, useTokenStore } from "@/stores";
-import { login, getCharacterList, switchCharacter, getCharacterInfo } from "@/api";
+import { login, getCharacterList, switchCharacter, getCharacterInfo, resetStatistics } from "@/api";
 import { loginProgress } from "@/hooks/useLogin";
 import { cloneDeep } from "lodash-es";
 import { showToast } from "vant";
@@ -188,9 +188,19 @@ export const useAccountStore = defineStore({
       for (let index = 0; index < allTokenInfo.length; index++) {
         let account = allTokenInfo[index];
         let character = account.tokenInfo.characters[0];
-        await getCharacterInfo({ thirdToken: character.token }).catch(() => {
-          result &= false;
-        });
+        await getCharacterInfo({ thirdToken: character.token })
+          .then(async (res) => {
+            console.log("角色:", res.name);
+            console.log("通货:", res.cpm);
+            if (!res.cpm) {
+              // 重新统计通货
+              await resetStatistics({ thirdToken: character.token });
+            }
+          })
+
+          .catch(() => {
+            result &= false;
+          });
       }
       return result;
     },
@@ -231,27 +241,48 @@ export const useAccountStore = defineStore({
       // 将更新后的tokenInfo赋值给当前账号
       for (let i = 0; i < currentAccount.tokenInfo.characters.length; i++) {
         currentAccount.tokenInfo.characters[i].token = tokenInfo.characters[i].token;
+
+        // 更新相关角色的token
+        if (this.currentCharacter.id == tokenInfo.characters[i].id) {
+          this.currentCharacter.token = tokenInfo.characters[i].token;
+        }
+        if (this.endlessGarmentCharacter.id == tokenInfo.characters[i].id) {
+          this.endlessGarmentCharacter.token = tokenInfo.characters[i].token;
+        }
+        if (this.gloveCharacter.id == tokenInfo.characters[i].id) {
+          this.gloveCharacter.token = tokenInfo.characters[i].token;
+        }
+        if (this.shoeCharacter.id == tokenInfo.characters[i].id) {
+          this.shoeCharacter.token = tokenInfo.characters[i].token;
+        }
+        if (this.ringCharacter.id == tokenInfo.characters[i].id) {
+          this.ringCharacter.token = tokenInfo.characters[i].token;
+        }
+        if (this.weaponCharacter.id == tokenInfo.characters[i].id) {
+          this.weaponCharacter.token = tokenInfo.characters[i].token;
+        }
       }
-      //如果更新的账号是所选角色的账号，需要更新当前角色的token
-      if (currentAccount.username === this.currentCharacter.username) {
-        this.currentCharacter.token = currentCharacter.token;
-      }
-      // 如果更新的账号是集中地的角色，需要更新集中地的角色的token
-      if (currentCharacter.name === this.endlessGarmentCharacter.name) {
-        this.endlessGarmentCharacter.token = currentCharacter.token;
-      }
-      if (currentCharacter.name === this.gloveCharacter.name) {
-        this.gloveCharacter.token = currentCharacter.token;
-      }
-      if (currentCharacter.name === this.shoeCharacter.name) {
-        this.shoeCharacter.token = currentCharacter.token;
-      }
-      if (currentCharacter.name === this.ringCharacter.name) {
-        this.ringCharacter.token = currentCharacter.token;
-      }
-      if (currentCharacter.name === this.weaponCharacter.name) {
-        this.weaponCharacter.token = currentCharacter.token;
-      }
+
+      // //如果更新的账号是所选角色的账号，需要更新当前角色的token
+      // if (currentAccount.username == this.currentCharacter.username) {
+      //   this.currentCharacter.token = currentCharacter.token;
+      // }
+      // // 如果更新的账号是集中地的角色，需要更新集中地的角色的token
+      // if (currentCharacter.name == this.endlessGarmentCharacter.name) {
+      //   this.endlessGarmentCharacter.token = currentCharacter.token;
+      // }
+      // if (currentCharacter.name == this.gloveCharacter.name) {
+      //   this.gloveCharacter.token = currentCharacter.token;
+      // }
+      // if (currentCharacter.name == this.shoeCharacter.name) {
+      //   this.shoeCharacter.token = currentCharacter.token;
+      // }
+      // if (currentCharacter.name == this.ringCharacter.name) {
+      //   this.ringCharacter.token = currentCharacter.token;
+      // }
+      // if (currentCharacter.name == this.weaponCharacter.name) {
+      //   this.weaponCharacter.token = currentCharacter.token;
+      // }
       // useTokenStore().setToken(currentCharacter.token);
       return currentCharacter.token;
     },

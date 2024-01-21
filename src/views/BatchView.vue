@@ -187,13 +187,22 @@ const DIALOG_TYPE = {
   GET_LOW_LEVEL_WEAPON_TEXT: "获取低等级武器",
 };
 const skillStoneList = [
+  /* -------横扫------- */
   "Multistrike_Support",
   "Sweep",
   "Faster_Attacks_Support",
   "Melee_Physical_Damage_Support",
   "Increased_Critical_Strikes_Support",
   "Haste",
+  /* -------法师------- */
+  // "Arc",
+  // "Added_Lightning_Damage_Support",
+  // "Added_Cold_Damage_Support",
+  // "Increased_Critical_Strikes_Support",
+  // "Increased_Critical_Damage_Support",
+  // "Spell_Echo_Support",
 ];
+
 const accountStore = useAccountStore();
 const activeCollectName = ref(["0"]);
 const activeNames = ref(["0"]);
@@ -332,7 +341,7 @@ const getEquipment = async (actionType) => {
   }
   let list = await getEquipmentList(query, sellToken);
   if (actionType == ACTION_TYPE.WEAPON) {
-    list = filterWeaponList(parseMagics(list), 30, 200);
+    list = filterWeaponList(parseMagics(list), 18, 200);
   }
   accountStore.batchAccountsOperation(async ({ thirdToken }) => {
     // return Character.findEndlessGarment(thirdToken);
@@ -474,7 +483,10 @@ const showDialogOptions = (type) => {
           await accountStore.batchAccountsOperation(async (thirdToken) => {
             await getCharacterInfo(thirdToken).then((res) => {
               // console.log(res);
-              console.log(thirdToken.character.name, res.level);
+              console.log("角色:", res.name);
+              console.log("等级:", res.level);
+              console.log("通货:", res.cpm);
+              console.log("信息:", res);
               if (res.level < level) {
                 level = res.level;
               }
@@ -497,7 +509,7 @@ const getLowLevelWeapon = async () => {
       // 先过滤 双手剑 双手斧 双手锤
       // 再过滤等级
       originList = res;
-      return filterWeaponList(originList, 20, 400);
+      return filterWeaponList(originList, 18, 200);
     }
   );
   console.log(equipments);
@@ -522,7 +534,7 @@ function filterWeaponList(originList, maxLevel, minSum) {
   let list = originList
     .filter((item) => {
       let result = false;
-      "双手剑 双手斧 双手锤".split(" ").forEach((typeText) => {
+      "双手剑 双手斧 双手锤 弓 长杖 战杖".split(" ").forEach((typeText) => {
         result |= item.typeText == typeText;
       });
       return result;

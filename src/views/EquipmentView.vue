@@ -24,6 +24,7 @@
           <van-cell-group :border="true" style="padding-bottom: 0.48rem">
             <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
             <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
+            <van-field v-model="filterLevel" placeholder="装备等级" autocomplete="off" />
             <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
           </van-cell-group>
         </van-config-provider>
@@ -117,9 +118,11 @@ import { getEquipmentLocal, getEquipmentNetwork } from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
+
 const list = ref([]);
 const list2 = ref([]);
 const filterWord = ref("");
+const filterLevel = ref("");
 const filterName = ref("");
 const scroller = ref();
 const minItemSize = ref(72);
@@ -331,6 +334,7 @@ const onSearch = (value) => {
       return item.typeText == equipmentFilterType.value;
     });
   }
+
   // if (modifyType.value == "改造中") {
   //   resultList = resultList.filter((item) => {
   //     return item.isModifying;
@@ -350,7 +354,13 @@ const onSearch = (value) => {
         isMatch = false;
         return;
       }
-
+      if (filterLevel.value) {
+        if (!item.requirements) {
+          isMatch = true;
+        } else {
+          isMatch = isMatch && item.requirements.level <= filterLevel.value;
+        }
+      }
       if (magicsTexts[0] == "" && !condition.key) {
         return true;
       }

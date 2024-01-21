@@ -12,8 +12,9 @@
   padding: 0 0 50px 0;
   font-weight: normal;
   position: relative; */
-  background: var(--van-background);
-  background-color: var(--van-background);
+  /* background: var(--van-background);
+  background-color: var(--van-background); */
+  background: var(--van-cell-background);
   /* position: relative; */
   margin: auto;
   position: absolute;

@@ -41,7 +41,7 @@ const add = () => {
 };
 const createBtn = async (account) => {
   let value = [];
-  for (let index = 0; index < 2; index++) {
+  for (let index = 0; index < 3; index++) {
     await createAccountProgress(account);
     await accountStore.addSubAccount(account);
     let str = account.username;
