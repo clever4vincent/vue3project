@@ -121,7 +121,7 @@
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipmentModify">改造列表</van-button>
-      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button> -->
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button>
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
@@ -139,7 +139,7 @@
 </template>
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
-import { getCurrency, sell, buy, getMarket, getBackpack, remove } from "@/api";
+import { getCurrency, sell, buy, getMarket, getBackpack, remove, saveAccountThrid, getAccountThrid } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum, CurrencyBeanEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
@@ -234,7 +234,15 @@ const toEquipmentModify = () => {
 const doThread = () => {
   //
   // threadPool.run(123);
-  console.log(CurrencyBeanEnum);
+  const accountStore = useAccountStore();
+  console.log(toRaw(accountStore.$state));
+  // getAccountThrid().then((res) => {
+  //   console.log(res);
+  // });
+  saveAccountThrid({ account: toRaw(accountStore.$state) });
+
+  // saveAccountThrid()
+  // console.log(CurrencyBeanEnum);
 };
 
 const beforeClose = (action) =>

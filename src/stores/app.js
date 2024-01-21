@@ -24,14 +24,10 @@ export const useConditionStore = defineStore(
   "condition",
   () => {
     const conditionGroups = ref({});
-    const currentGroup = ref({});
-    const currentRetry = ref();
-    const currentOpenMakeup = ref(false);
-    const currentOpenEEE = ref(false);
-    const equipmentModifys = ref([]);
-    const currentTermCount = ref();
 
-    return { conditionGroups, currentGroup, currentRetry, currentTermCount, currentOpenMakeup, currentOpenEEE, equipmentModifys };
+    const equipmentModifys = ref([]);
+
+    return { conditionGroups, equipmentModifys };
   },
   {
     persist: true,

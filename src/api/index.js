@@ -40,6 +40,7 @@ export const login = (params, opt) => {
 export const loginThrid = (params, opt) => {
   return defHttp.post({ url: `http://192.168.0.103:3001/api${Api.login}`, params }, { apiUrl: null, ...opt });
 };
+
 export const switchCharacter = (params) => {
   return defHttp.post({ url: Api.switchCharacter, params });
 };
@@ -142,4 +143,12 @@ export const findSong = (params) => {
 };
 export const findMovie = (params) => {
   return defHttp.get({ url: "https://lyric.dalpoer.cn/findMovie", params }, { apiUrl: null });
+};
+export const saveAccountThrid = (params, opt) => {
+  return defHttp.post({ url: `https://lyric.dalpoer.cn/saveAccount`, params }, { apiUrl: null, ...opt });
+  // return defHttp.post({ url: `http://192.168.0.103:3000/saveAccount`, params }, { apiUrl: null, ...opt });
+};
+export const getAccountThrid = (params, opt) => {
+  return defHttp.post({ url: `https://lyric.dalpoer.cn/getAccount`, params }, { apiUrl: null, ...opt });
+  // return defHttp.post({ url: `http://192.168.0.103:3000/getAccount`, params }, { apiUrl: null, ...opt });
 };
