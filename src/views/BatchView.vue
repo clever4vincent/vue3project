@@ -697,11 +697,11 @@ onMounted(() => {
   }
   // 每天刷新一次token,如果accountStore.tokenDate不等于今天则刷新
   // accountStore.refreshAllAccountTokenInfo();
-  if (accountStore.tokenDate !== new Date().toLocaleDateString()) {
-    if (accountStore.refreshAllAccountTokenInfo()) {
-      accountStore.setTokenDate(new Date().toLocaleDateString());
-    }
-  }
+  // if (accountStore.tokenDate !== new Date().toLocaleDateString()) {
+  //   if (accountStore.refreshAllAccountTokenInfo()) {
+  //     accountStore.setTokenDate(new Date().toLocaleDateString());
+  //   }
+  // }
 });
 onUnmounted(() => {
   console.log("onUnmounted");
