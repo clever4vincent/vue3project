@@ -103,6 +103,23 @@ export async function startRenovation(
       });
     }
   }
+  if (type === CurrencyBeanEnum.orbOfAlchemy.value) {
+    // 点金石改造
+    if (currentEquipment.rarity !== 1) {
+      // 如果不是白色装备，重铸石改造
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    }
+    // 如果是白色装备，先使用点金石改造
+    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAlchemy.value, thirdToken).then((res) => {
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      equipmentModify.equipment = equipment;
+    });
+  }
   // 进入循环改造
   let result = false;
   while (!result && equipmentModify.isModifyRunning && retryCount-- > 0) {
@@ -110,6 +127,14 @@ export async function startRenovation(
     // 如果不满足条件，就继续改造
     if (!result) {
       try {
+        //如果是点金石改造，就先使用重铸石改造
+        if (type === CurrencyBeanEnum.orbOfAlchemy.value) {
+          await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
+            let equipment = parseItemMagics(res.equipment);
+            currentEquipment = equipment;
+            equipmentModify.equipment = equipment;
+          });
+        }
         await modify(currentEquipment.id, type, thirdToken).then((res) => {
           let equipment = parseItemMagics(res.equipment);
           currentEquipment = equipment;
@@ -135,7 +160,12 @@ export async function startRenovation(
     }
   }
   console.log("普通改造结果", parseItemMagics(currentEquipment).magicsText.split("|"));
-  if (type === CurrencyBeanEnum.chaosOrb.value && equipmentModify.isModifyRunning && retryCount > 0 && isOpenEEE) {
+  if (
+    (type === CurrencyBeanEnum.chaosOrb.value || type === CurrencyBeanEnum.orbOfAlchemy.value) &&
+    equipmentModify.isModifyRunning &&
+    retryCount > 0 &&
+    isOpenEEE
+  ) {
     // 判断改造后的词条数量，如果大于等于5条，就重新进入改造流程
     if (Object.keys(currentEquipment.affixes).length >= 5) {
       // 先判断改造后的词条数量是否满足要求
@@ -307,11 +337,12 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
     .forEach((div) => {
       // customAttrs是一个数组
       // 遍历数组，判断是否包含自定义属性中的词条
-      let result = customAttrs.some((customAttr) => {
+      let result = customAttrs.some((customAttr, index) => {
         if (div.replace(/\d+/g, "#").indexOf(customAttr.name) > -1) {
           // 如果有这个，就判断数字是否满足自定义属性中的值
-          let match = div.match(/\d+-\d+|\d+/g);
+          let match = div.match(/\d+-\d+|\d+(\.\d+)?/g);
           let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];
+          // console.log("numbers", numbers);
           if (numbers.length > 1) {
             // 这是 10 - 100 的数据类型
             if (numbers[1] >= customAttr.value) {
@@ -332,6 +363,8 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
               } else {
                 count++;
               }
+              // 如果这条自定义属性中被匹配了，下次循环就不再匹配这条
+              // customAttrs.splice(index, 1);
               return true;
             }
             return false;
@@ -362,5 +395,34 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
     }
   } else {
     return false;
+  }
+}
+
+export async function doLinkAction(equipmentModify, thirdToken) {
+  //使用链接石链接装备上的词条
+  let currentEquipment = equipmentModify.equipment;
+  let result = false;
+  if (currentEquipment.sockets.length == 1) {
+    console.log("已经达标了");
+    equipmentModify.isLinkRunning = false;
+    return;
+  }
+  while (!result && equipmentModify.isLinkRunning) {
+    try {
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfFusing.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    result = currentEquipment.sockets.length == 1;
+  }
+  equipmentModify.isLinkRunning = false;
+  if (result) {
+    console.log("达标了");
+  } else {
+    console.log("中止了！");
   }
 }

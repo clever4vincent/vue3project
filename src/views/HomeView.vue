@@ -121,7 +121,8 @@
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipmentModify">改造列表</van-button>
-      <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">多线程</van-button>
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">测试</van-button> -->
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doTest">测试匹配</van-button> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
       <!-- <van-cell title="测试页面" center value="内容" is-link to="/test"></van-cell> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="test">test</van-button> -->
@@ -138,12 +139,13 @@
   <!-- </van-pull-refresh> -->
 </template>
 <script setup>
-import { useLoadingStore, useAccountStore, useTokenStore } from "@/stores";
-import { getCurrency, sell, buy, getMarket, getBackpack, remove, saveAccountThrid, getAccountThrid } from "@/api";
+import { useLoadingStore, useAccountStore, useTokenStore, useConditionStore } from "@/stores";
+import { getCurrency, sell, buy, getMarket, getBackpack, remove, saveAccountThrid, getAccountThrid, getCharacterInfo } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum, CurrencyBeanEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
 import { useRouter } from "vue-router";
+import { isMatchCustomAttr } from "@/hooks";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
 import { nextTick } from "vue";
 import { threadPool } from "@/utils/ThreadPool";
@@ -191,19 +193,20 @@ watch(currentCharacter, (newVal, oldVal) => {
     // -----------给角色添加动画效果-----------
   }
 });
-watch(activeName, (newVal, oldVal) => {
-  if (newVal !== oldVal) {
-    if (newVal == 2) {
-      cellGroup.value &&
-        nextTick(() => {
-          minItemSize.value = cellGroup.value.$el.offsetHeight + 5;
-          dynamicHeight.value = minItemSize.value * 2.2;
-        });
-    }
-  }
-});
+
 onMounted(async () => {
   useTokenStore().setToken(currentCharacter.value.token);
+  watch(activeName, (newVal, oldVal) => {
+    if (newVal == 2) {
+      setTimeout(() => {
+        cellGroup.value &&
+          nextTick(() => {
+            minItemSize.value = cellGroup.value.$el.offsetHeight + 5;
+            dynamicHeight.value = minItemSize.value * 2.2;
+          });
+      }, 100);
+    }
+  });
 });
 // const validate = () => {
 //   console.log(window.vaptchaObj.validate());
@@ -211,7 +214,7 @@ onMounted(async () => {
 onActivated(async () => {
   console.log("onActivated");
 });
-onDeactivated(async () => {});
+onUnmounted(() => {});
 const toEquipment = () => {
   if (!tokenStore.getToken) {
     showDialog({ message: "请先选择角色" });
@@ -231,18 +234,64 @@ const toEquipmentModify = () => {
     name: "equipmentModify",
   });
 };
-const doThread = () => {
-  //
+const doThread = async () => {
   // threadPool.run(123);
-  const accountStore = useAccountStore();
-  console.log(toRaw(accountStore.$state));
-  // getAccountThrid().then((res) => {
-  //   console.log(res);
-  // });
-  saveAccountThrid({ account: toRaw(accountStore.$state) });
-
-  // saveAccountThrid()
-  // console.log(CurrencyBeanEnum);
+  // 汇总当前角色的闪电伤害
+  let lowAttack = 10 + 17;
+  let highAttack = 192 + 267;
+  // 攻击技能的元素伤害提高 42%
+  let skillElementDamage = 1.3;
+  // 闪电伤害提高 20%
+  let lightingDamage = 1;
+  // 攻击伤害
+  let attackDamage = 2.29 + 0.78 - 0.19 + 0.32 - 0.02 + 0.36 + 0.84;
+  // 伤害
+  let damage = 1;
+  // 暴击伤害
+  let criticalDamage = 1.55;
+  // 异常伤害
+  let abnormalDamage = 1.6;
+  //辅助技能造成的伤害总增
+  let auxiliarySkillDamage = 1.4;
+  // 投射物伤害提高
+  let projectileDamage = 1;
+  await getCharacterInfo().then((res) => {
+    for (let item of Object.keys(res.equipmentSlots)) {
+      if (item == "offHand") continue;
+      let equipment = res.equipmentSlots[item];
+      equipment.affixes.forEach((affix) => {
+        if (affix?.magics[81]) {
+          // 攻击附加 19 - 340 基础闪电伤害
+          lowAttack += affix?.magics[81][0];
+          highAttack += affix?.magics[81][1];
+        }
+        if (affix?.magics[9]) {
+          // 攻击技能的元素伤害提高 42%
+          skillElementDamage += affix?.magics[9][0] / 100;
+        }
+        if (affix?.magics[135]) {
+          //闪电伤害提高 20%
+          skillElementDamage += affix?.magics[135][0] / 100;
+        }
+      });
+    }
+    criticalDamage += res.physicalCriticalStrikeMultiplier / 100;
+  });
+  console.log("基础闪电伤害", lowAttack, highAttack);
+  console.log("攻击技能的元素伤害", skillElementDamage.toFixed(2));
+  console.log("闪电伤害提高 ", lightingDamage.toFixed(2));
+  console.log("暴击伤害 ", criticalDamage);
+  let lastDamage =
+    highAttack *
+    skillElementDamage *
+    lightingDamage *
+    attackDamage *
+    damage *
+    criticalDamage *
+    abnormalDamage *
+    auxiliarySkillDamage *
+    projectileDamage;
+  console.log("闪电最大伤害", lastDamage.toFixed(2));
 };
 
 const beforeClose = (action) =>
@@ -325,6 +374,11 @@ const packetPrice = (currentCurrency) => {
     }
   }
   return packetPriceObj;
+};
+const doTest = () => {
+  let equipmentModifys = useConditionStore().equipmentModifys[0];
+  console.log(isMatchCustomAttr(equipmentModifys.equipment, equipmentModifys.conditions, 2));
+  // isMatchCustomAttr
 };
 
 const test = () => {

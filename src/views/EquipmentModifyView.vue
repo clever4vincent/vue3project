@@ -24,7 +24,11 @@
           <van-field v-model="item.termCount" type="number" label="达标条数" placeholder="请输入达标条数" :border="false" autocomplete="off">
             <template #right-icon>
               <van-checkbox
-                v-if="item.makeType == CurrencyBeanEnum.chaosOrb.value || item.makeType == CurrencyBeanEnum.orbOfAlteration.value"
+                v-if="
+                  item.makeType == CurrencyBeanEnum.chaosOrb.value ||
+                  item.makeType == CurrencyBeanEnum.orbOfAlteration.value ||
+                  item.makeType == CurrencyBeanEnum.orbOfAlchemy.value
+                "
                 v-model="item.openEEE"
                 icon-size="16px"
                 checked-color="#e63946"
@@ -47,8 +51,11 @@
             <van-button style="margin: 10px" size="small" plain type="primary" @click="addCondition(item)">添加条件</van-button>
             <van-button style="margin: 10px" size="small" plain type="primary" @click="selectConditions(itemIndex)">选择条件组</van-button>
             <van-button style="margin: 10px" size="small" plain type="primary" @click="saveConditions(itemIndex)">保存当前条件</van-button>
-            <van-button style="margin: 10px" size="small" plain type="primary" @click="startModify(itemIndex)">{{
+            <van-button style="margin: 10px" size="small" type="primary" @click="startModify(itemIndex)">{{
               !item.isModifyRunning ? "开始改造" : "停止改造"
+            }}</van-button>
+            <van-button style="margin: 10px" size="small" type="primary" @click="linkStones(itemIndex)">{{
+              !item.isLinkRunning ? "开始链接" : "停止链接"
             }}</van-button>
             <van-button style="margin: 10px" size="small" type="primary" @click="removeEquipment(itemIndex)">移除装备</van-button>
             <FilterMagicsField
@@ -61,7 +68,7 @@
                 }
               "
               :modifyPage="modifyPage"
-              @delete="deleteItem(item, index)"
+              @delete="deleteItem(item, itemIndex, index)"
               :index="index"
             />
           </div> </van-collapse-item
@@ -106,7 +113,7 @@ import FilterMagicsField from "@/components/FilterMagicsField.vue";
 import { cloneDeep } from "lodash-es";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
 import { magics } from "@/lib/data";
-import { isMatchCustomAttr, doRenovation, doLockRenovation } from "@/hooks";
+import { isMatchCustomAttr, doRenovation, doLockRenovation, doLinkAction } from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
 import { sleep } from "@/utils";
 
@@ -125,6 +132,7 @@ const conditionGroupName = ref("");
 const option1 = [
   { text: "改造石", value: CurrencyBeanEnum.orbOfAlteration.value },
   { text: "混沌石", value: CurrencyBeanEnum.chaosOrb.value },
+  { text: "点金石", value: CurrencyBeanEnum.orbOfAlchemy.value },
   { text: "锁后缀", value: CurrencyBeanEnum.lockBack.value },
   { text: "锁前缀", value: CurrencyBeanEnum.lockPre.value },
 ];
@@ -176,6 +184,7 @@ const startModify = (itemIndex) => {
       });
     } else if (
       useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.orbOfAlteration.value ||
+      useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.orbOfAlchemy.value ||
       useConditionStore().equipmentModifys[itemIndex].makeType == CurrencyBeanEnum.chaosOrb.value
     ) {
       doRenovation(
@@ -218,18 +227,26 @@ const toList = () => {
     name: "equipment",
   });
 };
-const allStart = () => {
+const allStart = async () => {
   // startModify
   // activeName.value = 1;
   // 依次触发一次界面的更新，然后开始改造
-  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+  // useConditionStore().equipmentModifys.forEach(async (item, index) => {
+  //   if (item.isModifyRunning === false) {
+  //     // 先触发一次界面的更新
+  //     activeName.value = index;
+  //     // await sleep(1000);
+  //     startModify(index);
+  //   }
+  // });
+  for (const [index, item] of useConditionStore().equipmentModifys.entries()) {
     if (item.isModifyRunning === false) {
       // 先触发一次界面的更新
       activeName.value = index;
-      // await sleep(1000);
+      await sleep(200);
       startModify(index);
     }
-  });
+  }
   // useConditionStore().equipmentModifys.forEach((item, index) => {
   //   if (item.isModifyRunning === false) {
   //     // 先触发一次界面的更新
@@ -267,6 +284,16 @@ const removeEquipment = (itemIndex) => {
       // on cancel
     });
 };
+const linkStones = (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+  modify.isLinkRunning = !modify.isLinkRunning;
+  if (modify.isLinkRunning) {
+    doLinkAction(modify, {
+      thirdToken: accountStore.currentCharacter.token,
+      character: accountStore.currentCharacter,
+    });
+  }
+};
 const deleteGroup = (name) => {
   showConfirmDialog({
     title: "删除条件组",
@@ -300,8 +327,7 @@ const saveGroupConfirm = (action) => {
     showFailToast("名称不能为空");
     return false;
   }
-
-  useConditionStore().conditionGroups[conditionGroupName.value] = getCurrentCondition(currentEquipmentIndex.value);
+  useConditionStore().conditionGroups[conditionGroupName.value] = getCurrentCondition(activeName.value);
 
   // showSaveDialog.value = false;
   return true;
@@ -315,11 +341,9 @@ const selectConditions = (index) => {
   showConditionGroup.value = true;
   // console.log(getCurrentCondition());
 };
-const deleteItem = (item, index) => {
-  // console.log(item, index);
+const deleteItem = (item, itemIndex, index) => {
   item.conditions.splice(index, 1);
-  filterFields[currentEquipmentIndex.value].splice(index, 1);
-  // items.value.splice(index, 1);
+  filterFields[itemIndex].splice(index, 1);
 };
 const actions = computed(() => {
   return Object.keys(magics)
@@ -337,13 +361,13 @@ const actions = computed(() => {
 onMounted(async () => {
   bodyWidth.value = document.body.clientWidth;
 
-  watch(
-    () => useAccountStore().equipmentModifys,
-    (value) => {
-      state.equipmentModifys = value;
-    },
-    { deep: true }
-  );
+  // watch(
+  //   () => useAccountStore().equipmentModifys,
+  //   (value) => {
+  //     state.equipmentModifys = value;
+  //   },
+  //   { deep: true }
+  // );
 });
 
 onActivated(async () => {

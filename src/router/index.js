@@ -43,7 +43,7 @@ const router = createRouter({
     {
       path: "/equipmentModify",
       name: "equipmentModify",
-      meta: { index: 3 },
+      meta: { index: 2 },
       component: () => import("../views/EquipmentModifyView.vue"),
     },
     {

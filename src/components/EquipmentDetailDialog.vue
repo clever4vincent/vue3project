@@ -48,7 +48,24 @@
           </template>
         </div>
       </template>
-      <template v-if="equipment.magics">
+      <template v-if="equipment.affixes">
+        <div class="separator"></div>
+        <div class="affix" v-for="affix in equipment.affixes" :key="affix" :class="{ locked: affix.isLocked, crafted: affix.isCrafted }">
+          <div class="info">
+            <span class="tier" v-if="affix.isCrafted">工艺</span>
+            <span class="tier" v-else-if="affix.tier">T{{ affix.tier + " " }}</span>
+            <span v-if="affix.type === 1">前缀</span>
+            <span v-else-if="affix.type === 2">后缀</span>
+            <span class="name">{{ affix.name }}</span>
+          </div>
+          <div class="magics" v-if="affix.magics">
+            <template :key="k" v-for="k in Object.keys(affix.magics) || []">
+              <div v-html="magics[k] ? magics[k](affix.magics[k]) : k"></div>
+            </template>
+          </div>
+        </div>
+      </template>
+      <template v-if="false && equipment.magics">
         <!-- <div class="separator" v-if="renderSeparator()"></div> -->
         <div class="magics" v-if="equipment.magics">
           <template :key="k" v-for="k in Object.keys(equipment.magics) || []">
@@ -56,6 +73,8 @@
           </template>
         </div>
       </template>
+      <div class="copied" v-if="equipment.isCopy">已复制</div>
+      <div class="corrupted" v-if="equipment.corrupted">已腐化</div>
     </div>
     <!-- <div class="affixes" v-if="equipment.affixes">
       <div v-for="a in equipment.affixes" :class="{ prefix: a.type === 1, suffix: a.type === 2 }" v-bind="a">{{ a.name }}</div>
@@ -255,7 +274,17 @@ body.light .equipment {
     height: 1px;
     // margin: 1px 0;
   }
+  .affix.locked {
+    .magics {
+      color: var(--fractured-color);
+    }
+  }
 
+  .affix.crafted {
+    .magics {
+      color: var(--crafted-color);
+    }
+  }
   .magics {
     color: var(--magic-color);
   }

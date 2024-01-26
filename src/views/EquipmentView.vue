@@ -18,7 +18,7 @@
         <van-config-provider :theme-vars="themeVars">
           <van-dropdown-menu active-color="#ee0a24">
             <van-dropdown-item v-model="equipmentFilterType" :options="option1" @change="onTypeChange" />
-            <!-- <van-dropdown-item v-model="modifyType" :options="option2" @change="onTypeChange" /> -->
+            <van-dropdown-item v-model="statusType" :options="option2" @change="onTypeChange" />
             <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
           </van-dropdown-menu>
           <van-cell-group :border="true" style="padding-bottom: 0.48rem">
@@ -150,7 +150,7 @@ let page = 1;
 let page2 = 1;
 
 const equipmentFilterType = ref("所有类型");
-const modifyType = ref("正常");
+const statusType = ref("正常");
 const value2 = ref("a");
 const themeVars = reactive({
   dropdownMenuContentMaxHeight: "40%",
@@ -186,7 +186,7 @@ const option1 = [
 
 const option2 = [
   { text: "正常", value: "正常" },
-  { text: "改造中", value: "改造中" },
+  { text: "断裂", value: "断裂" },
 ];
 
 const onClickLeft = () => router.go(-1);
@@ -335,11 +335,11 @@ const onSearch = (value) => {
     });
   }
 
-  // if (modifyType.value == "改造中") {
-  //   resultList = resultList.filter((item) => {
-  //     return item.isModifying;
-  //   });
-  // }
+  if (statusType.value == "断裂") {
+    resultList = resultList.filter((item) => {
+      return item.isFractured;
+    });
+  }
   // console.log(resultList);
   resultList = resultList.filter((item) => {
     // let name = item.name;

@@ -24,8 +24,10 @@ export async function upgradeAllStoneOnEquipment(thirdToken) {
     // 获取无尽之衣的id
     let bodyArmor = data.equipmentSlots.bodyArmor;
     let mainHand = data.equipmentSlots.mainHand;
+    let offHand = data.equipmentSlots.offHand;
     let helmet = data.equipmentSlots.helmet;
     let boot = data.equipmentSlots.boot;
+    let glove = data.equipmentSlots.glove;
     // 将二维数组铺平
     let stones = [];
     // stones = bodyArmor.sockets && stones.concat(bodyArmor.sockets?.flat());
@@ -34,7 +36,9 @@ export async function upgradeAllStoneOnEquipment(thirdToken) {
     helmet?.sockets && (stones = stones.concat(helmet.sockets?.flat()));
     bodyArmor?.sockets && (stones = stones.concat(bodyArmor.sockets?.flat()));
     mainHand?.sockets && (stones = stones.concat(mainHand.sockets?.flat()));
+    offHand?.sockets && (stones = stones.concat(offHand.sockets?.flat()));
     boot?.sockets && (stones = stones.concat(boot.sockets?.flat()));
+    glove?.sockets && (stones = stones.concat(glove.sockets?.flat()));
 
     // let stones = bodyArmor.sockets[0];
     // stones = stones.concat(mainHand.sockets[0]);
