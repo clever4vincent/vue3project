@@ -276,7 +276,14 @@ const onEquipSelect = (action) => {
   // showDialogOptions(action.value);
 };
 const allAccount = computed(() => {
-  return useAccountStore().getAllAccountTokenInfo();
+  return useAccountStore()
+    .getAllAccountTokenInfo()
+    .sort((a, b) => {
+      // console.log(a, b);
+      let x = parseInt(a.username.replace("a6669852", ""));
+      let y = parseInt(b.username.replace("a6669852", ""));
+      return x - y;
+    });
 });
 
 const checkAll = () => {
