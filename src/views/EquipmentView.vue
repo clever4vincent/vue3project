@@ -15,20 +15,18 @@
           <van-search v-model="filterName" show-action placeholder="搜名称" @search="onSearch" />
         </form> -->
       <div ref="search">
-        <van-config-provider :theme-vars="themeVars">
-          <van-dropdown-menu active-color="#ee0a24">
-            <van-dropdown-item v-model="equipmentFilterType" :options="option1" @change="onTypeChange" />
-            <van-dropdown-item v-model="statusType" :options="option2" @change="onTypeChange" />
-            <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
-          </van-dropdown-menu>
-          <van-cell-group :border="true" style="padding-bottom: 0.48rem">
-            <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
-            <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
-            <van-field v-model="filterLevel" placeholder="装备等级" autocomplete="off" />
-            <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
-            <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
-          </van-cell-group>
-        </van-config-provider>
+        <van-dropdown-menu active-color="#ee0a24">
+          <van-dropdown-item v-model="equipmentFilterType" :options="option1" @change="onTypeChange" />
+          <van-dropdown-item v-model="statusType" :options="option2" @change="onTypeChange" />
+          <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
+        </van-dropdown-menu>
+        <van-cell-group :border="true" style="padding-bottom: 0.48rem">
+          <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
+          <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
+          <van-field v-model="filterLevel" placeholder="装备等级" autocomplete="off" />
+          <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
+          <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
+        </van-cell-group>
       </div>
 
       <van-list :loading="false" :finished="true" ref="listRef" v-if="false">
@@ -119,7 +117,7 @@ import { getEquipmentLocal, getEquipmentNetwork } from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
-
+import { useDark } from "@vueuse/core";
 const list = ref([]);
 const list2 = ref([]);
 const filterWord = ref("");
@@ -150,7 +148,6 @@ let isFisrt = true;
 let isFisrt2 = true;
 let page = 1;
 let page2 = 1;
-
 const equipmentFilterType = ref("所有类型");
 const statusType = ref("正常");
 const value2 = ref("a");
@@ -253,6 +250,7 @@ const showDetail = (item) => {
     // title: "装备详情",
     showCancelButton: true,
     confirmButtonText: "改造",
+    lockScroll: false,
     confirmButtonColor: "var(--error-color)",
     message: () => {
       return h(EquipmentDetailDialog, {
@@ -430,6 +428,9 @@ onDeactivated(async () => {});
   // bottom: 0;
   height: 100%;
   // padding-top: 46px;
+}
+:deep(.van-dropdown-item__content) {
+  max-height: 40%;
 }
 // :deep(.van-cell__value) {
 //   flex: 0.5;

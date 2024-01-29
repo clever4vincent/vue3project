@@ -361,6 +361,13 @@ html.ios.wechat {
     right: 0;
   }
 
+  .van-overlay {
+    /* prettier-ignore */
+    max-width: 768PX;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+  }
   &.is-main-page {
     .container {
       padding-bottom: $art-footer-nav-height;

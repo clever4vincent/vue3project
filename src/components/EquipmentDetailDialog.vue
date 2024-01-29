@@ -267,7 +267,7 @@ body.light .equipment {
   color: #7f7f7f;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: auto;
 
   .separator {
     background: var(--van-border-color) center no-repeat;

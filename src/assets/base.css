@@ -105,7 +105,13 @@ body {
   color: var(--vt-c-text-dark-2);
   border: var(--vt-c-divider-dark-2);
 }
-
+.van-theme-light body {
+  --normal-color: #777;
+  --rare-color: #cc0;
+  --magic-color: #3232ff;
+  --unique-color: #af6025;
+  --fractured-color: #c8b400;
+}
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

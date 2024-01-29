@@ -649,7 +649,7 @@ watch(loading, (newValue) => {
     margin: 24px;
     span {
       margin: 0 20px;
-      color: var(--van-orange);
+      color: var(--rare-color);
     }
   }
 
