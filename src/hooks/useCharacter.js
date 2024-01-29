@@ -264,9 +264,9 @@ const namePrefixs = {
 function parseAccountName(accountName, index) {
   // 将a666985233变化成t33
   let nameStr = {
-    0: "八",
-    1: "玖",
-    2: "拾",
+    0: "肆",
+    1: "伍",
+    2: "陆",
   };
   // return accountName.replace(/a6669852(\d+)/, (match, p1) => namePrefix + p1 + nameStr[index]);
   return accountName.replace(/a6669852(\d+)/, (match, p1) => namePrefixs[p1] + nameStr[index]);

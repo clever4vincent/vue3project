@@ -25,6 +25,7 @@
             <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
             <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
             <van-field v-model="filterLevel" placeholder="装备等级" autocomplete="off" />
+            <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
             <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
           </van-cell-group>
         </van-config-provider>
@@ -124,6 +125,7 @@ const list2 = ref([]);
 const filterWord = ref("");
 const filterLevel = ref("");
 const filterName = ref("");
+const filterFractured = ref("");
 const scroller = ref();
 const minItemSize = ref(72);
 const dynamicHeight = ref(500);
@@ -338,6 +340,13 @@ const onSearch = (value) => {
   if (statusType.value == "断裂") {
     resultList = resultList.filter((item) => {
       return item.isFractured;
+    });
+  }
+  if (filterFractured.value) {
+    resultList = resultList.filter((item) => {
+      return item.affixes.some((affix) => {
+        return affix.isLocked && affix.tier == filterFractured.value;
+      });
     });
   }
   // console.log(resultList);

@@ -10,11 +10,13 @@
           </div>
 
           <van-checkbox-group v-model="checkedResult" ref="checkboxGroup" @change="checkedResultChange">
-            <van-grid :border="false" :column-num="3" :center="false" class="text-xs">
-              <van-grid-item v-for="item in allAccount" :key="item.username">
-                <van-checkbox :name="item.username" icon-size="16px">{{ item.username }}</van-checkbox>
-              </van-grid-item>
-            </van-grid>
+            <box-select node=".van-checkbox" @mouseUp="mulCheck">
+              <van-grid :border="false" :column-num="3" :center="false" class="text-xs">
+                <van-grid-item v-for="item in allAccount" :key="item.username">
+                  <van-checkbox :name="item.username" icon-size="16px" class="check">{{ item.username }}</van-checkbox>
+                </van-grid-item>
+              </van-grid>
+            </box-select>
           </van-checkbox-group>
           <!-- <van-checkbox v-model="isCheckAll" :indeterminate="isIndeterminate" @change="checkAllChange"> 全选 </van-checkbox> -->
         </van-collapse-item>
@@ -56,6 +58,7 @@
       <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="sendMessage">等级轮询</van-button> -->
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_QUERY')">等级轮询</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_LEAST')">最低等级</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('WEAPON_ABLE')">武器是否可用</van-button>
     </div>
     <van-action-sheet
       v-model:show="showAction"
@@ -185,6 +188,8 @@ const DIALOG_TYPE = {
   LEVEL_LEAST_TEXT: "最低等级",
   GET_LOW_LEVEL_WEAPON: "getLowLevelWeapon",
   GET_LOW_LEVEL_WEAPON_TEXT: "获取低等级武器",
+  WEAPON_ABLE: "weaponAble",
+  WEAPON_ABLE_TEXT: "武器是否可用",
 };
 const skillStoneList = [
   /* -------横扫------- */
@@ -302,6 +307,21 @@ const close = () => {
 /***************修复ios z-index************** */
 const checkedResultChange = (value) => {
   accountStore.setBatchAccounts(value);
+};
+const mulCheck = (list) => {
+  // list 和 checkedResult.value 进行对比，如果checkedResult中没有的list中有的，就添加到checkedResult中，如果checkedResult中有的list中也有就从checkedResult中删除
+  let checkedResultList = checkedResult.value;
+  list.forEach((item) => {
+    let username = allAccount.value[item].username;
+    let index = checkedResultList.findIndex((checkedItem) => {
+      return checkedItem == username;
+    });
+    if (index == -1) {
+      checkedResultList.push(username);
+    } else {
+      checkedResultList.splice(index, 1);
+    }
+  });
 };
 
 const collectEquipment = () => {
@@ -489,11 +509,13 @@ const showDialogOptions = (type) => {
           let level = 100;
           await accountStore.batchAccountsOperation(async (thirdToken) => {
             await getCharacterInfo(thirdToken).then((res) => {
-              // console.log(res);
+              // console.log(res);isNotAvailable
               console.log("角色:", res.name);
               console.log("等级:", res.level);
               console.log("通货:", res.cpm);
               console.log("信息:", res);
+              // console.log("主武是否达标:", res);
+
               if (res.level < level) {
                 level = res.level;
               }
@@ -502,6 +524,18 @@ const showDialogOptions = (type) => {
           showToast(`最低等级为${level}`);
         } else if (DIALOG_TYPE[type] === DIALOG_TYPE.GET_LOW_LEVEL_WEAPON) {
           await getLowLevelWeapon();
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.WEAPON_ABLE) {
+          await accountStore.batchAccountsOperation(async (thirdToken) => {
+            await getCharacterInfo(thirdToken).then((res) => {
+              if (res.equipmentSlots?.mainHand.isNotAvailable) {
+                // console.log(res);
+                console.log(thirdToken.account.username);
+                console.log("角色:", res.name);
+                console.log("等级:", res.level);
+                // console.log("主武是否达标:", res.equipmentSlots?.mainHand.isNotAvailable);
+              }
+            });
+          });
         }
       }
       return true;
@@ -592,7 +626,7 @@ const initCharacterAll = async () => {
   });
   await accountStore.batchAccountsOperation(async (thirdToken) => {
     //[{rarity:3},{rarity:4}]
-    await addGoodsRule([{ rarity: 3 }, { rarity: 4 }], thirdToken);
+    await addGoodsRule([{ rarity: 4 }], thirdToken);
   });
 };
 const sycnTree = (skillJson) => {

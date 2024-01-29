@@ -131,9 +131,9 @@ export const useAccountStore = defineStore({
         for (let j = 0; j < characters.length; j++) {
           let character = characters[j];
           if (!isAsync) {
-            await operation({ thirdToken: character.token, character });
+            await operation({ thirdToken: character.token, character, account });
           } else {
-            operations.push(operation({ thirdToken: character.token, character }));
+            operations.push(operation({ thirdToken: character.token, character, account }));
           }
           // await operation();
           // operations.push(
