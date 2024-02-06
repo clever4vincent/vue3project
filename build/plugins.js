@@ -14,7 +14,7 @@ import compressPlugin from "vite-plugin-compression";
 import { viteBuildInfo } from "./info";
 import { setupName } from "./name";
 import { join } from "path";
-
+import { CodeInspectorPlugin } from "code-inspector-plugin";
 import pkg from "../package.json";
 const resolve = (dir) => join(__dirname, dir);
 
@@ -119,7 +119,9 @@ export function createVitePlugins(env, isBuild) {
         },
       ],
     }),
-
+    CodeInspectorPlugin({
+      bundler: "vite",
+    }),
     createSvgIconsPlugin({
       iconDirs: [resolve("../src/assets/icons")],
       // 指定symbolId格式

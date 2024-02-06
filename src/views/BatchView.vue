@@ -54,7 +54,8 @@
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('SYCN_TREE')">同步当前角色天赋</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showFilterJson = true">同步过滤规则</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showSkillJson = true">同步天赋JSON</van-button>
-      <van-button style="margin: 10px" plain size="small" type="primary" @click="tokenCheck">token状态验证</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('TOKEN_CHECK')">token状态验证</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('KEEP_ALIVE')">保持登录状态</van-button>
       <!-- <van-button style="margin: 10px" plain size="small" type="primary" @click="sendMessage">等级轮询</van-button> -->
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_QUERY')">等级轮询</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_LEAST')">最低等级</van-button>
@@ -83,11 +84,13 @@
         <van-button plain type="primary" @click="sycnTree(skillJson)">确认</van-button>
       </div>
       <div class="flex justify-between mb-2 space-y-2 flex-wrap px-2">
-        <van-button plain type="primary" class="first-skill" @click="skillJson = JSON.stringify(skilltree.passives20)">导入20</van-button>
-        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives40)">导入40</van-button>
-        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives50)">导入50</van-button>
-        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives60)">导入60</van-button>
-        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives86)">导入86</van-button>
+        <van-button plain type="primary" class="first-skill" @click="skillJson = JSON.stringify(skilltree.passives5)">导入5</van-button>
+        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives9)">导入9</van-button>
+        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives14)">导入14</van-button>
+        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives17)">导入17</van-button>
+        <!-- <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives40)">导入40</van-button>
+        <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives50)">导入50</van-button> -->
+        <!-- <van-button plain type="primary" @click="skillJson = JSON.stringify(skilltree.passives60)">导入60</van-button> -->
       </div>
 
       <div class="flex justify-start mb-2"></div>
@@ -137,6 +140,7 @@ import {
   filterRequiredItems,
   updateEquipmentLocal,
   getTokenInfo,
+  keepLoginAlive,
 } from "@/hooks";
 import { onMounted } from "vue";
 import { nextTick } from "vue";
@@ -190,6 +194,10 @@ const DIALOG_TYPE = {
   GET_LOW_LEVEL_WEAPON_TEXT: "获取低等级武器",
   WEAPON_ABLE: "weaponAble",
   WEAPON_ABLE_TEXT: "武器是否可用",
+  TOKEN_CHECK: "tokenCheck",
+  TOKEN_CHECK_TEXT: "token状态验证",
+  KEEP_ALIVE: "keepAlive",
+  KEEP_ALIVE_TEXT: "保持登录状态",
 };
 const skillStoneList = [
   /* -------横扫------- */
@@ -503,6 +511,12 @@ const showDialogOptions = (type) => {
         } else if (DIALOG_TYPE[type] === DIALOG_TYPE.LEVEL_QUERY) {
           // 等级轮询
           EventBus.emit("startQueryLevelThread");
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.TOKEN_CHECK) {
+          // token状态验证
+          await tokenCheck();
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.KEEP_ALIVE) {
+          // 保持登录状态
+          await keepAlive();
         } else if (DIALOG_TYPE[type] === DIALOG_TYPE.LEVEL_LEAST) {
           // 最低等级
           // await queryLevelLeast();
@@ -706,6 +720,30 @@ const addGoodsRuleConfirm = () => {
 };
 const tokenCheck = () => {
   accountStore.refreshAllAccountTokenInfo();
+};
+const keepAlive = async () => {
+  // 整个保活过程将账号分成若干部分 太多的话会导致请求超时
+  // 先点击全选将所有账号勾选上，然后再去掉不需要保活的账号
+  useLoadingStore().showLoading();
+  let allUser = allAccount.value.map((item) => {
+    return item.username;
+  });
+  // 将allUser根据自身长度,每份60个分成多份,不足60个的也分成一份
+  let parts = Math.ceil(allUser.length / 60);
+  for (let i = 0; i < parts; i++) {
+    let part1 = allUser.slice(i * 60, (i + 1) * 60);
+    // console.log(part1);
+    accountStore.setBatchAccounts(part1);
+    await accountStore.batchAccountsOperation(async ({ thirdToken }) => {
+      // console.log(thirdToken);
+      await keepLoginAlive(thirdToken);
+      // return addGoodsRule(filterJsonObj, thirdToken);
+    });
+  }
+  useLoadingStore().hideLoading();
+  // 保活完毕后清空批量操作的账号
+  accountStore.setBatchAccounts([]);
+  showSuccessToast("保持登录状态成功");
 };
 watch(
   () => accountStore.getBatchAccounts,

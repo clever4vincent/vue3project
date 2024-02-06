@@ -149,6 +149,8 @@ import { isMatchCustomAttr } from "@/hooks";
 import { onActivated, onDeactivated, ref, watch, h } from "vue";
 import { nextTick } from "vue";
 import { threadPool } from "@/utils/ThreadPool";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { getAppEnvConfig } from "@/utils/env";
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
 const scroller = ref();
@@ -193,9 +195,69 @@ watch(currentCharacter, (newVal, oldVal) => {
     // -----------给角色添加动画效果-----------
   }
 });
+let eventStream = null;
+let maxDemage = 0;
+let maxTotalDemage = 0;
+const start = () => {
+  if (eventStream) eventStream.close();
+  eventStream = new EventSourcePolyfill(`${getAppEnvConfig().VITE_GLOB_API_URL}/battle/sse`, {
+    headers: {
+      Authorization: "Bearer " + currentCharacter.value.token,
+    },
+  });
 
+  eventStream.addEventListener("error", () => {
+    console.log("battle error");
+  });
+  eventStream.addEventListener("battle_result", (e) => {
+    const data = JSON.parse(e.data);
+
+    !data.isWin && console.log(data);
+  });
+  eventStream.addEventListener("battle_event", (e) => {
+    const data = JSON.parse(e.data);
+    // console.log(data);
+    data.targets.forEach((target) => {
+      if (target?.name == currentCharacter.value.name) {
+        // 记录伤害超过2000的数值，再记录伤害的类型
+        if (target?.damages?.[1] > 1800) {
+          console.log(data);
+          console.log(`人物收到的伤害：${target?.damages?.[1]}，伤害类型为${data.skill.name}`);
+        }
+      }
+      // 计算所有伤害的总和
+      if (target?.damages) {
+        let totalDemage = Object.keys(target.damages).reduce((prev, cur) => {
+          return prev + target.damages[cur];
+        }, 0);
+        // console.log(totalDemage);
+        if (totalDemage > maxTotalDemage) {
+          maxTotalDemage = totalDemage;
+          console.log(`最高总伤：${maxTotalDemage}`);
+        }
+      }
+      if (target?.damages?.[4] > maxDemage) {
+        maxDemage = target.damages[4];
+        console.log(`最高电伤：${maxDemage}`);
+      }
+    });
+  });
+  // eventStream.addEventListener("battle_searching", callback);
+  eventStream.addEventListener("close", () => {
+    console.log("battle sse closed, restart in 1s");
+    setTimeout(() => {
+      start();
+    }, 1000);
+  });
+  // eventStream.addEventListener("character_update", (e) => {
+  //   const data = JSON.parse(e.data);
+  //   console.log(data);
+  //   // Object.assign(character.value, data);
+  // });
+};
 onMounted(async () => {
   useTokenStore().setToken(currentCharacter.value.token);
+  // start();
   watch(activeName, (newVal, oldVal) => {
     if (newVal == 2) {
       setTimeout(() => {
@@ -211,10 +273,13 @@ onMounted(async () => {
 // const validate = () => {
 //   console.log(window.vaptchaObj.validate());
 // };
+
 onActivated(async () => {
   console.log("onActivated");
 });
-onUnmounted(() => {});
+onUnmounted(() => {
+  if (eventStream) eventStream.close();
+});
 const toEquipment = () => {
   if (!tokenStore.getToken) {
     showDialog({ message: "请先选择角色" });
@@ -341,8 +406,9 @@ const beforeClose = (action) =>
           let end = dialogRef.value.end;
           let accounts = [];
           for (let i = start; i <= end; i++) {
-            accounts.push({ username: username + i, password });
+            accounts.push({ username: username + String(i).padStart(2, "0"), password });
           }
+          console.log(accounts);
           addAccounts(accounts)
             .then(() => {
               // dialogRef.value.clearFields();

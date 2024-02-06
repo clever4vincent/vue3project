@@ -1,6 +1,8 @@
 import { login } from "@/api";
 import { useTokenStoreWithOut, useAccountStore, useStore } from "@/stores";
 import { EventBus } from "@/lib/EventBus";
+import { EventSourcePolyfill } from "event-source-polyfill";
+import { getAppEnvConfig } from "@/utils/env";
 export async function loginProgress(user) {
   return new Promise((resolve, reject) => {
     // window.vaptchaObj.validate();
@@ -26,6 +28,29 @@ export async function loginProgress(user) {
       }
 
       EventBus.off("vaptchaPass");
+    });
+  });
+}
+// let eventStream = null;
+export async function keepLoginAlive(token) {
+  return new Promise((resolve, reject) => {
+    // if (eventStream) eventStream.close();
+    let eventStream = new EventSourcePolyfill(`${getAppEnvConfig().VITE_GLOB_API_URL}/character/sse`, {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
+    eventStream.addEventListener("character_update", (e) => {
+      const data = JSON.parse(e.data);
+      // console.log("character_update", data);
+      eventStream.close();
+      eventStream = null;
+      resolve();
+    });
+    eventStream.addEventListener("error", () => {
+      console.log(" error");
+      eventStream = null;
+      reject();
     });
   });
 }
