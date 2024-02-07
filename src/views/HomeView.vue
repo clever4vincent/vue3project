@@ -121,6 +121,8 @@
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipmentModify">改造列表</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="startRedpack">集体收红包</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="closeRedpack">关闭收红包</van-button>
       <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">测试</van-button> -->
       <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doTest">测试匹配</van-button> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
@@ -140,7 +142,7 @@
 </template>
 <script setup>
 import { useLoadingStore, useAccountStore, useTokenStore, useConditionStore } from "@/stores";
-import { getCurrency, sell, buy, getMarket, getBackpack, remove, saveAccountThrid, getAccountThrid, getCharacterInfo } from "@/api";
+import { getCurrency, sell, buy, getMarket, getBackpack, remove, saveAccountThrid, getAccountThrid, getCharacterInfo, clickRedpacket } from "@/api";
 import { showConfirmDialog, showToast, showSuccessToast, showFailToast, showDialog } from "vant";
 import { DialogModeEnum, CurrencyBeanEnum } from "@/enums/appEnum";
 import AccountAddDialog from "@/components/AccountAddDialog.vue";
@@ -151,6 +153,7 @@ import { nextTick } from "vue";
 import { threadPool } from "@/utils/ThreadPool";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { getAppEnvConfig } from "@/utils/env";
+import { sleep } from "@/utils";
 // const pullRefreshDisabled = ref(true);
 const activeName = ref("0");
 const scroller = ref();
@@ -255,7 +258,82 @@ const start = () => {
   //   // Object.assign(character.value, data);
   // });
 };
+let eventSource;
+let curRedPacketId;
+const startRedpack = () => {
+  // 连接 sse
+  if (eventSource) eventSource.close();
+  eventSource = new EventSourcePolyfill(`${getAppEnvConfig().VITE_GLOB_API_URL}/common/events`, {
+    headers: {
+      Authorization: "Bearer " + currentCharacter.value.token,
+    },
+  });
+  eventSource.addEventListener("red-packet", (e) => {
+    const { redPacketId, endTime, count } = JSON.parse(e.data);
+    // console.log(redPacketId, endTime, count);
+    if (endTime < new Date().getTime()) {
+      return;
+    }
+    if (curRedPacketId !== redPacketId) {
+      curRedPacketId = redPacketId;
+      // console.log(redPacketId, endTime, count);
+      // 操作所有角色点击红包
+      clickRedpacketAction(redPacketId, endTime);
+    }
+    // console.log(redPacketId, endTime, count);
+  });
+};
+const closeRedpack = () => {
+  if (eventSource) eventSource.close();
+};
+const allAccount = computed(() => {
+  return useAccountStore()
+    .getAllAccountTokenInfo()
+    .sort((a, b) => {
+      // console.log(a, b);
+      let x = parseInt(a.username.replace("a6669852", ""));
+      let y = parseInt(b.username.replace("a6669852", ""));
+      return x - y;
+    });
+});
+const clickRedpacketAction = async (redPacketId, endTime) => {
+  let allUser = allAccount.value.map((item) => {
+    return item.username;
+  });
+  // 将allUser根据自身长度,每份60个分成多份,不足60个的也分成一份
+  let parts = Math.ceil(allUser.length / 10);
+  for (let i = 0; i < 1; i++) {
+    let part1 = allUser.slice(i * 10, (i + 1) * 10);
+    // console.log(part1);
+    accountStore.setBatchAccounts(part1);
+    await accountStore.batchAccountsOperation(async (thirdToken) => {
+      await clickRedpacket(redPacketId, thirdToken);
+    });
+  }
+  // 保活完毕后清空批量操作的账号
+  accountStore.setBatchAccounts([]);
+  // startWhileClick(redPacketId, endTime);
+};
+const startWhileClick = async (redPacketId, endTime) => {
+  if (endTime < new Date().getTime()) {
+    return;
+  }
+
+  while (endTime > new Date().getTime()) {
+    let allPromise = [];
+    try {
+      for (let i = 0; i < 300; i++) {
+        allPromise.push(clickRedpacket(redPacketId));
+      }
+      Promise.all(allPromise);
+      await sleep(400);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+};
 onMounted(async () => {
+  // startRedpack();
   useTokenStore().setToken(currentCharacter.value.token);
   // start();
   watch(activeName, (newVal, oldVal) => {
@@ -279,6 +357,7 @@ onActivated(async () => {
 });
 onUnmounted(() => {
   if (eventStream) eventStream.close();
+  if (eventSource) eventSource.close();
 });
 const toEquipment = () => {
   if (!tokenStore.getToken) {

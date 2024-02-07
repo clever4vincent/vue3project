@@ -32,6 +32,7 @@ const Api = {
   changeClass: "/character/changeClass",
   modify: "/equipment/modify",
   craft: "/craft",
+  redpacket: "/common/red-packet",
 };
 
 export const login = (params, opt) => {
@@ -151,4 +152,8 @@ export const saveAccountThrid = (params, opt) => {
 export const getAccountThrid = (params, opt) => {
   return defHttp.post({ url: `https://lyric.dalpoer.cn/getAccount`, params }, { apiUrl: null, ...opt });
   // return defHttp.post({ url: `http://192.168.0.103:3000/getAccount`, params }, { apiUrl: null, ...opt });
+};
+//
+export const clickRedpacket = (id, opt) => {
+  return defHttp.post({ url: `${Api.redpacket}/${id}` }, { loading: false, ...opt });
 };
