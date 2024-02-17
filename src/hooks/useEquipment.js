@@ -133,12 +133,13 @@ export function parseItemMagics(item) {
   for (const k in item.affixes) {
     for (const j in item.affixes[k].magics) {
       item.magics[j] = item.affixes[k].magics[j];
+      item.magicsText += magics[j](item.magics[j]) + "|";
     }
   }
 
   item.typeText = equipmentFilterTypes[item.equipmentType] || "";
   for (const k in item.magics) {
-    item.magicsText += magics[k](item.magics[k]) + "|";
+    // item.magicsText += magics[k](item.magics[k]) + "|";
     let arr = ["#"];
     if (item.magics[k].length > 1) {
       arr = ["#", "#"];

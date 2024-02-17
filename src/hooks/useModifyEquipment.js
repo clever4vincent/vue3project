@@ -5,6 +5,7 @@ import { useStoreWithOut } from "@/stores";
 import { nextTick, toRaw } from "vue";
 import { parseItemMagics } from "@/hooks";
 import { updateEquipmentItemLocal } from "@/hooks";
+import { cloneDeep } from "lodash-es";
 const audio = new Audio("https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3");
 // 当前的角色上架物品，然后将Token切换成选择的角色，再购买物品，购买物品后，再切回Token.
 export async function doRenovation(equipmentModify, { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount }, thirdToken) {
@@ -327,17 +328,58 @@ export async function doLockRenovation(equipmentModify, thirdToken) {
   }
   await updateEquipmentItemLocal(thirdToken, toRaw(equipmentModify.equipment));
 }
+export async function doProcessArea(equipmentModify, thirdToken) {
+  let retryCount = equipmentModify.retryCount;
+  console.log("equipmentModify", equipmentModify);
+  let result = false;
 
+  while (equipmentModify.isModifyRunning && retryCount-- > 0) {
+    // 判断是否已经包含工艺台词条，有的话就去除
+    let includeCrafted = equipmentModify.equipment?.affixes?.some((affix) => affix.isCrafted);
+    if (includeCrafted) {
+      // 如果有工艺台词条，就去除词条
+      await craft(equipmentModify.equipment.id, 0, thirdToken).then((res) => {
+        equipmentModify.equipment = parseItemMagics(res.equipment);
+      });
+    }
+    // 如果没有工艺台词条，就使用工艺台改造
+    await craft(equipmentModify.equipment.id, equipmentModify.processArea.craftId, thirdToken).then((res) => {
+      equipmentModify.equipment = parseItemMagics(res.equipment);
+    });
+    // 判断是否满足要求
+    let affix = equipmentModify.equipment.affixes.filter((affix) => affix.isCrafted);
+    if (affix.length > 0) {
+      // equipmentModify.processArea.affix.magics
+      for (let key in affix[0].magics) {
+        // equipmentModify.equipment.magics[key] = affix[0].magics[key];
+        if (affix[0].magics[key][0] == equipmentModify.processArea.affix.magics[key][0].max) {
+          result = true;
+          equipmentModify.isModifyRunning = false;
+          break;
+        }
+      }
+    }
+  }
+  equipmentModify.isModifyRunning = false;
+  if (result) {
+    console.log("达标了", equipmentModify);
+  } else {
+    console.log("中止了！", equipmentModify);
+  }
+  await updateEquipmentItemLocal(thirdToken, toRaw(equipmentModify.equipment));
+}
 export function isMatchCustomAttr(equipment, customAttrs, termCount) {
   // 匹配成功的个数
   let count = 0;
   let mustCount = 0;
+  let newCustomAttrs = cloneDeep(customAttrs);
+  let matchIndex = -1;
   parseItemMagics(equipment)
     .magicsText.split("|")
     .forEach((div) => {
       // customAttrs是一个数组
       // 遍历数组，判断是否包含自定义属性中的词条
-      let result = customAttrs.some((customAttr, index) => {
+      let result = newCustomAttrs.some((customAttr, index) => {
         if (div.replace(/\d+/g, "#").indexOf(customAttr.name) > -1) {
           // 如果有这个，就判断数字是否满足自定义属性中的值
           let match = div.match(/\d+-\d+|\d+(\.\d+)?/g);
@@ -352,6 +394,7 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
               } else {
                 count++;
               }
+              matchIndex = index;
               return true;
             }
             return false;
@@ -365,12 +408,19 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
               }
               // 如果这条自定义属性中被匹配了，下次循环就不再匹配这条
               // customAttrs.splice(index, 1);
+              matchIndex = index;
               return true;
             }
             return false;
           }
         }
       });
+      // 如果有匹配成功的，就将这个自定义属性从数组中删除
+      if (result) {
+        newCustomAttrs.splice(matchIndex, 1);
+        // console.log("newCustomAttrs", newCustomAttrs);
+      }
+      // console.log("newCustomAttrs", newCustomAttrs);
       // if (result) {
       //   count++;
       // }

@@ -32,6 +32,7 @@ const Api = {
   changeClass: "/character/changeClass",
   modify: "/equipment/modify",
   craft: "/craft",
+  craftList: "/craft/list",
   redpacket: "/common/red-packet",
 };
 
@@ -104,6 +105,9 @@ export const modify = (equipmentId, type, opt) => {
 };
 export const craft = (equipmentId, craftId, opt) => {
   return defHttp.post({ url: Api.craft, params: { equipmentId, craftId } }, { ...opt, loading: false });
+};
+export const craftList = (opt) => {
+  return defHttp.get({ url: Api.craftList, params: {} }, { ...opt });
 };
 export const takeOff = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.takeOff, params: { equipmentId, characterId } }, { ...opt });

@@ -259,7 +259,13 @@ const showDetail = (item) => {
     },
   }).then(() => {
     if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
-      useConditionStore().equipmentModifys.push({ equipment: item, makeType: CurrencyBeanEnum.orbOfAlteration.value });
+      useConditionStore().equipmentModifys.push({
+        equipment: item,
+        makeType: CurrencyBeanEnum.chaosOrb.value,
+        openEEE: true,
+        termCount: 3,
+        retryCount: 80000,
+      });
       showSuccessToast("加入改造列表成功");
     } else {
       showSuccessToast("已经在改造列表中");

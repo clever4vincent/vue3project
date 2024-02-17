@@ -1,38 +1,38 @@
 <template>
-  <transition :duration="550" leave-active-class="animate__animated animate__slideOutLeft">
-    <div class="border-rose-600 mb-1 p-1 border-dotted border" :key="item.time">
-      <van-popover v-model:show="showPopover" :actions="actions" @select="onSelect" trigger="manual" :teleport="modifyPage">
-        <template #reference>
-          <van-field
-            v-model="filterMagics"
-            placeholder="词缀"
-            autocomplete="off"
-            clearable
-            @focus="onFocus"
-            @update:model-value="onUpdate"
-            @blur="onblur"
-            @clear="onclear"
-          />
-        </template>
-      </van-popover>
-      <div class="flex justify-between items-center">
-        <div class="flex">
-          <van-field v-model="magicValue1" placeholder="#1" :border="false" autocomplete="off" class="magicValue" />
-          <van-field v-if="getFilterMatch() > 1" v-model="magicValue2" placeholder="#2" :border="false" autocomplete="off" class="magicValue" />
+  <!-- <transition :duration="550" leave-active-class="animate__animated animate__slideOutLeft"> -->
+  <div class="border-rose-600 mb-1 p-1 border-dotted" :class="{ border: type == 1 }" :key="item?.time">
+    <van-popover v-model:show="showPopover" :actions="actions" @select="onSelect" trigger="manual" :teleport="modifyPage">
+      <template #reference>
+        <van-field
+          v-model="filterMagics"
+          :placeholder="type == 1 ? '词缀' : '工艺台词缀'"
+          autocomplete="off"
+          clearable
+          @focus="onFocus"
+          @update:model-value="onUpdate"
+          @blur="onblur"
+          @clear="onclear"
+        />
+      </template>
+    </van-popover>
+    <div class="flex justify-between items-center" v-if="type == 1">
+      <div class="flex">
+        <van-field v-model="magicValue1" placeholder="#1" :border="false" autocomplete="off" class="magicValue" />
+        <van-field v-if="getFilterMatch() > 1" v-model="magicValue2" placeholder="#2" :border="false" autocomplete="off" class="magicValue" />
 
-          <van-checkbox v-model="isMustChecked" icon-size="16px" checked-color="#e63946">必须满足</van-checkbox>
-        </div>
-        <van-button style="margin: 10px" size="mini" plain type="primary" @click="deleteItem">删除</van-button>
+        <van-checkbox v-model="isMustChecked" icon-size="16px" checked-color="#e63946">必须满足</van-checkbox>
       </div>
+      <van-button style="margin: 10px" size="mini" plain type="primary" @click="deleteItem">删除</van-button>
     </div>
-  </transition>
+  </div>
+  <!-- </transition> -->
 </template>
 
 <script>
 import { magics } from "@/lib/data";
 export default {
-  props: ["modifyPage", "index", "item"],
-  emits: ["delete"], // 声明 delete 事件
+  props: ["modifyPage", "index", "item", "type", "equipment", "craftList"],
+  emits: ["delete", "select"], // 声明 delete 事件
   data() {
     return {};
   },
@@ -42,12 +42,17 @@ export default {
     const isMustChecked = ref(false);
     const filterMagics = ref("");
     filterMagics.value = props.item?.name || "";
+    if (props.type == 2) {
+      filterMagics.value = props.item?.text || "";
+    }
+
     const magicValue1 = ref("");
     magicValue1.value = props.item?.value1 || "";
     const magicValue2 = ref("");
     magicValue2.value = props.item?.value2 || "";
     const showPopover = ref(false);
     const onSelect = (action) => {
+      emit("select", action);
       filterMagics.value = action.text;
     };
     const onFocus = () => {
@@ -91,17 +96,56 @@ export default {
       emit("delete", props.index);
     };
     const actions = computed(() => {
-      return Object.keys(magics)
-        .map((key) => {
-          return {
-            text: magics[key]("#")
-              .replace(/<div>|<\/div>/g, "")
-              .replace(/undefined/, "#"),
-            className: "popupText",
-          };
-        })
-        .filter((magic) => magic.text.includes(filterMagics.value))
-        .slice(0, 7);
+      if (props.type == 1)
+        return Object.keys(magics)
+          .map((key) => {
+            return {
+              text: magics[key]("#")
+                .replace(/<div>|<\/div>/g, "")
+                .replace(/undefined/, "#"),
+              className: "popupText",
+            };
+          })
+          .filter((magic) => magic.text.includes(filterMagics.value))
+          .slice(0, 7);
+      else {
+        let crafts = props.craftList.filter(
+          (craft) => !craft.equipmentTypes || craft.equipmentTypes.some((type) => (BigInt(type) & BigInt(props.equipment.equipmentType)) > 0)
+        );
+        crafts.forEach((craft) => {
+          let texts = [];
+          let searchTexts = [];
+          if (craft.text) {
+            texts.push(craft.text);
+            searchTexts.push(craft.text);
+          }
+          if (craft.affix) {
+            for (const k in craft.affix.magics) {
+              const fn = magics[k];
+              if (!fn) {
+                texts.push("你需要刷新了");
+                continue;
+              }
+              const values = craft.affix.magics[k];
+              let text = fn(values.map((x, i) => `#${i}`));
+              for (let i = 0; i < values.length; i++) {
+                text = text.replace(`#${i}`, `${values[i].min} ~ ${values[i].max}`);
+              }
+              texts.push(text);
+
+              // remove html tags
+              text = text.replace(/<[^>]+>/g, "");
+              searchTexts.push(text);
+            }
+          }
+          // craft.texts = texts;
+          craft.className = "popupText";
+          craft.text = searchTexts[0];
+          // craft.searchTexts = searchTexts;
+        });
+
+        return crafts.filter((magic) => magic.text.includes(filterMagics.value));
+      }
     });
     onMounted(() => {});
     return {

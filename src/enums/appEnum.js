@@ -31,18 +31,19 @@ const needCurrency = [
   "混沌石",
   "卡兰德的魔镜",
   "神圣石",
-  // "崇高石",
-  // "剥离石",
-  // "重铸石",
-  // "点金石",
-  // "改造石",
-  // "富豪石",
-  // "瓦尔宝珠",
+  "崇高石",
+  "剥离石",
+  "重铸石",
+  "点金石",
+  "改造石",
+  "富豪石",
+  "链结石",
+  "瓦尔宝珠",
   // "蜕变石",
-  // "增幅石",
-  // "机会石",
-  // "工匠石",
-  // "幻色石",
+  "增幅石",
+  "机会石",
+  "工匠石",
+  "幻色石",
 ];
 export const CurrencyBeanEnum = {
   jewellerOrb: {
@@ -121,6 +122,10 @@ export const CurrencyBeanEnum = {
   fracturingOrb: {
     value: 19,
     name: "破溃宝珠",
+  },
+  processArea: {
+    value: 97,
+    name: "工艺台",
   },
   lockPre: {
     value: 98,

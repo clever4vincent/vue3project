@@ -121,8 +121,8 @@
       <!-- <van-divider :style="{ color: '#1989fa', borderColor: '#1989fa' }"></van-divider> -->
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipment">装备列表</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="toEquipmentModify">改造列表</van-button>
-      <van-button style="margin: 10px" size="small" plain type="primary" @click="startRedpack">集体收红包</van-button>
-      <van-button style="margin: 10px" size="small" plain type="primary" @click="closeRedpack">关闭收红包</van-button>
+      <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="startRedpack">集体收红包</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="closeRedpack">关闭收红包</van-button> -->
       <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doThread">测试</van-button> -->
       <!-- <van-button style="margin: 10px" size="small" plain type="primary" @click="doTest">测试匹配</van-button> -->
       <!-- <van-button style="margin: 10px" plain type="primary" @click="validate">验证</van-button> -->
@@ -302,7 +302,7 @@ const clickRedpacketAction = async (redPacketId, endTime) => {
   });
   // 将allUser根据自身长度,每份60个分成多份,不足60个的也分成一份
   let parts = Math.ceil(allUser.length / 10);
-  for (let i = 0; i < 1; i++) {
+  for (let i = 0; i < 2; i++) {
     let part1 = allUser.slice(i * 10, (i + 1) * 10);
     // console.log(part1);
     accountStore.setBatchAccounts(part1);
@@ -318,7 +318,6 @@ const startWhileClick = async (redPacketId, endTime) => {
   if (endTime < new Date().getTime()) {
     return;
   }
-
   while (endTime > new Date().getTime()) {
     let allPromise = [];
     try {
