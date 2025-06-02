@@ -13,6 +13,39 @@ import { useLoadingStore, useTokenStore } from "@/stores";
 import { joinTimestamp, formatRequestDate } from "./helper";
 import { useAccountStoreWithOut } from "@/stores/account";
 
+// 请求限制相关配置
+const MAX_REQUESTS_PER_SECOND = 40;
+const requestQueue = [];
+let lastRequestTime = 0;
+let requestCount = 0;
+
+// 节流函数
+const throttleRequest = () => {
+  const now = Date.now();
+  if (now - lastRequestTime >= 1000) {
+    requestCount = 0;
+    lastRequestTime = now;
+  }
+
+  if (requestCount >= MAX_REQUESTS_PER_SECOND) {
+    return new Promise((resolve) => {
+      const waitTime = 1000 - (now - lastRequestTime);
+      requestQueue.push(resolve);
+      setTimeout(() => {
+        requestCount = 0;
+        lastRequestTime = Date.now();
+        const nextRequest = requestQueue.shift();
+        if (nextRequest) {
+          nextRequest();
+        }
+      }, waitTime);
+    });
+  }
+
+  requestCount++;
+  return Promise.resolve();
+};
+
 const globSetting = getAppEnvConfig();
 const urlPrefix = globSetting.urlPrefix;
 let retryTokenCount = 0; // 重试次数
@@ -59,7 +92,7 @@ const transform = {
       return result;
     }
 
-    // errorMessageMode=‘modal’的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
+    // errorMessageMode='modal'的时候会显示modal错误弹窗，而不是消息提示，用于一些比较重要的错误
     // errorMessageMode='none' 一般是调用时明确表示不希望自动弹出错误提示
     if (options.errorMessageMode === "modal") {
       // createErrorModal({ title: t("sys.api.errorTip"), content: timeoutMsg });
@@ -124,7 +157,7 @@ const transform = {
   /**
    * @description: 请求拦截器处理
    */
-  requestInterceptors: (config, options) => {
+  requestInterceptors: async (config, options) => {
     const { loading } = config.requestOptions;
     // 请求之前处理config
     // const token = getToken();
@@ -139,6 +172,10 @@ const transform = {
     if (loading) {
       useLoadingStore().showLoading();
     }
+
+    // 添加请求频率限制
+    await throttleRequest();
+
     return config;
   },
 
