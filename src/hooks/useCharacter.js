@@ -19,6 +19,8 @@ import {
 import { useTokenStoreWithOut, useAccountStoreWithOut, useStore } from "@/stores";
 import { loginProgress } from "./useLogin";
 import { startEquipmentTransfer } from "./useTransfer";
+import { batchProcessPromises } from "@/hooks/useEquipment";
+
 export async function upgradeAllStoneOnEquipment(thirdToken) {
   await getCharacterInfo(thirdToken).then(async (data) => {
     // 获取无尽之衣的id
@@ -61,6 +63,7 @@ export async function upgradeAllStoneOnEquipment(thirdToken) {
     }
   });
 }
+
 export async function updateSkilltreeComb(skills, thirdToken) {
   await getCharacterInfo(thirdToken).then(async (data) => {
     // 如果职业是2也就是贵族的话 characterClasses
@@ -70,6 +73,7 @@ export async function updateSkilltreeComb(skills, thirdToken) {
     await updateSkilltree(skills, thirdToken);
   });
 }
+
 export async function createAccountProgress(account) {
   let accountToken;
   try {
@@ -103,6 +107,7 @@ export async function createAccountProgress(account) {
     throw new Error(error);
   }
 }
+
 export async function buySkillStone(skillStoneList, thirdToken) {
   let promises = [];
   skillStoneList.forEach((item) => {
@@ -150,6 +155,7 @@ export async function initAccountProgress(accountItem) {
 function generateRandomNickname() {
   return randomAdjective + randomNoun;
 }
+
 const namePrefixs = {
   "00": "卢俊义",
   "01": "吴用",
@@ -260,6 +266,7 @@ const namePrefixs = {
 //   const zhi = diZhi[i % 12];
 //   console.log(`${i}: "${gan}${zhi}"`);
 // }
+
 function parseAccountName(accountName, index) {
   // 将a666985233变化成t33
   let nameStr = {
@@ -270,6 +277,7 @@ function parseAccountName(accountName, index) {
   // return accountName.replace(/a6669852(\d+)/, (match, p1) => namePrefix + p1 + nameStr[index]);
   return accountName.replace(/a6669852(\d+)/, (match, p1) => namePrefixs[p1] + nameStr[index]);
 }
+
 export const Character = {
   equipHelmet: async function ({ thirdToken }) {
     // 头盔
@@ -655,6 +663,7 @@ export const Character = {
     // await equip(currentSellItem.id, getTokenInfo(thirdToken.thirdToken).characterId, thirdToken);
   },
 };
+
 async function findEquipment(query, buyToken, { thirdToken, character }) {
   // 无尽之衣
   let result = [];
@@ -674,11 +683,21 @@ async function findEquipment(query, buyToken, { thirdToken, character }) {
       data.items && result.push(...data.items);
     });
     if (pageCount > 1) {
+      const pagePromises = [];
       for (let index = 2; index <= pageCount; index++) {
-        await getBackpack(index, query, { thirdToken }).then((data) => {
-          data.items && result.push(...data.items);
-        });
+        pagePromises.push(() =>
+          getBackpack(index, query, { thirdToken }).catch((err) => {
+            console.log(err);
+            return {
+              items: [],
+            };
+          })
+        );
       }
+      const batchResults = await batchProcessPromises(pagePromises);
+      batchResults.forEach((data) => {
+        data.items && result.push(...data.items);
+      });
     }
   }
   if (result.length > 0) {
@@ -706,13 +725,14 @@ async function findEquipment(query, buyToken, { thirdToken, character }) {
 
   return result;
 }
+
 export async function getEquipmentList(query, thirdToken) {
   // 17045651456 无尽之衣 132120576 鞋子
   // let sellCharacter = account.tokenInfo.characters[0];
 
   let result = [];
   let pageCount = 1;
-  let allPromise = [];
+  let allPromiseFns = [];
   if (!thirdToken) {
     console.log("角色不存在");
     return;
@@ -729,7 +749,7 @@ export async function getEquipmentList(query, thirdToken) {
     });
     if (pageCount > 1) {
       for (let index = 2; index <= pageCount; index++) {
-        allPromise.push(
+        allPromiseFns.push(() =>
           getBackpack(index, query, { thirdToken }).catch((err) => {
             console.log(err);
             return {
@@ -737,19 +757,18 @@ export async function getEquipmentList(query, thirdToken) {
             };
           })
         );
-        // await getBackpack(index, query, { thirdToken }).then((data) => {
-        //   data.items && result.push(...data.items);
-        // });
       }
     }
   }
-  await Promise.all(allPromise).then((res) => {
-    res.forEach((data) => {
+  if (allPromiseFns.length > 0) {
+    const batchResults = await batchProcessPromises(allPromiseFns);
+    batchResults.forEach((data) => {
       data.items && result.push(...data.items);
     });
-  });
+  }
   return result;
 }
+
 export function filterRequiredItems(items, currentCharacterInfo) {
   // 过滤掉不符合要求的物品
   return items.filter((item) => {
@@ -762,6 +781,7 @@ export function filterRequiredItems(items, currentCharacterInfo) {
     return result;
   });
 }
+
 export function getTokenInfo(token) {
   if (!token) {
     return {};

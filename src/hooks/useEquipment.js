@@ -53,10 +53,35 @@ export const equipmentFilterTypes = {
   281474976710656: "项链",
   562949953421312: "戒指",
 };
+export const batchProcessPromises = async (promiseFunctions, batchSize = 30) => {
+  const results = [];
+  const startTime = Date.now();
+  let processedCount = 0;
+
+  for (let i = 0; i < promiseFunctions.length; i += batchSize) {
+    const batch = promiseFunctions.slice(i, i + batchSize);
+    const batchPromises = batch.map((fn) => fn());
+    const batchResults = await Promise.all(batchPromises);
+    results.push(...batchResults);
+
+    processedCount += batch.length;
+    const currentTime = Date.now();
+    const elapsedTime = currentTime - startTime;
+
+    // 如果处理速度超过每秒30个请求，需要等待
+    if (processedCount / (elapsedTime / 1000) > 30) {
+      const waitTime = Math.ceil((processedCount / 30) * 1000 - elapsedTime);
+      if (waitTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      }
+    }
+  }
+  return results;
+};
 export const getEquipmentNetwork = async (thirdToken) => {
   let result = [];
   let pageCount = 1;
-  let allPromise = [];
+
   for (let index = 0; index < 2; index++) {
     let query = {};
     if (index == 1) {
@@ -67,17 +92,22 @@ export const getEquipmentNetwork = async (thirdToken) => {
       pageCount = parseInt(total / 30) + 1;
       data.items && result.push(...data.items);
     });
+
     if (pageCount > 1) {
-      for (let index = 2; index <= pageCount; index++) {
-        allPromise.push(getBackpack(index, query, thirdToken));
+      // 创建所有需要请求的页面的Promise
+      const pagePromises = [];
+      for (let pageIndex = 2; pageIndex <= pageCount; pageIndex++) {
+        pagePromises.push(() => getBackpack(pageIndex, query, thirdToken));
       }
+
+      // 使用batchProcessPromises处理这些Promise
+      const batchResults = await batchProcessPromises(pagePromises);
+      batchResults.forEach((data) => {
+        data.items && result.push(...data.items);
+      });
     }
   }
-  await Promise.all(allPromise).then((res) => {
-    res.forEach((data) => {
-      data.items && result.push(...data.items);
-    });
-  });
+
   let parseList = parseMagics(result);
   // list.value = orginList;
   // scroller?.value?.updateVisibleItems();
@@ -129,6 +159,7 @@ export function parseMagics(list) {
 export function parseItemMagics(item) {
   item.magicsText = "";
   item.magicsFilterText = "";
+  item.fixedMagicsText = "";
   item.magics = {};
   for (const k in item.affixes) {
     for (const j in item.affixes[k].magics) {
@@ -146,8 +177,9 @@ export function parseItemMagics(item) {
     }
     item.magicsFilterText += magics[k](arr) + "|";
   }
-  // for (const k in item.fixedMagics) {
-  //   item.magicsText += magics[k](item.fixedMagics[k]) + "|";
-  // }
+  for (const k in item.fixedMagics) {
+    item.fixedMagicsText += magics[k](item.fixedMagics[k]) + "|";
+    // item.fixedMagicsText += item.fixedMagics[k] + "|";
+  }
   return item;
 }

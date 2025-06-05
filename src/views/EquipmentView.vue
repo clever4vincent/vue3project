@@ -23,7 +23,9 @@
         <van-cell-group :border="true" style="padding-bottom: 0.48rem">
           <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
           <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
+          <van-field v-model="filterFixedWord" placeholder="搜索物品自带词缀" autocomplete="off" />
           <van-field v-model="filterLevel" placeholder="装备等级" autocomplete="off" />
+          <van-field v-model="filterItemLevel" placeholder="物品等级" autocomplete="off" />
           <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
           <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
         </van-cell-group>
@@ -124,6 +126,8 @@ const filterWord = ref("");
 const filterLevel = ref("");
 const filterName = ref("");
 const filterFractured = ref("");
+const filterItemLevel = ref("");
+const filterFixedWord = ref("");
 const scroller = ref();
 const minItemSize = ref(72);
 const dynamicHeight = ref(500);
@@ -353,6 +357,37 @@ const onSearch = (value) => {
       });
     });
   }
+
+  if (filterFixedWord.value) {
+    let conditions = filterFixedWord.value.split("-");
+    let condition = {
+      key: conditions[0],
+      value: conditions[1] || 0,
+    };
+    console.log(condition);
+    resultList = resultList.filter((item) => {
+      // console.log(item.fixedMagicsText);
+      let magicsTexts = item.fixedMagicsText.split("|");
+      let isMatch = true;
+      let magicsText = magicsTexts.find((item) => item.indexOf(condition.key) > -1);
+
+      if (!magicsText) {
+        isMatch = false;
+        return;
+      }
+      let match = magicsText.match(/\d+-\d+|\d+/g);
+
+      let numbers = match ? match.map((str) => (str.includes("-") ? str.split("-").map(Number) : Number(str))) : [];
+
+      if (numbers.length == 1) {
+        isMatch = isMatch && numbers[0] >= condition.value;
+      } else if (numbers.length == 2) {
+        isMatch = isMatch && numbers[1] >= condition.value;
+      }
+
+      return isMatch;
+    });
+  }
   // console.log(resultList);
   resultList = resultList.filter((item) => {
     // let name = item.name;
@@ -366,6 +401,13 @@ const onSearch = (value) => {
       } else {
         isMatch = false;
         return;
+      }
+
+      if (filterItemLevel.value) {
+        if (item.itemLevel < filterItemLevel.value) {
+          isMatch = false;
+          return;
+        }
       }
       if (filterLevel.value) {
         if (!item.requirements) {

@@ -6,6 +6,8 @@ import { cloneDeep } from "lodash-es";
 import { showToast } from "vant";
 import { nextTick, toRaw } from "vue";
 import { sleep } from "@/utils";
+import { batchProcessPromises } from "@/hooks/useEquipment";
+
 export const useAccountStore = defineStore({
   id: "app-account",
   state: () => ({
@@ -133,19 +135,13 @@ export const useAccountStore = defineStore({
           if (!isAsync) {
             await operation({ thirdToken: character.token, character, account });
           } else {
-            operations.push(operation({ thirdToken: character.token, character, account }));
+            operations.push(() => operation({ thirdToken: character.token, character, account }));
           }
-          // await operation();
-          // operations.push(
-          //   ((character) => () => {
-          //     operation({ thirdToken: character.token });
-          //   })(character)
-          // );
         }
       }
-      // await Promise.all(operations.map((op) => op()));
+
       if (isAsync) {
-        await Promise.all(operations);
+        await batchProcessPromises(operations);
       }
 
       // 3.操作完成后

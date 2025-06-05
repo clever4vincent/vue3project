@@ -629,6 +629,11 @@ export const skills = {
   Fire_Penetration_Support: { name: "火焰穿透(辅)", type: 1 },
   Cold_Penetration_Support: { name: "冰霜穿透(辅)", type: 2 },
   Lightning_Penetration_Support: { name: "闪电穿透(辅)", type: 3 },
+  Anger: { name: "愤怒", type: 1 },
+  Ancestral_Protector: { name: "先祖卫士", type: 1 },
+  Ancestral_Protector_Totem_Attack: { name: "先祖卫士图腾攻击", type: 1 },
+  Siege_Ballista: { name: "攻城炮台", type: 2 },
+  Siege_Ballista_Totem_Attack: { name: "攻城炮台图腾攻击", type: 2 },
 };
 
 export const damageTypes = {
@@ -896,7 +901,7 @@ export const magics = {
   251: (value) => `<div>获得 ${value}% 物理伤害，并转化为冰霜伤害</div>`,
   252: (value) => `<div>冰霜伤害总增 ${value}%</div>`,
   253: (value) => `<div>${value}% 物理伤害转换为闪电伤害</div>`,
-  254: (value) => `<div>该装备的闪避率提高 ${value}%</div>`,
+  254: (value) => `<div>召唤使用一个使用该技能的图腾</div>`,
   255: (value) => `<div>当图腾存在时，玩家攻击速度总增 ${value}%</div>`,
   256: (value) => `<div>该装备的闪避率提高 ${value}%</div>`,
   257: (value) => `<div>该装备附加 ${value[0]} - ${value[1]} 基础物理伤害</div>`,
@@ -1097,6 +1102,155 @@ export const magics = {
   437: (value) => `<div>该装备攻击附加  ${value[0]} - ${value[1]} 基础冰霜伤害</div>`,
   438: (value) => `<div>该装备攻击附加  ${value[0]} - ${value[1]} 基础闪电伤害</div>`,
   439: (value) => `<div>该装备攻击附加  ${value[0]} - ${value[1]} 基础混沌伤害</div>`,
+
+  // 瓦尔宝珠腐化效果
+  440: () => `<div>（无效）击中时对敌人附加绝望诅咒</div>`,
+  441: () => `<div>（无效）击中时对敌人附加元素要害诅咒</div>`,
+  442: () => `<div>（无效）击中时对敌人附加衰弱诅咒</div>`,
+  443: () => `<div>（无效）击中时对敌人附加时空锁链诅咒</div>`,
+  444: () => `<div>（无效）击中时对敌人附加脆弱诅咒</div>`,
+  445: (value) => `<div>攻击附加 +${value}% 基础暴击率</div>`,
+  446: (value) => `<div>法术暴击率提高 ${value}%</div>`,
+  447: (value) => `<div>（无效）狂怒球数量上限 +${value}</div>`,
+  448: (value) => `<div>该装备上的技能石等级 +${value}</div>`,
+  449: (value) => `<div>该装备上的持续时间技能石等级 +${value}</div>`,
+  450: (value) => `<div>该装备上的效果区域技能石等级 +${value}</div>`,
+  451: (value) => `<div>该装备上的光环技能石等级 +${value}</div>`,
+  452: (value) => `<div>该装备上的诅咒技能石等级 +${value}</div>`,
+  453: (value) => `<div>该装备上的陷阱或地雷技能石等级 +${value}</div>`,
+  454: (value) => `<div>该装备上的召唤生物技能石等级 +${value}</div>`,
+  455: (value) => `<div>该装备上的战吼技能石等级 +${value}</div>`,
+  456: (value) => `<div>该装备上的投射物技能石等级 +${value}</div>`,
+
+  // 敏捷手套腐化效果相关词缀
+  457: (value) => `<div>击中时有 ${value}% 的几率使敌人致盲</div>`,
+  458: (value) => `<div>（无效）击中时有 ${value}% 的几率使敌人瘫痪</div>`,
+  459: (value) => `<div>（无效）法术击中时有 ${value}% 的几率使敌人缓速</div>`,
+  460: () => `<div>（无效）近战攻击击退敌人</div>`,
+  461: (value) => `<div>（无效）击中时有 ${value}% 的几率威吓敌人</div>`,
+  462: (value) => `<div>（无效）法术击中时有 ${value}% 的几率使敌人恐惧</div>`,
+  463: (value) => `<div>中毒持续时间延长 ${value}%</div>`,
+  464: (value) => `<div>流血伤害生效速度加快 ${value}%</div>`,
+
+  // 爪子武器腐化效果相关词缀
+  465: (value) => `<div>（无效）暴击时有 ${value}% 的几率获得暴击球</div>`,
+
+  // 匕首武器腐化效果相关词缀
+  466: (value) => `<div>（无效）击败敌人时有 ${value}% 的几率获得不洁之力 3 秒</div>`,
+
+  // 单手剑腐化效果相关词缀
+  467: (value) => `<div>（无效）近战击中有 ${value}% 的几率提供护体状态</div>`,
+  468: (value) => `<div>（无效）击败敌人时有 ${value}% 的几率获得 4 秒【猛攻】状态</div>`,
+  469: () => `<div>（无效）坚毅之心</div>`,
+
+  // 细剑腐化效果相关词缀
+  470: (value) => `<div>（无效）消耗总计 ${value} 魔力后获得 1 个狂怒球</div>`,
+
+  // 单手斧腐化效果相关词缀
+  471: (value) => `<div>击中时 ${value[0]}% 的几率造成流血<br>攻击伤害对流血的敌人提高 ${value[1]}%</div>`,
+
+  // 单手锤腐化效果相关词缀
+  472: (value) => `<div>（无效）当你晕眩 1 个敌人时，有 ${value}% 的几率获得 1 个耐力球</div>`,
+
+  // 弓腐化效果相关词缀
+  473: (value) => `<div>此物品上的技能石受到 ${value} 级的 致盲 辅助</div>`,
+  474: (value) => `<div>此物品上的技能石受到 ${value} 级的 快速投射 辅助</div>`,
+  475: (value) => `<div>插槽中的宝石受 ${value} 级动量辅助</div>`,
+
+  // 双手剑腐化效果相关词缀
+  476: (value) => `<div>此物品上的技能石受到 ${value} 级的 额外命中 辅助</div>`,
+  477: (value) => `<div>此物品上的技能石受到 ${value} 级的 护体 辅助</div>`,
+
+  // 双手斧腐化效果相关词缀
+  478: (value) => `<div>（无效）武器范围 +${value} 米</div>`,
+  479: (value) => `<div>插入的技能石被 ${value} 级的赤炼辅助</div>`,
+  480: (value) => `<div>此物品上的技能石受到 ${value} 级的 击中生命回复 辅助</div>`,
+  481: (value) => `<div>此物品上的技能石受到 ${value} 级的【启迪】辅助</div>`,
+
+  // 项链腐化效果相关词缀
+  482: (value) => `<div>（无效）你能施加一个额外诅咒</div>`,
+  483: (value) => `<div>（无效）获得 ${value} 级的主动技能【清晰】，且可被此道具上的技能石辅助</div>`,
+  484: (value) => `<div>（无效）获得 ${value} 级的主动技能【怨毒光环】</div>`,
+  485: (value) => `<div>（无效）获得 ${value} 级的主动技能【火焰净化】，且可被此道具上的技能石辅助</div>`,
+  486: (value) => `<div>（无效）获得 ${value} 级的主动技能【冰霜净化】，且可被此道具上的技能石辅助</div>`,
+  487: (value) => `<div>（无效）获得 ${value} 级的主动技能【闪电净化】，且可被此道具上的技能石辅助</div>`,
+  488: (value) => `<div>（无效）获得 ${value} 级的主动技能【元素净化】，且可被此道具上的技能石辅助</div>`,
+  489: (value) => `<div>冰霜伤害的 ${value}% 转化为生命偷取</div>`,
+  490: (value) => `<div>火焰伤害的 ${value}% 转化为生命偷取</div>`,
+  491: (value) => `<div>闪电伤害的 ${value}% 转化为生命偷取</div>`,
+  492: (value) => `<div>【雷霆】的光环效果提高 ${value}%</div>`,
+  493: (value) => `<div>【愤怒】光环的效果提高 ${value}%</div>`,
+  494: (value) => `<div>【憎恨】的光环效果提高 ${value}%</div>`,
+  495: (value) => `<div>【坚定】的光环效果提高 ${value}%</div>`,
+  496: (value) => `<div>【纪律】的光环效果提高 ${value}%</div>`,
+  497: (value) => `<div>【优雅】的光环效果提高 ${value}%</div>`,
+  498: (value) => `<div>【怨毒光环】的光环效果提高 ${value}%</div>`,
+  499: (value) => `<div>【奋锐光环】的光环效果提高 ${value}%</div>`,
+  500: (value) => `<div>【尊严】的光环效果提高 ${value}%</div>`,
+  501: (value) => `<div>敏捷提高 ${value}%</div>`,
+  502: (value) => `<div>智慧提高 ${value}%</div>`,
+  503: (value) => `<div>力量提高 ${value}%</div>`,
+
+  // 戒指腐化效果新增词缀描述 (从504开始，对应新的MagicType枚举值)
+  // 技能获取相关
+  504: (value) => `<div>获得 ${value} 级的主动技能【愤怒】<br>且可被此道具上的技能石辅助</div>`,
+  505: (value) => `<div>获得 ${value} 级的主动技能【雷霆】<br>且可被此道具上的技能石辅助</div>`,
+  506: (value) => `<div>获得 ${value} 级的主动技能【憎恨】<br>且可被此道具上的技能石辅助</div>`,
+  507: (value) => `<div>获得 ${value} 级的主动技能【奋锐光环】</div>`,
+  508: (value) => `<div>获得 ${value} 级的主动技能【尊严】</div>`,
+  509: (value) => `<div>获得 ${value} 级的主动技能【导电】，且可被此道具上的技能石辅助</div>`,
+  510: (value) => `<div>获得 ${value} 级的主动技能【绝望】，且可被此道具上的技能石辅助</div>`,
+  511: (value) => `<div>获得 ${value} 级的主动技能【易燃】，且可被此道具上的技能石辅助</div>`,
+  512: (value) => `<div>获得 ${value} 级的主动技能【冻伤】，且可被此道具上的技能石辅助</div>`,
+
+  // 免疫效果相关
+  513: (value) => `<div>免疫流血</div>`,
+  514: (value) => `<div>无法被点燃</div>`,
+  515: (value) => `<div>不会中毒</div>`,
+
+  // 双属性百分比提升
+  516: (value) => `<div>力量提高 ${value[0]}%，敏捷提高 ${value[1]}%</div>`,
+  517: (value) => `<div>力量提高 ${value[0]}%，智慧提高 ${value[1]}%</div>`,
+  518: (value) => `<div>敏捷提高 ${value[0]}%，智慧提高 ${value[1]}%</div>`,
+
+  // 腰带腐化效果新增词缀描述 (从519开始，对应新的MagicType枚举值)
+  519: (value) => `<div>（无效）药剂持续期间，+${value}% 暴击伤害加成</div>`,
+  520: (value) => `<div>（无效）药剂持续期间，攻击速度加快 ${value}%</div>`,
+  521: (value) => `<div>（无效）药剂持续期间，施法速度加快 ${value}%</div>`,
+  522: (value) => `<div>（无效）药剂持续期间，暴击几率提高 ${value}%</div>`,
+  523: (value) => `<div>（无效）药剂持续期间，移动速度加快 ${value}%</div>`,
+
+  // 力量型鞋子腐化效果新增词缀描述 (对应MagicType枚举值)
+  524: (value) => `<div>（无效）静止时 +${value} 护甲</div>`,
+  525: (value) => `<div>（无效）移动时 +${value} 点最大闪避值</div>`,
+  526: (value) => `<div>获得 ${value} 级的主动技能【迅捷】<br>且可被此道具上的技能石辅助</div>`,
+  527: (value) => `<div>（无效）耐力球数量上限 +${value}</div>`,
+  528: (value) => `<div>（无效）移动时每秒回复 ${value} 生命</div>`,
+
+  // 胸甲腐化效果新增词缀描述
+  529: (value) => `<div>（无效）静止时受到的物理伤害降低 ${value}%</div>`,
+  530: (value) => `<div>（无效）全部抗性上限 +${value}%</div>`,
+  531: (value) => `<div>（无效）受到的火焰伤害降低 ${value}%</div>`,
+  532: (value) => `<div>（无效）受到的冰霜伤害降低 ${value}%</div>`,
+  533: (value) => `<div>（无效）受到的闪电伤害降低 ${value}%</div>`,
+  534: (value) => `<div>（无效）受到的混沌伤害降低 ${value}%</div>`,
+
+  // 头部腐化效果新增词缀描述
+  535: () => `<div>免疫致盲</div>`,
+  536: (value) => `<div>感电效果提高 ${value}%</div>`,
+
+  // 箭袋腐化效果新增词缀描述
+  537: (value) => `<div>弓类攻击附加 ${value[0]} - ${value[1]} 基础冰霜伤害</div>`,
+  538: (value) => `<div>弓类攻击附加 ${value[0]} - ${value[1]} 基础火焰伤害</div>`,
+  539: (value) => `<div>弓类攻击附加 ${value[0]} - ${value[1]} 基础闪电伤害</div>`,
+  540: (value) => `<div>弓类攻击附加 ${value[0]} - ${value[1]} 基础混沌伤害</div>`,
+  541: (value) => `<div>每次连锁投射物伤害提高 ${value}%</div>`,
+  542: (value) => `<div>（无效）每次穿透投射物伤害提高 ${value}%</div>`,
+  543: (value) => `<div>获得额外火焰伤害，等同于物理伤害的 ${value}%</div>`,
+  544: (value) => `<div>获得额外闪电伤害，等同于物理伤害的 ${value}%</div>`,
+  545: () => `<div>（无效）零点射击</div>`,
+  546: (value) => `<div>（无效）近战打击范围 +${value} 米</div>`,
+  547: (value) => `<div>+${value} 召唤图腾数量上限</div>`,
 };
 
 const abs = (value) => {
