@@ -60,6 +60,9 @@
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_QUERY')">等级轮询</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('LEVEL_LEAST')">最低等级</van-button>
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('WEAPON_ABLE')">武器是否可用</van-button>
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('STONE_IN_ENDLESSGARMENT')"
+        >无尽上技能石</van-button
+      >
     </div>
     <van-action-sheet
       v-model:show="showAction"
@@ -118,12 +121,14 @@ import {
   getAllMap,
   chooseMap,
   updateSkilltree,
+  getSkillStones,
   destroyAll,
   getSkillTree,
   addGoodsRule,
   getBackpack,
   getMarket,
   equip,
+  insertStone,
   getCharacterInfo,
 } from "@/api";
 import { EventBus } from "@/lib/EventBus";
@@ -198,6 +203,8 @@ const DIALOG_TYPE = {
   TOKEN_CHECK_TEXT: "token状态验证",
   KEEP_ALIVE: "keepAlive",
   KEEP_ALIVE_TEXT: "保持登录状态",
+  STONE_IN_ENDLESSGARMENT: "stoneInEndlessGarment",
+  STONE_IN_ENDLESSGARMENT_TEXT: "无尽上技能石",
 };
 const skillStoneList = [
   /* -------横扫------- */
@@ -546,6 +553,50 @@ const showDialogOptions = (type) => {
                 console.log(thirdToken.account.username);
                 console.log("角色:", res.name);
                 console.log("等级:", res.level);
+                // console.log("主武是否达标:", res.equipmentSlots?.mainHand.isNotAvailable);
+              }
+            });
+          });
+        } else if (DIALOG_TYPE[type] === DIALOG_TYPE.STONE_IN_ENDLESSGARMENT) {
+          await accountStore.batchAccountsOperation(async (thirdToken) => {
+            await getCharacterInfo(thirdToken).then(async (res) => {
+              if (res.equipmentSlots?.bodyArmor.name == "无尽之衣") {
+                let equipment = res.equipmentSlots?.bodyArmor;
+                // await Character.insertStoneToEndlessGarment(skillStoneList, thirdToken, equipment);
+                let currentIndex = 0;
+                const remainingSkillIds = skillStoneList.filter((skillId) => !equipment.sockets[0].some((item) => item.skillId == skillId));
+                let socketList = equipment.sockets[0].filter((item, index) => {
+                  if (!item.stoneId) {
+                    currentIndex = index;
+                  }
+                  return !item.stoneId;
+                });
+
+                if (remainingSkillIds.includes("Sweep")) {
+                  console.log(`Sweep - ${res.name} - ${thirdToken.account.username}`);
+                }
+
+                await getSkillStones(1, {}, thirdToken).then(async (data) => {
+                  // console.log(data);
+                  // 获取宝石的id
+                  let promises = [];
+                  remainingSkillIds.forEach((skillId, index) => {
+                    let stoneId = data.items.find((item) => item.skillId === skillId).id;
+                    if (stoneId) {
+                      promises.push(insertStone(equipment.id, socketList[index].id, stoneId, thirdToken));
+                    }
+                  });
+
+                  await Promise.all(promises)
+                    .then(() => console.log("所有石头镶嵌完成."))
+                    .catch((err) => {
+                      console.error("An error occurred:", err);
+                      throw err;
+                    });
+                });
+                console.log("装备石头成功");
+                //装备石头
+                // await equip(skillStoneList[0].id, res.id, { thirdToken });
                 // console.log("主武是否达标:", res.equipmentSlots?.mainHand.isNotAvailable);
               }
             });
