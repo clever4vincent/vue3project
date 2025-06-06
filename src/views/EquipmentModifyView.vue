@@ -77,6 +77,9 @@
             <van-button style="margin: 10px" size="small" type="primary" @click="linkStones(itemIndex)">{{
               !item.isLinkRunning ? "开始链接" : "停止链接"
             }}</van-button>
+            <van-button style="margin: 10px" size="small" type="primary" @click="KaiKong(itemIndex)">{{
+              !item.isKaiKongRunning ? "开始开孔" : "停止开孔"
+            }}</van-button>
             <van-button style="margin: 10px" size="small" type="primary" @click="removeEquipment(itemIndex)">移除装备</van-button>
             <FilterMagicsField
               v-for="(condition, index) in item.conditions"
@@ -136,7 +139,7 @@ import { cloneDeep } from "lodash-es";
 import { craftList } from "@/api";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
 import { magics } from "@/lib/data";
-import { isMatchCustomAttr, doRenovation, doLockRenovation, doLinkAction, doProcessArea } from "@/hooks";
+import { isMatchCustomAttr, doRenovation, doLockRenovation, doLinkAction, doProcessArea, doKaiKongAction } from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
 import { sleep } from "@/utils";
 
@@ -343,6 +346,16 @@ const linkStones = (itemIndex) => {
   modify.isLinkRunning = !modify.isLinkRunning;
   if (modify.isLinkRunning) {
     doLinkAction(modify, {
+      thirdToken: accountStore.currentCharacter.token,
+      character: accountStore.currentCharacter,
+    });
+  }
+};
+const KaiKong = (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+  modify.isKaiKongRunning = !modify.isKaiKongRunning;
+  if (modify.isKaiKongRunning) {
+    doKaiKongAction(modify, {
       thirdToken: accountStore.currentCharacter.token,
       character: accountStore.currentCharacter,
     });

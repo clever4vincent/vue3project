@@ -476,3 +476,30 @@ export async function doLinkAction(equipmentModify, thirdToken) {
     console.log("中止了！");
   }
 }
+
+export async function doKaiKongAction(equipmentModify, thirdToken) {
+  let currentEquipment = equipmentModify.equipment;
+  let result = false;
+  while (!result && equipmentModify.isKaiKongRunning) {
+    try {
+      await modify(currentEquipment.id, CurrencyBeanEnum.jewellerOrb.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        console.log(res);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    } catch (error) {
+      if (error.message.includes("该装备已达到最大插槽数")) {
+        result = true;
+      }
+      // result = !res.success;
+      console.log(error);
+    }
+  }
+  equipmentModify.isKaiKongRunning = false;
+  if (result) {
+    console.log("达标了");
+  } else {
+    console.log("中止了！");
+  }
+}
