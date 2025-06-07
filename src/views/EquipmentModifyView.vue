@@ -3,6 +3,7 @@
     <van-nav-bar title="装备改造" left-text="返回" left-arrow @click-left="onClickLeft" fixed>
       <template #right>
         <van-icon name="list-switch" @click="toList" />
+        <van-icon name="replay" @click="updateModify" />
       </template>
     </van-nav-bar>
 
@@ -142,6 +143,7 @@ import { magics } from "@/lib/data";
 import { isMatchCustomAttr, doRenovation, doLockRenovation, doLinkAction, doProcessArea, doKaiKongAction } from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
 import { sleep } from "@/utils";
+import { getEquipmentNetworkStorage } from "@/hooks/useEquipment";
 
 const modifyPage = ref(null);
 const router = useRouter();
@@ -268,6 +270,20 @@ const addCondition = (item) => {
 const toList = () => {
   router.push({
     name: "equipment",
+  });
+};
+const updateModify = () => {
+  getEquipmentNetworkStorage({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then((res) => {
+    let orginList = res;
+    useConditionStore().equipmentModifys.forEach((item) => {
+      if (!item.isModifyRunning) {
+        orginList.forEach((equipment) => {
+          if (item.equipment.id == equipment.id) {
+            item.equipment = equipment;
+          }
+        });
+      }
+    });
   });
 };
 const allStart = async () => {

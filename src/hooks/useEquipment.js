@@ -119,6 +119,41 @@ export const getEquipmentNetwork = async (thirdToken) => {
   });
   return parseList;
 };
+export const getEquipmentNetworkStorage = async (thirdToken) => {
+  let result = [];
+  let pageCount = 1;
+
+  let query = { storage: true };
+  await getBackpack(1, query, thirdToken).then((data) => {
+    let total = parseInt(data.total);
+    pageCount = parseInt(total / 30) + 1;
+    data.items && result.push(...data.items);
+  });
+
+  if (pageCount > 1) {
+    // 创建所有需要请求的页面的Promise
+    const pagePromises = [];
+    for (let pageIndex = 2; pageIndex <= pageCount; pageIndex++) {
+      pagePromises.push(() => getBackpack(pageIndex, query, thirdToken));
+    }
+
+    // 使用batchProcessPromises处理这些Promise
+    const batchResults = await batchProcessPromises(pagePromises);
+    batchResults.forEach((data) => {
+      data.items && result.push(...data.items);
+    });
+  }
+  let parseList = parseMagics(result);
+  // list.value = orginList;
+  // scroller?.value?.updateVisibleItems();
+  // 更新装备改造列表中的装备。如果该装备不在改造中才更新
+
+  // localforage.setItem(thirdToken.character.name, parseList).catch((err) => {
+  //   // 处理错误
+  //   console.error(err);
+  // });
+  return parseList;
+};
 export const updateEquipmentLocal = async (thirdToken, list) => {
   await localforage.setItem(thirdToken.character.name, list).catch((err) => {
     // 处理错误
