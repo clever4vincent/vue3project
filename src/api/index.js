@@ -34,6 +34,7 @@ const Api = {
   craft: "/craft",
   craftList: "/craft/list",
   redpacket: "/common/red-packet",
+  destroyBatch: "/equipment/destroyBatch",
 };
 
 export const login = (params, opt) => {
@@ -121,7 +122,9 @@ export const removeStone = (equipmentId, socketId) => {
 export const upgradeStone = (stoneId, opt) => {
   return defHttp.post({ url: Api.upgradeStone, params: { stoneId } }, { errorMessageMode: "none", ...opt });
 };
-
+export const destroyBatch = (params, opt) => {
+  return defHttp.post({ url: Api.destroyBatch, params }, { ...opt });
+};
 export const addGoodsRule = (params, opt) => {
   return defHttp.post({ url: Api.addGoodsRule, params }, { ...opt });
 };

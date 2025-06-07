@@ -63,6 +63,7 @@
       <van-button style="margin: 10px" plain size="small" type="primary" @click="showDialogOptions('STONE_IN_ENDLESSGARMENT')"
         >无尽上技能石</van-button
       >
+      <van-button style="margin: 10px" plain size="small" type="primary" @click="handleDestroyBatch">丢弃无尽不正常的装备</van-button>
     </div>
     <van-action-sheet
       v-model:show="showAction"
@@ -130,6 +131,7 @@ import {
   equip,
   insertStone,
   getCharacterInfo,
+  destroyBatch,
 } from "@/api";
 import { EventBus } from "@/lib/EventBus";
 import {
@@ -531,10 +533,13 @@ const showDialogOptions = (type) => {
           await accountStore.batchAccountsOperation(async (thirdToken) => {
             await getCharacterInfo(thirdToken).then((res) => {
               // console.log(res);isNotAvailable
+              // if (res.level <= 14) {
+              console.log(thirdToken.account.username);
               console.log("角色:", res.name);
               console.log("等级:", res.level);
-              console.log("通货:", res.cpm);
+              // console.log("通货:", res.cpm);
               console.log("信息:", res);
+              // }
               // console.log("主武是否达标:", res);
 
               if (res.level < level) {
@@ -753,7 +758,40 @@ const onConfirm = ({ selectedOptions }) => {
   showPicker.value = false;
   swtichMap(selectedOptions[0].value);
 };
+const handleDestroyBatch = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要丢弃无尽不正常的装备吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        let sellCharacter;
+        let query = {};
+        sellCharacter = accountStore.endlessGarmentCharacter;
+        query = { type: 17045651456, rarity: 4 };
 
+        let sellToken = sellCharacter.token;
+        if (!sellToken) {
+          showFailToast("请先选择装备集中地角色");
+          return;
+        }
+        let list = await getEquipmentList(query, sellToken);
+        let filterList = list.filter((item) => {
+          return item.sockets[0].length < 6;
+        });
+        let ids = filterList.map((item) => {
+          return item.id;
+        });
+        console.log(list);
+        console.log(filterList);
+        console.log(ids);
+        // await destroyBatch({ equipmentIds: ids }, { thirdToken: sellToken }).then((res) => {
+        //   console.log(res);
+        // });
+      }
+      return true;
+    },
+  });
+};
 const addGoodsRuleConfirm = () => {
   try {
     const filterJsonObj = JSON.parse(filterJson.value);
