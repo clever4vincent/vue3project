@@ -35,6 +35,8 @@ const Api = {
   craftList: "/craft/list",
   redpacket: "/common/red-packet",
   destroyBatch: "/equipment/destroyBatch",
+  batchUseVaalOrbs: "/equipment/batchUseVaalOrbs",
+  storage: "/equipment/storage",
 };
 
 export const login = (params, opt) => {
@@ -122,8 +124,14 @@ export const removeStone = (equipmentId, socketId) => {
 export const upgradeStone = (stoneId, opt) => {
   return defHttp.post({ url: Api.upgradeStone, params: { stoneId } }, { errorMessageMode: "none", ...opt });
 };
+export const storage = (params, opt) => {
+  return defHttp.post({ url: Api.storage, params }, { ...opt });
+};
 export const destroyBatch = (params, opt) => {
   return defHttp.post({ url: Api.destroyBatch, params }, { ...opt });
+};
+export const batchUseVaalOrbs = (params, opt) => {
+  return defHttp.post({ url: Api.batchUseVaalOrbs, params }, { ...opt });
 };
 export const addGoodsRule = (params, opt) => {
   return defHttp.post({ url: Api.addGoodsRule, params }, { ...opt });

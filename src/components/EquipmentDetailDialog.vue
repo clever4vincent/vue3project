@@ -48,6 +48,14 @@
           </template>
         </div>
       </template>
+      <template v-if="equipment.corruptedMagics">
+        <!-- <div class="separator" v-if="renderSeparator()"></div> -->
+        <div class="corruptedMagics">
+          <template :key="k" v-for="k in Object.keys(equipment.corruptedMagics) || []">
+            <div v-html="magics[k] ? magics[k](equipment.corruptedMagics[k]) : k"></div>
+          </template>
+        </div>
+      </template>
       <template v-if="equipment.affixes">
         <div class="separator"></div>
         <div class="affix" v-for="affix in equipment.affixes" :key="affix" :class="{ locked: affix.isLocked, crafted: affix.isCrafted }">
@@ -284,6 +292,9 @@ body.light .equipment {
     .magics {
       color: var(--crafted-color);
     }
+  }
+  .corruptedMagics {
+    color: var(--corrupted-color);
   }
   .magics {
     color: var(--magic-color);

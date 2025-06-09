@@ -27,7 +27,7 @@ export const CurrencyEnum = {
 };
 // const needCurrency = ["改造石", "破溃宝珠", "混沌石", "卡兰德的魔镜", "富豪石", "神圣石", "崇高石", "瓦尔宝珠", "剥离石"];
 const needCurrency = [
-  // "破溃宝珠",
+  "破溃宝珠",
   "混沌石",
   // "卡兰德的魔镜",
   "神圣石",

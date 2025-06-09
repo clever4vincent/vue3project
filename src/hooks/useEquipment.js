@@ -53,7 +53,7 @@ export const equipmentFilterTypes = {
   281474976710656: "项链",
   562949953421312: "戒指",
 };
-export const batchProcessPromises = async (promiseFunctions, batchSize = 30) => {
+export const batchProcessPromises = async (promiseFunctions, batchSize = 100) => {
   const results = [];
   const startTime = Date.now();
   let processedCount = 0;
@@ -69,8 +69,8 @@ export const batchProcessPromises = async (promiseFunctions, batchSize = 30) => 
     const elapsedTime = currentTime - startTime;
 
     // 如果处理速度超过每秒30个请求，需要等待
-    if (processedCount / (elapsedTime / 1000) > 30) {
-      const waitTime = Math.ceil((processedCount / 30) * 1000 - elapsedTime);
+    if (processedCount / (elapsedTime / 1000) > batchSize) {
+      const waitTime = Math.ceil((processedCount / batchSize) * 1000 - elapsedTime);
       if (waitTime > 0) {
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
@@ -90,6 +90,13 @@ export const getEquipmentNetwork = async (thirdToken) => {
     await getBackpack(1, query, thirdToken).then((data) => {
       let total = parseInt(data.total);
       pageCount = parseInt(total / 30) + 1;
+      if (query.storage) {
+        let newItems = data.items.map((item) => {
+          item.storage = true;
+          return item;
+        });
+        data.items = newItems;
+      }
       data.items && result.push(...data.items);
     });
 
@@ -103,8 +110,16 @@ export const getEquipmentNetwork = async (thirdToken) => {
       // 使用batchProcessPromises处理这些Promise
       const batchResults = await batchProcessPromises(pagePromises);
       batchResults.forEach((data) => {
+        if (query.storage) {
+          let newItems = data.items.map((item) => {
+            item.storage = true;
+            return item;
+          });
+          data.items = newItems;
+        }
         data.items && result.push(...data.items);
       });
+      console.log(batchResults);
     }
   }
 
@@ -127,6 +142,13 @@ export const getEquipmentNetworkStorage = async (thirdToken) => {
   await getBackpack(1, query, thirdToken).then((data) => {
     let total = parseInt(data.total);
     pageCount = parseInt(total / 30) + 1;
+    if (query.storage) {
+      let newItems = data.items.map((item) => {
+        item.storage = true;
+        return item;
+      });
+      data.items = newItems;
+    }
     data.items && result.push(...data.items);
   });
 
@@ -140,6 +162,13 @@ export const getEquipmentNetworkStorage = async (thirdToken) => {
     // 使用batchProcessPromises处理这些Promise
     const batchResults = await batchProcessPromises(pagePromises);
     batchResults.forEach((data) => {
+      if (query.storage) {
+        let newItems = data.items.map((item) => {
+          item.storage = true;
+          return item;
+        });
+        data.items = newItems;
+      }
       data.items && result.push(...data.items);
     });
   }
@@ -173,7 +202,10 @@ export const updateEquipmentItemLocal = async (thirdToken, equipment) => {
   if (result) {
     // 将传过来的equipment替换本地数据
     result.forEach((item, index) => {
-      if (item.id == equipment.id && (item.name != equipment.name || item.isModifying != equipment.isModifying)) {
+      if (
+        item.id == equipment.id &&
+        (item.name != equipment.name || item.isModifying != equipment.isModifying || item.storage != equipment.storage)
+      ) {
         result.splice(index, 1, parseItemMagics(equipment));
         isUpdate = true;
       }
@@ -195,6 +227,7 @@ export function parseItemMagics(item) {
   item.magicsText = "";
   item.magicsFilterText = "";
   item.fixedMagicsText = "";
+  item.corruptedMagicsText = "";
   item.magics = {};
   for (const k in item.affixes) {
     for (const j in item.affixes[k].magics) {
@@ -216,5 +249,10 @@ export function parseItemMagics(item) {
     item.fixedMagicsText += magics[k](item.fixedMagics[k]) + "|";
     // item.fixedMagicsText += item.fixedMagics[k] + "|";
   }
+  for (const k in item.corruptedMagics) {
+    item.corruptedMagicsText += magics[k](item.corruptedMagics[k]) + "|";
+    // item.fixedMagicsText += item.fixedMagics[k] + "|";
+  }
+
   return item;
 }

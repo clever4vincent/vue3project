@@ -29,7 +29,7 @@
             placeholder="请输入达标条数"
             :border="false"
             autocomplete="off"
-            v-if="item.makeType !== CurrencyBeanEnum.processArea.value"
+            v-if="item.makeType !== CurrencyBeanEnum.processArea.value && item.makeType !== CurrencyBeanEnum.chromaticOrb.value"
           >
             <template #right-icon>
               <van-checkbox
@@ -45,7 +45,14 @@
               >
             </template>
           </van-field>
-          <FilterMagicsField
+          <div v-if="item.makeType == CurrencyBeanEnum.chromaticOrb.value">
+            <div class="flex flex-col">
+              <van-field v-model="item.red" type="number" label="红色" placeholder="个数" :border="false" autocomplete="off" />
+              <van-field v-model="item.green" type="number" label="绿色" placeholder="个数" :border="false" autocomplete="off" />
+              <van-field v-model="item.blue" type="number" label="蓝色" placeholder="个数" :border="false" autocomplete="off" />
+            </div>
+          </div>
+          <!-- <FilterMagicsField
             v-if="item.makeType == CurrencyBeanEnum.processArea.value"
             :modifyPage="modifyPage"
             :item="item?.processArea"
@@ -53,7 +60,7 @@
             @select="onSelect($event, itemIndex)"
             :equipment="item.equipment"
             :craftList="craftOrignList"
-          ></FilterMagicsField>
+          ></FilterMagicsField> -->
           <van-field v-model="item.retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off">
             <template #right-icon>
               <van-checkbox
@@ -66,7 +73,7 @@
             </template>
           </van-field>
           <div class="addCondition">
-            <template v-if="item.makeType !== CurrencyBeanEnum.processArea.value">
+            <template v-if="item.makeType !== CurrencyBeanEnum.processArea.value && item.makeType !== CurrencyBeanEnum.chromaticOrb.value">
               <van-button style="margin: 10px" size="small" plain type="primary" @click="addCondition(item)">添加条件</van-button>
               <van-button style="margin: 10px" size="small" plain type="primary" @click="selectConditions(itemIndex)">选择条件组</van-button>
               <van-button style="margin: 10px" size="small" plain type="primary" @click="saveConditions(itemIndex)">保存当前条件</van-button>
@@ -77,6 +84,9 @@
             }}</van-button>
             <van-button style="margin: 10px" size="small" type="primary" @click="linkStones(itemIndex)">{{
               !item.isLinkRunning ? "开始链接" : "停止链接"
+            }}</van-button>
+            <van-button style="margin: 10px" size="small" type="primary" @click="chromatic(itemIndex)">{{
+              !item.isChromaticRunning ? "开始幻色" : "停止幻色"
             }}</van-button>
             <van-button style="margin: 10px" size="small" type="primary" @click="KaiKong(itemIndex)">{{
               !item.isKaiKongRunning ? "开始开孔" : "停止开孔"
@@ -100,6 +110,8 @@
       ></van-collapse>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allStart">一键开始</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allPause">一键停止</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allKaiKongLinkChromatic">一键打孔链接幻色</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allVaal">一键瓦尔</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="clearAll">清空所有装备</van-button>
     </div>
     <van-dialog v-model:show="showSaveDialog" title="保存当前条件" confirm-button-text="保存" :before-close="saveGroupConfirm" show-cancel-button>
@@ -137,10 +149,20 @@ import { CurrencyBeanEnum } from "@/enums/appEnum";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import FilterMagicsField from "@/components/FilterMagicsField.vue";
 import { cloneDeep } from "lodash-es";
-import { craftList } from "@/api";
+import { craftList, batchUseVaalOrbs, craft } from "@/api";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
 import { magics } from "@/lib/data";
-import { isMatchCustomAttr, doRenovation, doLockRenovation, doLinkAction, doProcessArea, doKaiKongAction } from "@/hooks";
+import {
+  isMatchCustomAttr,
+  doRenovation,
+  doLockRenovation,
+  doLinkAction,
+  doProcessArea,
+  doKaiKongAction,
+  doChromaticAction,
+  updateEquipmentItemLocal,
+  parseItemMagics,
+} from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
 import { sleep } from "@/utils";
 import { getEquipmentNetworkStorage } from "@/hooks/useEquipment";
@@ -165,6 +187,7 @@ const option1 = [
   { text: "锁后缀", value: CurrencyBeanEnum.lockBack.value },
   { text: "锁前缀", value: CurrencyBeanEnum.lockPre.value },
   { text: "工艺台", value: CurrencyBeanEnum.processArea.value },
+  { text: "幻色石", value: CurrencyBeanEnum.chromaticOrb.value },
 ];
 // const option2 = [
 //   { text: "普通", value: "a" },
@@ -286,6 +309,30 @@ const updateModify = () => {
     });
   });
 };
+const allKaiKongLinkChromatic = async () => {
+  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+    console.log(item);
+    item.isKaiKongRunning = false;
+    await KaiKong(index);
+    item.isLinkRunning = false;
+    await linkStones(index);
+    item.isChromaticRunning = false;
+    await chromatic(index);
+    await craftTou(index);
+  });
+};
+const allVaal = async () => {
+  let ids = useConditionStore().equipmentModifys.map((item) => {
+    return item.equipment.id;
+  });
+  await batchUseVaalOrbs({ equipmentIds: ids }, { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 const allStart = async () => {
   // startModify
   // activeName.value = 1;
@@ -357,25 +404,48 @@ const removeEquipment = (itemIndex) => {
       // on cancel
     });
 };
-const linkStones = (itemIndex) => {
+const linkStones = async (itemIndex) => {
   let modify = useConditionStore().equipmentModifys[itemIndex];
   modify.isLinkRunning = !modify.isLinkRunning;
   if (modify.isLinkRunning) {
-    doLinkAction(modify, {
+    await doLinkAction(modify, {
       thirdToken: accountStore.currentCharacter.token,
       character: accountStore.currentCharacter,
     });
   }
 };
-const KaiKong = (itemIndex) => {
+const KaiKong = async (itemIndex) => {
   let modify = useConditionStore().equipmentModifys[itemIndex];
   modify.isKaiKongRunning = !modify.isKaiKongRunning;
   if (modify.isKaiKongRunning) {
-    doKaiKongAction(modify, {
+    await doKaiKongAction(modify, {
       thirdToken: accountStore.currentCharacter.token,
       character: accountStore.currentCharacter,
     });
   }
+};
+const chromatic = async (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+  modify.isChromaticRunning = !modify.isChromaticRunning;
+  if (modify.isChromaticRunning) {
+    await doChromaticAction(modify, {
+      thirdToken: accountStore.currentCharacter.token,
+      character: accountStore.currentCharacter,
+    });
+  }
+};
+const craftTou = async (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+
+  await craft(modify.equipment.id, 16003, { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then(
+    (res) => {
+      modify.equipment = parseItemMagics(res.equipment);
+    }
+  );
+  await updateEquipmentItemLocal(
+    { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter },
+    toRaw(modify.equipment)
+  );
 };
 const deleteGroup = (name) => {
   showConfirmDialog({

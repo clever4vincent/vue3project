@@ -28,6 +28,10 @@
           <van-field v-model="filterItemLevel" placeholder="物品等级" autocomplete="off" />
           <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
           <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
+          <p class="mt-1">
+            <van-button size="mini" type="danger" @click="addHead">一键头盔改造</van-button
+            ><van-button size="mini" type="danger" @click="addStorage">一键存储</van-button>
+          </p>
         </van-cell-group>
       </div>
 
@@ -67,6 +71,7 @@
         >
           <template #right-icon>
             <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
+            <van-button class="delete" size="mini" plain type="danger" @click.stop="storageEquipment(item)" v-if="!item.storage">储存</van-button>
           </template>
         </van-cell>
       </RecycleScroller>
@@ -86,6 +91,7 @@
           >
             <template #right-icon>
               <van-button class="delete" size="mini" plain type="danger" @click.stop="moveEquipment(item)">转移</van-button>
+              <van-button class="delete" size="mini" plain type="danger" @click.stop="storage(item)" v-if="!item.storage">储存</van-button>
             </template>
           </van-cell>
         </van-list></van-tab
@@ -111,15 +117,16 @@
 <script setup>
 import { rarityClass } from "@/lib/data";
 import { useAccountStore, useTokenStore, useLoadingStore, useStore, useConditionStore } from "@/stores";
-import { sell, buy, getMarket, getBackpack } from "@/api";
+import { sell, buy, getMarket, getBackpack, storage } from "@/api";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { showDialog, showSuccessToast } from "vant";
-import { getEquipmentLocal, getEquipmentNetwork } from "@/hooks";
+import { showDialog, showSuccessToast, showConfirmDialog } from "vant";
+import { getEquipmentLocal, getEquipmentNetwork, batchProcessPromises, updateEquipmentItemLocal } from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
 import { useDark } from "@vueuse/core";
+import { CosmeticBrush } from "@icon-park/vue-next";
 const list = ref([]);
 const list2 = ref([]);
 const filterWord = ref("");
@@ -190,6 +197,7 @@ const option1 = [
 const option2 = [
   { text: "正常", value: "正常" },
   { text: "断裂", value: "断裂" },
+  { text: "腐化", value: "腐化" },
 ];
 
 const onClickLeft = () => router.go(-1);
@@ -246,6 +254,60 @@ const onLoad2 = () => {
     .finally(() => {
       loading2.value = false;
     });
+};
+const addHead = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键头盔改造吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        let temp = list.value;
+        let content = "";
+        temp.forEach((item) => {
+          if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+            useConditionStore().equipmentModifys.push({
+              equipment: item,
+              makeType: CurrencyBeanEnum.chromaticOrb.value,
+              red: 1,
+              green: 1,
+              blue: 2,
+              retryCount: 80000,
+            });
+            content += item.name + "|";
+            // showSuccessToast("加入改造列表成功");
+          } else {
+            // showSuccessToast("已经在改造列表中");
+          }
+        });
+        showSuccessToast("加入改造列表成功" + content);
+      }
+      return true;
+    },
+  });
+};
+const addStorage = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键存储吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        let temp = list.value;
+        console.log(temp);
+        const pagePromises = [];
+        temp.forEach((item) => {
+          if (!item.storage && !item.corrupted) {
+            console.log(item.id);
+            pagePromises.push(() => storageEquipment(item));
+          }
+        });
+        console.log(pagePromises);
+        await batchProcessPromises(pagePromises);
+        // showSuccessToast("存储成功");
+        // storageEquipment
+      }
+      return true;
+    },
+  });
 };
 const showDetail = (item) => {
   const itemRef = ref(item);
@@ -314,6 +376,16 @@ const moveEquipment = (item) => {
 
   show.value = true;
 };
+const storageEquipment = async (item) => {
+  await storage({ equipmentId: item.id }).then(async (res) => {
+    // orginList = orginList.filter((item) => item.id != item.id);
+    // console.log(orginList);
+    let item1 = orginList.find((itema) => itema.id == item.id);
+    item1.storage = true;
+    await updateEquipmentItemLocal({ character: accountStore.currentCharacter }, toRaw(item1));
+    showSuccessToast("储存成功");
+  });
+};
 const parseList = (list) => {
   return list.map((item) => {
     item.magicsText = "";
@@ -348,6 +420,15 @@ const onSearch = (value) => {
   if (statusType.value == "断裂") {
     resultList = resultList.filter((item) => {
       return item.isFractured;
+    });
+  }
+  if (statusType.value == "腐化") {
+    resultList = resultList.filter((item) => {
+      return item.corrupted;
+    });
+  } else {
+    resultList = resultList.filter((item) => {
+      return !item.corrupted;
     });
   }
   if (filterFractured.value) {

@@ -489,7 +489,7 @@ export async function doKaiKongAction(equipmentModify, thirdToken) {
         equipmentModify.equipment = equipment;
       });
     } catch (error) {
-      if (error.message.includes("该装备已达到最大插槽数")) {
+      if (error.message.includes("该装备已达到最大插槽数") || error.message.includes("腐化")) {
         result = true;
       }
       // result = !res.success;
@@ -497,6 +497,50 @@ export async function doKaiKongAction(equipmentModify, thirdToken) {
     }
   }
   equipmentModify.isKaiKongRunning = false;
+  if (result) {
+    console.log("达标了");
+  } else {
+    console.log("中止了！");
+  }
+}
+
+export async function doChromaticAction(equipmentModify, thirdToken) {
+  let currentEquipment = equipmentModify.equipment;
+  let result = false;
+  while (!result && equipmentModify.isChromaticRunning) {
+    try {
+      await modify(currentEquipment.id, CurrencyBeanEnum.chromaticOrb.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+        let sockets = equipment.sockets;
+        let redCount = 0;
+        let greenCount = 0;
+        let blueCount = 0;
+        sockets.forEach((socket) => {
+          socket.forEach((stone) => {
+            if (stone.type == 3) {
+              blueCount++;
+            } else if (stone.type == 2) {
+              greenCount++;
+            } else if (stone.type == 1) {
+              redCount++;
+            }
+          });
+        });
+        if (redCount >= (equipmentModify.red || 0) && greenCount >= (equipmentModify.green || 0) && blueCount >= (equipmentModify.blue || 0)) {
+          result = true;
+          equipmentModify.isChromaticRunning = false;
+        }
+      });
+    } catch (error) {
+      if (error.message.includes("腐化")) {
+        result = true;
+      }
+      console.log(error);
+    }
+  }
+  equipmentModify.isChromaticRunning = false;
   if (result) {
     console.log("达标了");
   } else {
