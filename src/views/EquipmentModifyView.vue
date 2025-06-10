@@ -91,6 +91,9 @@
             <van-button style="margin: 10px" size="small" type="primary" @click="KaiKong(itemIndex)">{{
               !item.isKaiKongRunning ? "开始开孔" : "停止开孔"
             }}</van-button>
+            <van-button style="margin: 10px" size="small" type="primary" @click="singleAttr(itemIndex)">{{
+              !item.isSingleAttrRunning ? "开始单属性改造" : "停止单属性改造"
+            }}</van-button>
             <van-button style="margin: 10px" size="small" type="primary" @click="removeEquipment(itemIndex)">移除装备</van-button>
             <FilterMagicsField
               v-for="(condition, index) in item.conditions"
@@ -111,6 +114,7 @@
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allStart">一键开始</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allPause">一键停止</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allKaiKongLinkChromatic">一键打孔链接幻色</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allSingleAttr">一键饰品单属性多工艺打造</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allVaal">一键瓦尔</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="clearAll">清空所有装备</van-button>
     </div>
@@ -160,6 +164,7 @@ import {
   doProcessArea,
   doKaiKongAction,
   doChromaticAction,
+  doSingleAttrRenovation,
   updateEquipmentItemLocal,
   parseItemMagics,
 } from "@/hooks";
@@ -321,6 +326,50 @@ const allKaiKongLinkChromatic = async () => {
     await craftTou(index);
   });
 };
+const allSingleAttr = async () => {
+  // 将装备改造成只有达标的1条的黄色装备rarity == 3
+  // 怎么改造
+  // 1 先重置装备 然后用蜕变石变成魔法装备,
+  // 2 判断是否满足属性条件,不满足用改造石改造,直到满足属性条件
+  // 3 满足后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到流程2
+  // 4 如果满足条件,用富豪石改造到黄色装备,然后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到改造流程1
+  // 5 如果条数为1,则改造完成,然后开始工艺打造
+  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+    await craftXiangLian(index);
+  });
+};
+const singleAttr = async (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+  console.log(modify);
+  if (modify.isSingleAttrRunning === true) {
+    modify.isSingleAttrRunning = false;
+    return;
+  }
+  modify.isSingleAttrRunning = true;
+  console.log(modify.termCount);
+  if (!modify.termCount && modify.termCount <= 0) {
+    showFailToast("达标条数不能为空或小于0");
+    return;
+  }
+  if (getCurrentCondition(itemIndex).length === 0) {
+    showFailToast("当前条件为空");
+    return;
+  }
+  console.log("singleAttr", modify);
+  if (modify.isSingleAttrRunning) {
+    await doSingleAttrRenovation(
+      modify,
+      {
+        customAttrs: modify.conditions,
+        termCount: modify.termCount,
+      },
+      {
+        thirdToken: accountStore.currentCharacter.token,
+        character: accountStore.currentCharacter,
+      }
+    );
+  }
+};
 const allVaal = async () => {
   let ids = useConditionStore().equipmentModifys.map((item) => {
     return item.equipment.id;
@@ -442,6 +491,21 @@ const craftTou = async (itemIndex) => {
       modify.equipment = parseItemMagics(res.equipment);
     }
   );
+  await updateEquipmentItemLocal(
+    { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter },
+    toRaw(modify.equipment)
+  );
+};
+const craftXiangLian = async (itemIndex) => {
+  let modify = useConditionStore().equipmentModifys[itemIndex];
+  for (const stoneId of [19001, 9011, 12008, 10004, 10010]) {
+    const res = await craft(modify.equipment.id, stoneId, {
+      thirdToken: accountStore.currentCharacter.token,
+      character: accountStore.currentCharacter,
+    });
+    modify.equipment = parseItemMagics(res.equipment);
+  }
+
   await updateEquipmentItemLocal(
     { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter },
     toRaw(modify.equipment)

@@ -1251,8 +1251,12 @@ export const magics = {
   545: () => `<div>（无效）零点射击</div>`,
   546: (value) => `<div>（无效）近战打击范围 +${value} 米</div>`,
   547: (value) => `<div>+${value} 召唤图腾数量上限</div>`,
+  548: (i) => `<div>图腾生命提高 ${i}%</div>`,
+  549: (i) => `<div>图腾伤害提高 ${i}%</div>`,
+  550: (i) => `<div>图腾的持续时间延长 ${i}%</div>`,
+  551: (i) => `<div>图腾施放的技能暴击率提高 ${i}%</div>`,
+  552: () => "<div>可以拥有多个大师工艺</div>",
 };
-
 const abs = (value) => {
   if (value && typeof value == "number") return Math.abs(value);
   return value;

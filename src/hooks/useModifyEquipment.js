@@ -46,7 +46,7 @@ export async function doRenovation(equipmentModify, { customAttrs, type, termCou
 }
 export async function startRenovation(
   equipmentModify,
-  { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount = Number.MAX_SAFE_INTEGER },
+  { customAttrs, type, termCount, isOpenMakeup, isOpenEEE, retryCount = Number.MAX_SAFE_INTEGER, needAugmentation = true },
   thirdToken
 ) {
   let currentEquipment = equipmentModify.equipment;
@@ -146,7 +146,7 @@ export async function startRenovation(
       }
     }
     // 如果改造后的词缀条数只有1条，就是用增幅石改造
-    if (Object.keys(currentEquipment.affixes).length === 1) {
+    if (Object.keys(currentEquipment.affixes).length === 1 && needAugmentation) {
       try {
         await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAugmentation.value, thirdToken).then((res) => {
           let equipment = parseItemMagics(res.equipment);
@@ -373,6 +373,7 @@ export function isMatchCustomAttr(equipment, customAttrs, termCount) {
   let count = 0;
   let mustCount = 0;
   let newCustomAttrs = cloneDeep(customAttrs);
+  // console.log("newCustomAttrs", newCustomAttrs);
   let matchIndex = -1;
   parseItemMagics(equipment)
     .magicsText.split("|")
@@ -546,4 +547,123 @@ export async function doChromaticAction(equipmentModify, thirdToken) {
   } else {
     console.log("中止了！");
   }
+}
+export async function doSingleAttrAction(equipmentModify, { customAttrs, termCount }, thirdToken) {
+  // 怎么改造
+  // 1 先重置装备 然后用蜕变石变成魔法装备,
+  // 2 判断是否满足属性条件,不满足用改造石改造,直到满足属性条件
+  // 3 满足后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到流程2
+  // 4 如果满足条件,用富豪石改造到黄色装备,然后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到改造流程1
+  // 5 如果条数为1,则改造完成,然后开始工艺打造
+  let currentEquipment = equipmentModify.equipment;
+  // 进入循环改造前的处理，将没有词条的装备使用蜕变石改成有词条的装备
+
+  if (currentEquipment.rarity === 1) {
+    // 如果是白色装备，使用蜕变石改成蓝色装备
+
+    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      equipmentModify.equipment = equipment;
+    });
+  }
+  if (currentEquipment.rarity === 3) {
+    // 如果黄色装备，先使用重铸石，再使用蜕变石改成蓝色装备
+    await modify(currentEquipment.id, CurrencyBeanEnum.orbOfScouring.value, thirdToken).then((res) => {
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      equipmentModify.equipment = equipment;
+    });
+    if (currentEquipment.rarity == 1) {
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfTransmutation.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+    }
+  }
+
+  let result = false;
+  while (!result && equipmentModify.isSingleAttrRunning) {
+    result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+    // 如果不满足条件，就继续改造
+    if (!result) {
+      try {
+        await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAlteration.value, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+    // 如果改造后的词缀条数有2条，就是用增幅石改造
+    if (Object.keys(currentEquipment.affixes).length === 2 && result) {
+      console.log("改造后的词缀条数有2条，就是用剥离石改造");
+      console.log(currentEquipment);
+      try {
+        await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAnnulment.value, thirdToken).then((res) => {
+          let equipment = parseItemMagics(res.equipment);
+          currentEquipment = equipment;
+          equipmentModify.equipment = equipment;
+          console.log("剥离后的词缀条数", equipment);
+          result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
+  // 此时词缀条数为1，就是用富豪石改造
+  if (Object.keys(currentEquipment.affixes).length === 1) {
+    await modify(currentEquipment.id, CurrencyBeanEnum.regalOrb.value, thirdToken).then((res) => {
+      let equipment = parseItemMagics(res.equipment);
+      currentEquipment = equipment;
+      equipmentModify.equipment = equipment;
+    });
+    //富豪石改造后，判断词缀条数，如果大于1，就是用剥离石剥离到1条
+    if (Object.keys(currentEquipment.affixes).length > 1) {
+      await modify(currentEquipment.id, CurrencyBeanEnum.orbOfAnnulment.value, thirdToken).then((res) => {
+        let equipment = parseItemMagics(res.equipment);
+        currentEquipment = equipment;
+        equipmentModify.equipment = equipment;
+      });
+      result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+      if (!result) {
+        // 不满足条件，就继续改造
+        let { result1, equipmentResult } = await doSingleAttrAction(equipmentModify, { customAttrs, termCount }, thirdToken);
+        currentEquipment = equipmentResult;
+        result = result1;
+      }
+    }
+  }
+  // equipmentModify.isSingleAttrRunning = false;
+  // if (result) {
+  //   console.log("达标了");
+  // } else {
+  //   console.log("中止了！");
+  // }
+  // 最后再匹配一次结果
+  result = isMatchCustomAttr(currentEquipment, customAttrs, termCount);
+  return { result, equipmentResult: currentEquipment };
+}
+export async function doSingleAttrRenovation(equipmentModify, { customAttrs, termCount }, thirdToken) {
+  // 将装备的状态改成改造中
+  // equipmentModify.equipment.isModifying = true;
+  console.log("doSingleAttrRenovation", customAttrs);
+  // await updateEquipmentItemLocal(thirdToken, toRaw(equipmentModify.equipment));
+  let { result, equipmentResult } = await doSingleAttrAction(equipmentModify, { customAttrs, termCount }, thirdToken);
+  equipmentModify.isSingleAttrRunning = false;
+
+  if (result) {
+    console.log("达标了");
+  } else {
+    console.log("中止了！");
+  }
+
+  //更新装备列表中的装备
+  // equipmentResult.isModifying = false;
+  await updateEquipmentItemLocal(thirdToken, equipmentResult);
 }
