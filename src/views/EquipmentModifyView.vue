@@ -52,7 +52,7 @@
               <van-field v-model="item.blue" type="number" label="蓝色" placeholder="个数" :border="false" autocomplete="off" />
             </div>
           </div>
-          <!-- <FilterMagicsField
+          <FilterMagicsField
             v-if="item.makeType == CurrencyBeanEnum.processArea.value"
             :modifyPage="modifyPage"
             :item="item?.processArea"
@@ -60,7 +60,7 @@
             @select="onSelect($event, itemIndex)"
             :equipment="item.equipment"
             :craftList="craftOrignList"
-          ></FilterMagicsField> -->
+          ></FilterMagicsField>
           <van-field v-model="item.retryCount" type="number" label="次数" placeholder="默认无限次" :border="false" autocomplete="off">
             <template #right-icon>
               <van-checkbox
@@ -113,6 +113,8 @@
       ></van-collapse>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allStart">一键开始</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allPause">一键停止</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allSingleAttrStart">一键单属性开始</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allSingleAttrPause">一键单属性停止</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allKaiKongLinkChromatic">一键打孔链接幻色</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allSingleAttr">一键饰品单属性多工艺打造</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allVaal">一键瓦尔</van-button>
@@ -153,7 +155,7 @@ import { CurrencyBeanEnum } from "@/enums/appEnum";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import FilterMagicsField from "@/components/FilterMagicsField.vue";
 import { cloneDeep } from "lodash-es";
-import { craftList, batchUseVaalOrbs, craft } from "@/api";
+import { craftList, batchUseVaalOrbs, craft, getEquipment } from "@/api";
 import { showConfirmDialog, showToast, showFailToast, showSuccessToast } from "vant";
 import { magics } from "@/lib/data";
 import {
@@ -166,6 +168,7 @@ import {
   doChromaticAction,
   doSingleAttrRenovation,
   updateEquipmentItemLocal,
+  removeEquipmentItemsLocal,
   parseItemMagics,
 } from "@/hooks";
 import { useAccountStore, useTokenStore, useConditionStore, useStore } from "@/stores";
@@ -338,6 +341,21 @@ const allSingleAttr = async () => {
     await craftXiangLian(index);
   });
 };
+const allSingleAttrStart = async () => {
+  for (const [index, item] of useConditionStore().equipmentModifys.entries()) {
+    if (!item.isSingleAttrRunning) {
+      // 先触发一次界面的更新
+      activeName.value = index;
+      await sleep(200);
+      singleAttr(index);
+    }
+  }
+};
+const allSingleAttrPause = async () => {
+  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+    item.isSingleAttrRunning = false;
+  });
+};
 const singleAttr = async (itemIndex) => {
   let modify = useConditionStore().equipmentModifys[itemIndex];
   console.log(modify);
@@ -381,6 +399,16 @@ const allVaal = async () => {
     .catch((err) => {
       console.log(err);
     });
+  await sleep(2000);
+  //结束后更新装备
+  for (const id of ids) {
+    await getEquipment(id, { thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then(async (res) => {
+      let equipment = res;
+      useConditionStore().equipmentModifys.find((item) => item.equipment.id == equipment.id).equipment = equipment;
+      await updateEquipmentItemLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }, equipment);
+    });
+  }
+  showSuccessToast("瓦尔改造完成");
 };
 const allStart = async () => {
   // startModify

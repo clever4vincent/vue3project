@@ -579,6 +579,7 @@ const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
   await getCurrency().then((res) => {
     packetPriceObj = packetPrice(res);
   });
+  console.log("packetPriceObj", packetPriceObj);
   tokenStore.setToken(dist.token);
   // 判断packetPriceObj对象的属性是否全为0，如果全为0，就不上架物品了，直接跳过上架物品的步骤
   let isAllZero = true;
@@ -599,7 +600,7 @@ const TransferCurrenciesOneToOne = async (orgin, dist, distBackpacks) => {
       distBackpacks = data.items;
     });
   }
-
+  console.log("distBackpacks", distBackpacks);
   await sell(distBackpacks[0].id, packetPriceObj).then(async () => {
     currentSellItem = distBackpacks.shift();
 
@@ -656,7 +657,7 @@ const transferAllCurrenciesToCurrentCharacter = async () => {
         message: `正在转移${character.name}的通货`,
       });
       console.log(`正在转移${character.name}的通货`);
-
+      console.log("currentFirstBackpacks", currentFirstBackpacks);
       await TransferCurrenciesOneToOne(character, currentCharacter.value, currentFirstBackpacks);
     }
   }

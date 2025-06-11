@@ -21,6 +21,7 @@ const Api = {
   getSkillStones: "/character/skillstones",
   equip: "/equipment/equip",
   takeOff: "/equipment/takeoff",
+  getEquipment: "/equipment",
   insertStone: "/equipment/insertStone",
   removeStone: "/equipment/removeStone",
   upgradeStone: "/skillstone/upgrade",
@@ -34,6 +35,7 @@ const Api = {
   craft: "/craft",
   craftList: "/craft/list",
   redpacket: "/common/red-packet",
+  destroy: "/equipment/destroy",
   destroyBatch: "/equipment/destroyBatch",
   batchUseVaalOrbs: "/equipment/batchUseVaalOrbs",
   storage: "/equipment/storage",
@@ -103,6 +105,9 @@ export const chooseMap = (mapId, opt) => {
 export const equip = (equipmentId, characterId, opt) => {
   return defHttp.post({ url: Api.equip, params: { equipmentId, characterId } }, { ...opt });
 };
+export const getEquipment = (equipmentId, opt) => {
+  return defHttp.get({ url: `${Api.getEquipment}/${equipmentId}`, params: {} }, { ...opt });
+};
 export const modify = (equipmentId, type, opt) => {
   return defHttp.post({ url: Api.modify, params: { equipmentId, type } }, { ...opt, loading: false });
 };
@@ -129,6 +134,9 @@ export const storage = (params, opt) => {
 };
 export const destroyBatch = (params, opt) => {
   return defHttp.post({ url: Api.destroyBatch, params }, { ...opt });
+};
+export const destroy = (equipmentId, opt) => {
+  return defHttp.post({ url: Api.destroy, params: { equipmentId } }, { ...opt });
 };
 export const batchUseVaalOrbs = (params, opt) => {
   return defHttp.post({ url: Api.batchUseVaalOrbs, params }, { ...opt });

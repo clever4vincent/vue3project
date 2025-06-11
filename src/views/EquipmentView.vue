@@ -21,6 +21,9 @@
           <!-- <van-dropdown-item v-model="value2" :options="option2" /> -->
         </van-dropdown-menu>
         <van-cell-group :border="true" style="padding-bottom: 0.48rem">
+          <div class="p-1 flex flex-wrap gap-1 text-[12px]">
+            <van-checkbox v-model="needCorruptedMagics" icon-size="12px">腐化有词条</van-checkbox>
+          </div>
           <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
           <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
           <van-field v-model="filterFixedWord" placeholder="搜索物品自带词缀" autocomplete="off" />
@@ -31,6 +34,8 @@
           <p class="mt-1">
             <van-button size="mini" type="danger" @click="addHead">一键头盔改造</van-button
             ><van-button size="mini" type="danger" @click="addStorage">一键存储</van-button>
+            <van-button size="mini" type="danger" @click="addNeck">一键项链改造</van-button>
+            <van-button size="mini" type="danger" @click="addDrop">一键丢弃</van-button>
           </p>
         </van-cell-group>
       </div>
@@ -117,11 +122,11 @@
 <script setup>
 import { rarityClass } from "@/lib/data";
 import { useAccountStore, useTokenStore, useLoadingStore, useStore, useConditionStore } from "@/stores";
-import { sell, buy, getMarket, getBackpack, storage } from "@/api";
+import { sell, buy, getMarket, getBackpack, storage, destroy } from "@/api";
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { showDialog, showSuccessToast, showConfirmDialog } from "vant";
-import { getEquipmentLocal, getEquipmentNetwork, batchProcessPromises, updateEquipmentItemLocal } from "@/hooks";
+import { getEquipmentLocal, getEquipmentNetwork, batchProcessPromises, updateEquipmentItemLocal, removeEquipmentItemsLocal } from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
@@ -141,7 +146,7 @@ const dynamicHeight = ref(500);
 const cell = ref();
 const container = ref();
 const search = ref();
-
+const needCorruptedMagics = ref(false);
 const loading = ref(false);
 const loading2 = ref(false);
 const listRef = ref();
@@ -159,6 +164,7 @@ let isFisrt = true;
 let isFisrt2 = true;
 let page = 1;
 let page2 = 1;
+const maxModifyCount = 20;
 const equipmentFilterType = ref("所有类型");
 const statusType = ref("正常");
 const value2 = ref("a");
@@ -261,7 +267,7 @@ const addHead = () => {
     message: "确定要一键头盔改造吗？",
     beforeClose: async (action) => {
       if (action === "confirm") {
-        let temp = list.value;
+        let temp = list.value.slice(0, 10);
         let content = "";
         temp.forEach((item) => {
           if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
@@ -285,29 +291,73 @@ const addHead = () => {
     },
   });
 };
-const addStorage = () => {
+const addNeck = () => {
   showConfirmDialog({
     title: "确认操作",
-    message: "确定要一键存储吗？",
+    message: "确定要一键项链改造吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        await addStorage();
+        let temp = list.value.slice(0, maxModifyCount);
+        let content = "";
+        temp.forEach((item) => {
+          if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+            useConditionStore().equipmentModifys.push({
+              equipment: item,
+              makeType: CurrencyBeanEnum.orbOfAlteration.value,
+              conditions: useConditionStore().conditionGroups["项链单属性"],
+              // 改造石
+              retryCount: 80000,
+              termCount: 1,
+            });
+            content += item.name + "|";
+            // showSuccessToast("加入改造列表成功");
+          } else {
+            // showSuccessToast("已经在改造列表中");
+          }
+        });
+        showSuccessToast("加入改造列表成功" + content);
+      }
+      return true;
+    },
+  });
+};
+const addDrop = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键丢弃吗？",
     beforeClose: async (action) => {
       if (action === "confirm") {
         let temp = list.value;
         console.log(temp);
         const pagePromises = [];
         temp.forEach((item) => {
-          if (!item.storage && !item.corrupted) {
-            console.log(item.id);
-            pagePromises.push(() => storageEquipment(item));
-          }
+          pagePromises.push(() => destroy(item.id));
         });
-        console.log(pagePromises);
         await batchProcessPromises(pagePromises);
-        // showSuccessToast("存储成功");
-        // storageEquipment
+        //将本地的数据删除
+
+        orginList = orginList.filter((item) => !temp.includes(item));
+
+        await removeEquipmentItemsLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }, temp);
+        list.value = [];
       }
       return true;
     },
   });
+};
+const addStorage = async () => {
+  let temp = list.value.slice(0, maxModifyCount);
+  console.log(temp);
+  const pagePromises = [];
+  temp.forEach((item) => {
+    if (!item.storage && !item.corrupted) {
+      console.log(item.id);
+      pagePromises.push(() => storageEquipment(item));
+    }
+  });
+  console.log(pagePromises);
+  await batchProcessPromises(pagePromises);
 };
 const showDetail = (item) => {
   const itemRef = ref(item);
@@ -383,6 +433,7 @@ const storageEquipment = async (item) => {
     let item1 = orginList.find((itema) => itema.id == item.id);
     item1.storage = true;
     await updateEquipmentItemLocal({ character: accountStore.currentCharacter }, toRaw(item1));
+
     showSuccessToast("储存成功");
   });
 };
@@ -399,6 +450,7 @@ const parseList = (list) => {
   });
 };
 const onSearch = (value) => {
+  // corruptedMagics
   // console.log(value);
   let resultList = [];
   let conditions = filterWord.value.split("|");
@@ -426,6 +478,15 @@ const onSearch = (value) => {
     resultList = resultList.filter((item) => {
       return item.corrupted;
     });
+    if (needCorruptedMagics.value) {
+      resultList = resultList.filter((item) => {
+        return !!item.corruptedMagics;
+      });
+    } else {
+      resultList = resultList.filter((item) => {
+        return !item.corruptedMagics;
+      });
+    }
   } else {
     resultList = resultList.filter((item) => {
       return !item.corrupted;

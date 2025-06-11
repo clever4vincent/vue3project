@@ -91,7 +91,7 @@ export const getEquipmentNetwork = async (thirdToken) => {
       let total = parseInt(data.total);
       pageCount = parseInt(total / 30) + 1;
       if (query.storage) {
-        let newItems = data.items.map((item) => {
+        let newItems = data.items?.map((item) => {
           item.storage = true;
           return item;
         });
@@ -111,7 +111,7 @@ export const getEquipmentNetwork = async (thirdToken) => {
       const batchResults = await batchProcessPromises(pagePromises);
       batchResults.forEach((data) => {
         if (query.storage) {
-          let newItems = data.items.map((item) => {
+          let newItems = data.items?.map((item) => {
             item.storage = true;
             return item;
           });
@@ -143,7 +143,7 @@ export const getEquipmentNetworkStorage = async (thirdToken) => {
     let total = parseInt(data.total);
     pageCount = parseInt(total / 30) + 1;
     if (query.storage) {
-      let newItems = data.items.map((item) => {
+      let newItems = data.items?.map((item) => {
         item.storage = true;
         return item;
       });
@@ -163,7 +163,7 @@ export const getEquipmentNetworkStorage = async (thirdToken) => {
     const batchResults = await batchProcessPromises(pagePromises);
     batchResults.forEach((data) => {
       if (query.storage) {
-        let newItems = data.items.map((item) => {
+        let newItems = data.items?.map((item) => {
           item.storage = true;
           return item;
         });
@@ -204,18 +204,56 @@ export const updateEquipmentItemLocal = async (thirdToken, equipment) => {
     result.forEach((item, index) => {
       if (
         item.id == equipment.id &&
-        (item.name != equipment.name || item.isModifying != equipment.isModifying || item.storage != equipment.storage)
+        (item.name != equipment.name ||
+          item.isModifying != equipment.isModifying ||
+          item.storage != equipment.storage ||
+          item.corrupted != equipment.corrupted)
       ) {
         result.splice(index, 1, parseItemMagics(equipment));
         isUpdate = true;
       }
     });
+    console.log("isUpdate", isUpdate);
     // 设置回去
     isUpdate &&
       (await localforage.setItem(thirdToken.character.name, result).catch((err) => {
         // 处理错误
         console.error(err);
       }));
+  }
+};
+export const updateEquipmentItemsLocal = async (thirdToken, equipments) => {
+  let result = await localforage.getItem(thirdToken.character.name);
+  let isUpdate = false;
+  if (result) {
+    // 将传过来的equipment替换本地数据
+    // result.forEach((item, index) => {
+    //   if (equipments.includes(item)) {
+    //     result.splice(index, 1, parseItemMagics(item));
+    //     isUpdate = true;
+    //   }
+    // });
+    result.forEach((item) => {
+      if (equipments.some((equipment) => equipment.id == item.id)) {
+        result.splice(index, 1, parseItemMagics(item));
+        isUpdate = true;
+        return true;
+      }
+    });
+    console.log("isUpdate", isUpdate);
+    // 设置回去
+    isUpdate &&
+      (await localforage.setItem(thirdToken.character.name, result).catch((err) => {
+        // 处理错误
+        console.error(err);
+      }));
+  }
+};
+export const removeEquipmentItemsLocal = async (thirdToken, equipments) => {
+  let result = await localforage.getItem(thirdToken.character.name);
+  if (result) {
+    result = result.filter((item) => !equipments.some((equipment) => equipment.id == item.id));
+    await localforage.setItem(thirdToken.character.name, result);
   }
 };
 export function parseMagics(list) {
