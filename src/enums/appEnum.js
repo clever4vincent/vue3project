@@ -32,7 +32,7 @@ const needCurrency = [
   // "卡兰德的魔镜",
   "神圣石",
   "崇高石",
-  "剥离石",
+  // "剥离石",
   "重铸石",
   // "点金石",
   // "改造石",
@@ -43,7 +43,7 @@ const needCurrency = [
   // "增幅石",
   // "机会石",
   // "工匠石",
-  // "幻色石",
+  "幻色石",
 ];
 export const CurrencyBeanEnum = {
   jewellerOrb: {

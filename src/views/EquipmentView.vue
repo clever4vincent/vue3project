@@ -23,6 +23,7 @@
         <van-cell-group :border="true" style="padding-bottom: 0.48rem">
           <div class="p-1 flex flex-wrap gap-1 text-[12px]">
             <van-checkbox v-model="needCorruptedMagics" icon-size="12px">腐化有词条</van-checkbox>
+            <van-checkbox v-model="isPowerful" icon-size="12px">力量装备</van-checkbox>
           </div>
           <van-field v-model="filterName" placeholder="搜索装备名称" autocomplete="off" />
           <van-field v-model="filterWord" placeholder="搜索词缀" autocomplete="off" />
@@ -32,9 +33,12 @@
           <van-field v-if="statusType == '断裂'" v-model="filterFractured" placeholder="破裂词条等级" autocomplete="off" />
           <van-button style="margin-top: 0" size="small" plain type="danger" icon="searsh" block @click="onSearch">搜索</van-button>
           <p class="mt-1">
-            <van-button size="mini" type="danger" @click="addHead">一键头盔改造</van-button
-            ><van-button size="mini" type="danger" @click="addStorage">一键存储</van-button>
+            <van-button size="mini" type="danger" @click="addHead">一键头盔改造</van-button>
+            <van-button size="mini" type="danger" @click="addBody">一键衣服改造</van-button>
+            <van-button size="mini" type="danger" @click="addStorage">一键存储</van-button>
             <van-button size="mini" type="danger" @click="addNeck">一键项链改造</van-button>
+            <van-button size="mini" type="danger" @click="addRing">一键戒指改造</van-button>
+            <van-button size="mini" type="danger" @click="addGlove">一键手套改造</van-button>
             <van-button size="mini" type="danger" @click="addDrop">一键丢弃</van-button>
           </p>
         </van-cell-group>
@@ -123,10 +127,17 @@
 import { rarityClass } from "@/lib/data";
 import { useAccountStore, useTokenStore, useLoadingStore, useStore, useConditionStore } from "@/stores";
 import { sell, buy, getMarket, getBackpack, storage, destroy } from "@/api";
-import { onMounted } from "vue";
+import { onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
 import { showDialog, showSuccessToast, showConfirmDialog } from "vant";
-import { getEquipmentLocal, getEquipmentNetwork, batchProcessPromises, updateEquipmentItemLocal, removeEquipmentItemsLocal } from "@/hooks";
+import {
+  getEquipmentLocal,
+  getEquipmentNetwork,
+  batchProcessPromises,
+  updateEquipmentItemLocal,
+  removeEquipmentItemsLocal,
+  updateEquipmentItemsLocal,
+} from "@/hooks";
 import { magics } from "@/lib/data";
 import EquipmentDetailDialog from "@/components/EquipmentDetailDialog.vue";
 import { CurrencyBeanEnum } from "@/enums/appEnum";
@@ -147,6 +158,7 @@ const cell = ref();
 const container = ref();
 const search = ref();
 const needCorruptedMagics = ref(false);
+const isPowerful = ref(false);
 const loading = ref(false);
 const loading2 = ref(false);
 const listRef = ref();
@@ -164,7 +176,7 @@ let isFisrt = true;
 let isFisrt2 = true;
 let page = 1;
 let page2 = 1;
-const maxModifyCount = 20;
+const maxModifyCount = 10;
 const equipmentFilterType = ref("所有类型");
 const statusType = ref("正常");
 const value2 = ref("a");
@@ -267,20 +279,120 @@ const addHead = () => {
     message: "确定要一键头盔改造吗？",
     beforeClose: async (action) => {
       if (action === "confirm") {
-        let temp = list.value.slice(0, 10);
+        await addStorage();
+        let temp = list.value.slice(0, maxModifyCount);
         let content = "";
         temp.forEach((item) => {
           if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
             useConditionStore().equipmentModifys.push({
               equipment: item,
-              makeType: CurrencyBeanEnum.chromaticOrb.value,
+              conditions: useConditionStore().conditionGroups["基础头盔"],
+              makeType: CurrencyBeanEnum.chaosOrb.value,
               red: 1,
-              green: 1,
-              blue: 2,
+              green: 2,
+              blue: 1,
+              openEEE: true,
+              termCount: 2,
               retryCount: 80000,
             });
             content += item.name + "|";
             // showSuccessToast("加入改造列表成功");
+          } else {
+            // showSuccessToast("已经在改造列表中");
+          }
+        });
+        showSuccessToast("加入改造列表成功" + content);
+      }
+      return true;
+    },
+  });
+};
+const addBody = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键衣服改造吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        await addStorage();
+        let temp = list.value.slice(0, maxModifyCount);
+        let content = "";
+        temp.forEach((item) => {
+          if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+            useConditionStore().equipmentModifys.push({
+              equipment: item,
+              makeType: CurrencyBeanEnum.chaosOrb.value,
+              conditions: useConditionStore().conditionGroups["衣服"],
+              termCount: 4,
+              red: 3,
+              green: 1,
+              blue: 2,
+              openEEE: true,
+              retryCount: 80000,
+            });
+            content += item.name + "|";
+          } else {
+            // showSuccessToast("已经在改造列表中");
+          }
+        });
+        showSuccessToast("加入改造列表成功" + content);
+      }
+      return true;
+    },
+  });
+};
+const addGlove = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键手套改造吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        await addStorage();
+        let temp = list.value.slice(0, maxModifyCount);
+        let content = "";
+        temp.forEach((item) => {
+          if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+            useConditionStore().equipmentModifys.push({
+              equipment: item,
+              makeType: CurrencyBeanEnum.orbOfAlteration.value,
+              termCount: 2,
+              openMakeup: true,
+              red: 1,
+              green: 1,
+              blue: 2,
+              conditions: useConditionStore().conditionGroups["手套2"],
+              retryCount: 80000,
+            });
+            content += item.name + "|";
+          } else {
+            // showSuccessToast("已经在改造列表中");
+          }
+        });
+        showSuccessToast("加入改造列表成功" + content);
+      }
+      return true;
+    },
+  });
+};
+const addRing = () => {
+  showConfirmDialog({
+    title: "确认操作",
+    message: "确定要一键戒指改造吗？",
+    beforeClose: async (action) => {
+      if (action === "confirm") {
+        await addStorage();
+        let temp = list.value.slice(0, maxModifyCount);
+        let content = "";
+        temp.forEach((item) => {
+          if (useConditionStore().equipmentModifys.filter((a) => a.equipment.id == item.id).length <= 0) {
+            useConditionStore().equipmentModifys.push({
+              equipment: item,
+              makeType: CurrencyBeanEnum.chaosOrb.value,
+              termCount: 4,
+              openEEE: true,
+              conditions: useConditionStore().conditionGroups["戒指"],
+              retryCount: 80000,
+            });
+            content += item.name + "|";
           } else {
             // showSuccessToast("已经在改造列表中");
           }
@@ -348,16 +460,18 @@ const addDrop = () => {
 };
 const addStorage = async () => {
   let temp = list.value.slice(0, maxModifyCount);
-  console.log(temp);
   const pagePromises = [];
   temp.forEach((item) => {
     if (!item.storage && !item.corrupted) {
-      console.log(item.id);
-      pagePromises.push(() => storageEquipment(item));
+      pagePromises.push(async () => await storageEquipment(item));
     }
   });
-  console.log(pagePromises);
+  // console.log(pagePromises);
   await batchProcessPromises(pagePromises);
+  temp.forEach((item) => {
+    item.storage = true;
+  });
+  await updateEquipmentItemsLocal({ character: accountStore.currentCharacter }, temp);
 };
 const showDetail = (item) => {
   const itemRef = ref(item);
@@ -428,12 +542,6 @@ const moveEquipment = (item) => {
 };
 const storageEquipment = async (item) => {
   await storage({ equipmentId: item.id }).then(async (res) => {
-    // orginList = orginList.filter((item) => item.id != item.id);
-    // console.log(orginList);
-    let item1 = orginList.find((itema) => itema.id == item.id);
-    item1.storage = true;
-    await updateEquipmentItemLocal({ character: accountStore.currentCharacter }, toRaw(item1));
-
     showSuccessToast("储存成功");
   });
 };
@@ -468,7 +576,11 @@ const onSearch = (value) => {
       return item.typeText == equipmentFilterType.value;
     });
   }
-
+  if (isPowerful) {
+    resultList = resultList.filter((item) => {
+      return item?.requirements?.strength > 0;
+    });
+  }
   if (statusType.value == "断裂") {
     resultList = resultList.filter((item) => {
       return item.isFractured;
@@ -595,12 +707,42 @@ onMounted(async () => {
 });
 onActivated(async () => {
   console.log("onActivated");
+  let search = localStorage.getItem("equipmentSearch");
+  if (search) {
+    search = JSON.parse(search);
+    filterWord.value = search.filterWord;
+    filterLevel.value = search.filterLevel;
+    filterName.value = search.filterName;
+    filterFractured.value = search.filterFractured;
+    filterItemLevel.value = search.filterItemLevel;
+    equipmentFilterType.value = search.equipmentFilterType;
+    statusType.value = search.statusType;
+    needCorruptedMagics.value = search.needCorruptedMagics;
+    filterFixedWord.value = search.filterFixedWord;
+  }
   await getEquipmentLocal({ thirdToken: accountStore.currentCharacter.token, character: accountStore.currentCharacter }).then((res) => {
     orginList = res;
     onSearch();
   });
 });
-onDeactivated(async () => {});
+onBeforeUnmount(async () => {
+  console.log("onBeforeUnmount");
+  //保留当前搜索条件，并保存到本地，用一个变量保存
+  localStorage.setItem(
+    "equipmentSearch",
+    JSON.stringify({
+      filterWord: filterWord.value,
+      filterLevel: filterLevel.value,
+      filterName: filterName.value,
+      filterFractured: filterFractured.value,
+      filterItemLevel: filterItemLevel.value,
+      equipmentFilterType: equipmentFilterType.value,
+      statusType: statusType.value,
+      needCorruptedMagics: needCorruptedMagics.value,
+      filterFixedWord: filterFixedWord.value,
+    })
+  );
+});
 </script>
 
 <style scoped lang="scss">

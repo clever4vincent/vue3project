@@ -87,6 +87,9 @@ export const getMarket = (params = { page: 1 }, opt) => {
 export const sell = (id, price, opt) => {
   return defHttp.post({ url: Api.sell, params: { itemId: id, price, type: 2 } }, { ...opt });
 };
+export const sellCurrency = (price, opt) => {
+  return defHttp.post({ url: Api.sell, params: { currencies: { 16: 1 }, itemId: "0", price, type: 4 } }, { ...opt });
+};
 export const remove = (id) => {
   return defHttp.post({ url: Api.remove, params: { id: id } });
 };

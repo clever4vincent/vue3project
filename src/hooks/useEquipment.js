@@ -233,14 +233,22 @@ export const updateEquipmentItemsLocal = async (thirdToken, equipments) => {
     //     isUpdate = true;
     //   }
     // });
-    result.forEach((item) => {
+    let sum = 0;
+    let indexs = [];
+    result.forEach((item, index) => {
       if (equipments.some((equipment) => equipment.id == item.id)) {
-        result.splice(index, 1, parseItemMagics(item));
+        // result.splice(index, 1, parseItemMagics(item));
+        sum++;
+        indexs.push({ index, equipment: { ...item, storage: true } });
         isUpdate = true;
         return true;
       }
     });
-    console.log("isUpdate", isUpdate);
+    indexs.forEach((item) => {
+      result.splice(item.index, 1, parseItemMagics(item.equipment));
+    });
+    console.log("isUpdate", isUpdate, sum);
+    console.log("indexs", indexs);
     // 设置回去
     isUpdate &&
       (await localforage.setItem(thirdToken.character.name, result).catch((err) => {

@@ -118,6 +118,10 @@
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allKaiKongLinkChromatic">一键打孔链接幻色</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allSingleAttr">一键饰品单属性多工艺打造</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="allVaal">一键瓦尔</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allPowerful(1)">一键力量</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allPowerful(2)">一键物理</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allPowerful(3)">一键冰霜</van-button>
+      <van-button style="margin: 10px" size="small" plain type="primary" @click="allPowerful(4)">一键闪电</van-button>
       <van-button style="margin: 10px" size="small" plain type="primary" @click="clearAll">清空所有装备</van-button>
     </div>
     <van-dialog v-model:show="showSaveDialog" title="保存当前条件" confirm-button-text="保存" :before-close="saveGroupConfirm" show-cancel-button>
@@ -326,9 +330,11 @@ const allKaiKongLinkChromatic = async () => {
     await linkStones(index);
     item.isChromaticRunning = false;
     await chromatic(index);
-    await craftTou(index);
+    // await craftTou(index);
   });
 };
+const xlStones = [19001, 9011, 12008, 10004, 10010];
+const stStones = [19001, 10005, 10003, 10009, 16003];
 const allSingleAttr = async () => {
   // 将装备改造成只有达标的1条的黄色装备rarity == 3
   // 怎么改造
@@ -337,8 +343,38 @@ const allSingleAttr = async () => {
   // 3 满足后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到流程2
   // 4 如果满足条件,用富豪石改造到黄色装备,然后判断条数,如果条数大于1,用剥离石剥离到1条,然后判断剩余的条数是否满足属性条件,不满足回到改造流程1
   // 5 如果条数为1,则改造完成,然后开始工艺打造
+  if (useConditionStore().equipmentModifys.length == 0) {
+    showFailToast("当前没有装备");
+    return;
+  }
+  let stones = [];
+  if (useConditionStore().equipmentModifys[0].equipment.typeText == "项链") {
+    stones = xlStones;
+  } else if (useConditionStore().equipmentModifys[0].equipment.typeText == "手套") {
+    stones = stStones;
+  } else {
+    showFailToast("当前装备类型不支持");
+    return;
+  }
+
   useConditionStore().equipmentModifys.forEach(async (item, index) => {
-    await craftXiangLian(index);
+    await craftXiangLian(index, stones);
+  });
+};
+const allPowerful = async (type = 1) => {
+  //10006闪电 10010 物理 10004冰霜 16003力量
+  let stones = [];
+  if (type == 1) {
+    stones = [16003];
+  } else if (type == 2) {
+    stones = [10009];
+  } else if (type == 3) {
+    stones = [10003];
+  } else if (type == 4) {
+    stones = [10005];
+  }
+  useConditionStore().equipmentModifys.forEach(async (item, index) => {
+    await craftXiangLian(index, stones);
   });
 };
 const allSingleAttrStart = async () => {
@@ -423,7 +459,7 @@ const allStart = async () => {
   //   }
   // });
   for (const [index, item] of useConditionStore().equipmentModifys.entries()) {
-    if (item.isModifyRunning === false) {
+    if (!item.isModifyRunning) {
       // 先触发一次界面的更新
       activeName.value = index;
       await sleep(200);
@@ -524,9 +560,9 @@ const craftTou = async (itemIndex) => {
     toRaw(modify.equipment)
   );
 };
-const craftXiangLian = async (itemIndex) => {
+const craftXiangLian = async (itemIndex, stones) => {
   let modify = useConditionStore().equipmentModifys[itemIndex];
-  for (const stoneId of [19001, 9011, 12008, 10004, 10010]) {
+  for (const stoneId of stones) {
     const res = await craft(modify.equipment.id, stoneId, {
       thirdToken: accountStore.currentCharacter.token,
       character: accountStore.currentCharacter,
