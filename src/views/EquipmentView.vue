@@ -576,11 +576,13 @@ const onSearch = (value) => {
       return item.typeText == equipmentFilterType.value;
     });
   }
-  if (isPowerful) {
+
+  if (isPowerful.value) {
     resultList = resultList.filter((item) => {
       return item?.requirements?.strength > 0;
     });
   }
+
   if (statusType.value == "断裂") {
     resultList = resultList.filter((item) => {
       return item.isFractured;
